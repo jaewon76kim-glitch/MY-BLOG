@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "today-i-learned",
+    "title": "오늘 배운 것",
+    "date": "2026-07-17",
+    "tags": ["HTML", "CSS", "JavaScript", "웹개발"],
+    "description": "클로드 코드로 블로그를 만들면서 HTML, CSS, JavaScript가 각각 어떤 역할을 하는지 몸으로 배웠다.",
+    "wordCount": 380
+  },
+  {
+    "slug": "hello-world",
+    "title": "안녕하세요, My Blog입니다",
+    "date": "2026-07-17",
+    "tags": ["소개", "블로그"],
+    "description": "순수 HTML, CSS, JavaScript로만 만든 정적 블로그를 소개합니다.",
+    "wordCount": 280
+  },
+  {
+    "slug": "markdown-guide",
+    "title": "마크다운 작성 가이드",
+    "date": "2026-07-10",
+    "tags": ["마크다운", "가이드", "작성법"],
+    "description": "이 블로그에서 마크다운을 어떻게 작성하는지, 어떻게 렌더링되는지 확인하는 레퍼런스 포스트입니다.",
+    "wordCount": 320
+  }
+]
