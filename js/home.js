@@ -87,24 +87,24 @@ function renderPosts() {
 
   container.innerHTML = '';
   posts.forEach(post => {
-    const wordCount = post.wordCount || 200;
     const a = document.createElement('a');
-    a.className = 'post-card';
+    a.className = 'archive-row';
     a.href = `post.html?slug=${encodeURIComponent(post.slug)}`;
 
     const tags = (post.tags || []).map(t =>
-      `<span class="tag-chip">#${t}</span>`
+      `<span class="tag-chip">#${escapeHtml(t)}</span>`
     ).join('');
 
     a.innerHTML = `
-      <div class="post-card-header">
-        <span class="post-card-title">${escapeHtml(post.title)}</span>
-        <span class="post-card-date">${formatDate(post.date)}</span>
-      </div>
-      ${post.description ? `<p class="post-card-desc">${escapeHtml(post.description)}</p>` : ''}
-      <div class="post-card-footer">
-        <div class="post-card-tags">${tags}</div>
-        <span class="post-card-reading-time">${readingTime(wordCount)}</span>
+      <time class="archive-date">${formatDate(post.date)}</time>
+      <div class="archive-sep"></div>
+      <div class="archive-body">
+        <span class="archive-title">${escapeHtml(post.title)}</span>
+        ${post.description ? `<p class="archive-desc">${escapeHtml(post.description)}</p>` : ''}
+        <div class="archive-meta">
+          ${tags}
+          <span class="archive-time">${readingTime(post.wordCount || 200)}</span>
+        </div>
       </div>
     `;
     container.appendChild(a);

@@ -29,7 +29,7 @@
   flex-shrink: 0;
   max-height: calc(100vh - 88px);
   overflow-y: auto;
-  margin-right: 2.5rem;
+  margin-left: 2.5rem;
   padding-top: 2.5rem;
   display: none;
 }

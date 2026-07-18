@@ -74,12 +74,11 @@
 }
 
 /* ──────────────────────────────────────────
-   포스트 목록
+   아카이브 목록
 ────────────────────────────────────────── */
-.post-list {
+.archive {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .loading-msg,
@@ -90,57 +89,74 @@
 }
 
 /* ──────────────────────────────────────────
-   포스트 카드
+   아카이브 행 — 날짜 | 구분선 | 내용
 ────────────────────────────────────────── */
-.post-card {
-  display: block;
+.archive-row {
+  display: grid;
+  grid-template-columns: 90px 1px 1fr;
+  gap: 0 1.75rem;
   padding: 1.4rem 0;
   border-bottom: 1px solid var(--border);
-  color: var(--text);
   text-decoration: none;
+  color: var(--text);
+  align-items: start;
   transition: background-color var(--transition);
 }
 
-.post-card:first-child {
+.archive-row:first-child {
   border-top: 1px solid var(--border);
 }
 
-.post-card:hover {
+.archive-row:hover {
   background: var(--bg-hover);
   margin: 0 -1.25rem;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
 }
 
-.post-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 0.35rem;
+/* 날짜 열 */
+.archive-date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  padding-top: 3px;
+  line-height: 1.6;
+  white-space: nowrap;
 }
 
-.post-card-title {
+/* 구분선 */
+.archive-sep {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+  transition: background-color var(--transition);
+}
+
+.archive-row:hover .archive-sep {
+  background: var(--accent);
+}
+
+/* 내용 열 */
+.archive-body {
+  min-width: 0;
+}
+
+.archive-title {
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--text);
-  letter-spacing: -0.01em;
-  flex: 1;
   line-height: 1.4;
+  letter-spacing: -0.01em;
+  display: block;
+  margin-bottom: 0.35rem;
+  transition: color var(--transition);
 }
 
-.post-card:hover .post-card-title {
+.archive-row:hover .archive-title {
   color: var(--accent);
 }
 
-.post-card-date {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.post-card-desc {
+.archive-desc {
   font-size: 0.9rem;
   color: var(--text-muted);
   line-height: 1.6;
@@ -151,29 +167,24 @@
   overflow: hidden;
 }
 
-.post-card-footer {
+.archive-meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.post-card-tags {
-  display: flex;
+  gap: 0.35rem;
   flex-wrap: wrap;
-  gap: 0.3rem;
 }
 
-.post-card-tags .tag-chip {
+.archive-meta .tag-chip {
   font-size: 0.7rem;
   padding: 0.15em 0.5em;
   cursor: default;
   pointer-events: none;
 }
 
-.post-card-reading-time {
+.archive-time {
   font-size: 0.775rem;
   color: var(--text-muted);
+  margin-left: auto;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -188,13 +199,16 @@
   .hero-title {
     font-size: 1.4rem;
   }
-  .post-card-header {
-    flex-direction: column;
-    gap: 0.2rem;
+  .archive-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
-  .post-card:hover {
+  .archive-sep { display: none; }
+  .archive-date { font-size: 0.72rem; }
+  .archive-row:hover {
     margin: 0 -1.25rem;
     padding-left: 1.25rem;
     padding-right: 1.25rem;
   }
+  .archive-time { margin-left: 0; }
 }
