@@ -1,5 +1,13 @@
 [
   {
+    "slug": "doppler-sim-devlog",
+    "title": "위성 통과 도플러·RTT 시뮬레이터를 만들며",
+    "date": "2026-07-18",
+    "tags": ["위성통신", "Canvas", "시뮬레이션", "웹개발"],
+    "description": "LEO/MEO/GEO 위성 통과 시 도플러 천이와 왕복 전파지연(RTT)을 실시간으로 시각화하는 웹앱을 만들면서 겪은 물리 계산과 구현 과정을 정리했다.",
+    "wordCount": 441
+  },
+  {
     "slug": "today-i-learned",
     "title": "오늘 배운 것",
     "date": "2026-07-17",
