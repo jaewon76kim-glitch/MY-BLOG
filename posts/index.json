@@ -1,5 +1,14 @@
 [
   {
+    "slug": "ntn-sib19",
+    "title": "SIB19는 왜 필요했을까 — 움직이는 셀을 시스템정보에 담는 법",
+    "date": "2026-07-19",
+    "tags": ["위성통신", "3GPP", "NTN", "SIB19", "표준"],
+    "category": "위성통신",
+    "description": "지상 NR의 SIB1/SIB18은 셀이 정지해 있다는 전제 위에 설계돼 있다. NTN이 이 전제를 깨면서 Rel-17에서 왜 SIB19라는 새 시스템정보가 필요했는지, NTN-Config의 각 필드가 어떤 물리적 근거로 존재하는지 정리했다.",
+    "wordCount": 328
+  },
+  {
     "slug": "ntn-doppler-precompensation",
     "title": "3GPP NTN은 왜 단말이 스스로 도플러를 보정하게 했을까",
     "date": "2026-07-18",
