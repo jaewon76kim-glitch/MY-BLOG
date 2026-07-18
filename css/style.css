@@ -1,72 +1,57 @@
 /* ──────────────────────────────────────────
-   CSS 변수 — 라이트 테마 (기본)
+   네온 블랙 — 기본 (항상 다크)
 ────────────────────────────────────────── */
 :root {
-  --bg:           #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-hover:     #f1f5f9;
-  --text:         #1a1a2e;
-  --text-muted:   #64748b;
-  --accent:       #2563eb;
-  --accent-hover: #1d4ed8;
-  --border:       #e2e8f0;
-  --code-bg:      #f1f5f9;
-  --shadow-sm:    0 1px 2px rgba(0,0,0,.06);
-  --shadow:       0 2px 8px rgba(0,0,0,.08);
+  --bg:           #080808;
+  --surface:      #111111;
+  --surface-hi:   #1a1a1a;
+  --text:         #e0e0e0;
+  --text-muted:   #484848;
+  --neon:         #00ffe0;
+  --neon-pink:    #ff2060;
+  --neon-dim:     rgba(0, 255, 224, 0.10);
+  --neon-glow:    0 0 6px rgba(0, 255, 224, 0.7), 0 0 20px rgba(0, 255, 224, 0.25);
+  --pink-glow:    0 0 6px rgba(255, 32, 96, 0.7), 0 0 20px rgba(255, 32, 96, 0.25);
+  --border:       #1c1c1c;
+  --border-neon:  rgba(0, 255, 224, 0.18);
+  --code-bg:      #0c0c0c;
 
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR',
                'Apple SD Gothic Neo', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
 
-  --max-width: 720px;
-  --radius:    6px;
-  --transition: 0.15s ease;
+  --max-width: 960px;
+  --radius:    3px;
+  --transition: 0.12s ease;
 }
 
-/* 다크 테마 — 수동 토글 */
-:root[data-theme="dark"] {
+/* DIM 모드 — 슬레이트 다크, 네온 완화 */
+:root[data-theme="light"] {
   --bg:           #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-hover:     #273548;
-  --text:         #e2e8f0;
-  --text-muted:   #94a3b8;
-  --accent:       #60a5fa;
-  --accent-hover: #93c5fd;
+  --surface:      #1e293b;
+  --surface-hi:   #273548;
+  --text:         #cbd5e1;
+  --text-muted:   #64748b;
+  --neon:         #2dd4bf;
+  --neon-pink:    #f472b6;
+  --neon-dim:     rgba(45, 212, 191, 0.10);
+  --neon-glow:    0 0 5px rgba(45, 212, 191, 0.5), 0 0 16px rgba(45, 212, 191, 0.15);
+  --pink-glow:    0 0 5px rgba(244, 114, 182, 0.5), 0 0 16px rgba(244, 114, 182, 0.15);
   --border:       #334155;
+  --border-neon:  rgba(45, 212, 191, 0.2);
   --code-bg:      #1e293b;
-  --shadow-sm:    0 1px 2px rgba(0,0,0,.3);
-  --shadow:       0 2px 8px rgba(0,0,0,.4);
-}
-
-/* 다크 테마 — 시스템 설정 (수동 라이트 고정이 아닌 경우) */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg:           #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-hover:     #273548;
-    --text:         #e2e8f0;
-    --text-muted:   #94a3b8;
-    --accent:       #60a5fa;
-    --accent-hover: #93c5fd;
-    --border:       #334155;
-    --code-bg:      #1e293b;
-    --shadow-sm:    0 1px 2px rgba(0,0,0,.3);
-    --shadow:       0 2px 8px rgba(0,0,0,.4);
-  }
 }
 
 /* ──────────────────────────────────────────
-   리셋 & 기본
+   리셋
 ────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background-color: var(--bg);
@@ -74,112 +59,106 @@ body {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.6;
-  transition: background-color var(--transition), color var(--transition);
+  transition: background-color 0.2s ease, color 0.2s ease;
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: var(--accent);
-  text-decoration: none;
-  transition: color var(--transition);
-}
-a:hover {
-  color: var(--accent-hover);
-}
+a { color: var(--neon); text-decoration: none; transition: color var(--transition); }
+a:hover { color: #fff; }
+img { max-width: 100%; height: auto; display: block; }
 
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+/* ──────────────────────────────────────────
+   커서 애니메이션
+────────────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  background: var(--neon);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+  box-shadow: var(--neon-glow);
+  border-radius: 1px;
 }
 
 /* ──────────────────────────────────────────
-   레이아웃 컨테이너
+   컨테이너
 ────────────────────────────────────────── */
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 1.25rem;
+  padding: 0 1.5rem;
 }
 
 /* ──────────────────────────────────────────
-   사이트 헤더
+   헤더 — 터미널 프롬프트 스타일
 ────────────────────────────────────────── */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 100;
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  transition: background-color var(--transition), border-color var(--transition);
+  border-bottom: 1px solid var(--border-neon);
+  transition: background-color 0.2s ease;
 }
 
 .site-header .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
+  height: 52px;
 }
 
 .site-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
-}
-.site-title:hover {
-  color: var(--accent);
-}
-
-.header-actions {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--neon);
+  text-shadow: var(--neon-glow);
+  letter-spacing: 0.05em;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3em;
 }
 
-/* ──────────────────────────────────────────
-   다크 모드 토글 버튼
-────────────────────────────────────────── */
+.site-title .prompt {
+  color: var(--text-muted);
+  text-shadow: none;
+  font-weight: 400;
+}
+
+.site-title:hover { color: #fff; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
+
+/* ── 테마 토글 ── */
 #theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  background: transparent;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: transparent;
-  color: var(--text-muted);
+  padding: 0.3em 0.75em;
   cursor: pointer;
-  transition: background-color var(--transition), border-color var(--transition),
-              color var(--transition);
-  font-size: 1rem;
+  transition: border-color var(--transition), color var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
 }
-#theme-toggle:hover {
-  background: var(--bg-hover);
-  color: var(--text);
-}
-/* 현재 테마에 맞는 아이콘만 보임 */
-#theme-toggle .icon-sun  { display: none; }
-#theme-toggle .icon-moon { display: block; }
-:root[data-theme="dark"] #theme-toggle .icon-sun  { display: block; }
-:root[data-theme="dark"] #theme-toggle .icon-moon { display: none; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) #theme-toggle .icon-sun  { display: block; }
-  :root:not([data-theme="light"]) #theme-toggle .icon-moon { display: none; }
-}
+#theme-toggle:hover { border-color: var(--neon); color: var(--neon); }
+#theme-toggle:focus-visible { outline: 1px solid var(--neon); outline-offset: 2px; }
 
-/* ──────────────────────────────────────────
-   사이트 푸터
-────────────────────────────────────────── */
-.site-footer {
-  margin-top: 5rem;
-  padding: 2rem 0;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.875rem;
+.toggle-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--neon);
+  box-shadow: var(--neon-glow);
+  flex-shrink: 0;
 }
 
 /* ──────────────────────────────────────────
@@ -187,45 +166,44 @@ img {
 ────────────────────────────────────────── */
 .tag-chip {
   display: inline-block;
-  padding: 0.2em 0.6em;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  padding: 0.15em 0.5em;
+  background: transparent;
+  border: 1px solid var(--border-neon);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--neon);
   cursor: pointer;
-  transition: background-color var(--transition), border-color var(--transition),
-              color var(--transition);
+  transition: background var(--transition), border-color var(--transition),
+              box-shadow var(--transition), color var(--transition);
   white-space: nowrap;
+  letter-spacing: 0.03em;
 }
-.tag-chip:hover,
-.tag-chip.active {
-  background: var(--accent);
-  border-color: var(--accent);
+.tag-chip:hover, .tag-chip.active {
+  background: var(--neon-dim);
+  border-color: var(--neon);
+  box-shadow: 0 0 8px rgba(0, 255, 224, 0.3);
   color: #fff;
 }
 
 /* ──────────────────────────────────────────
-   highlight.js 테마 전환
+   푸터
 ────────────────────────────────────────── */
-.hljs-theme-dark  { display: none; }
-.hljs-theme-light { display: block; }
-
-:root[data-theme="dark"] .hljs-theme-dark  { display: block; }
-:root[data-theme="dark"] .hljs-theme-light { display: none; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .hljs-theme-dark  { display: block; }
-  :root:not([data-theme="light"]) .hljs-theme-light { display: none; }
+.site-footer {
+  margin-top: 6rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
 }
 
 /* ──────────────────────────────────────────
-   반응형 공통
+   반응형
 ────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .site-header .container {
-    height: 50px;
-  }
-  .site-title {
-    font-size: 1rem;
-  }
+  .site-header .container { height: 46px; }
+  .site-title { font-size: 0.85rem; }
 }

@@ -6,78 +6,60 @@
   <title>포스트 — My Blog</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/post.css">
-  <!-- highlight.js 테마 (라이트/다크 전환) -->
   <link rel="stylesheet" href="css/highlight-light.css" class="hljs-theme-light">
   <link rel="stylesheet" href="css/highlight-dark.css"  class="hljs-theme-dark">
-  <!-- 다크 모드 깜빡임 방지 -->
   <script src="js/theme.js"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="container">
-      <a href="index.html" class="site-title">My Blog</a>
-      <div class="header-actions">
-        <button id="theme-toggle" aria-label="다크 모드 전환" title="테마 전환">
-          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </button>
-      </div>
+      <a href="index.html" class="site-title">
+        <span class="prompt">&gt;_</span> MY-BLOG<span class="cursor"></span>
+      </a>
+      <button id="theme-toggle" aria-label="밝기 전환">
+        <span class="toggle-dot"></span>
+        <span id="toggle-label">DIM</span>
+      </button>
     </div>
   </header>
 
+  <!-- 본문(left) + TOC(right) -->
   <div class="post-layout">
-    <!-- 좌측 TOC (데스크탑) -->
+    <main class="post-main">
+      <!-- 모바일 TOC -->
+      <details class="toc-mobile" id="toc-mobile">
+        <summary>// 목차</summary>
+        <nav id="toc-nav-mobile"></nav>
+      </details>
+
+      <article id="post-article" aria-live="polite">
+        <p class="loading-msg">// 포스트를 불러오는 중...</p>
+      </article>
+
+      <nav class="post-nav" aria-label="목록으로">
+        <a href="index.html" class="back-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          cd ../
+        </a>
+      </nav>
+    </main>
+
+    <!-- 데스크탑 TOC (오른쪽) -->
     <aside class="toc-aside" id="toc-aside" aria-label="목차">
       <div class="toc-inner">
-        <p class="toc-heading">목차</p>
+        <p class="toc-heading">// 목차</p>
         <nav id="toc-nav"></nav>
       </div>
     </aside>
-
-    <!-- 본문 -->
-    <main class="post-main">
-      <div class="container">
-        <!-- 모바일 TOC -->
-        <details class="toc-mobile" id="toc-mobile">
-          <summary>목차 보기</summary>
-          <nav id="toc-nav-mobile"></nav>
-        </details>
-
-        <article id="post-article" aria-live="polite">
-          <p class="loading-msg">포스트를 불러오는 중...</p>
-        </article>
-
-        <nav class="post-nav" aria-label="글 목록으로">
-          <a href="index.html" class="back-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12"/>
-              <polyline points="12 19 5 12 12 5"/>
-            </svg>
-            글 목록으로
-          </a>
-        </nav>
-      </div>
-    </main>
   </div>
 
   <footer class="site-footer">
     <div class="container">
-      <p>&copy; 2026 My Blog. Pure HTML, CSS &amp; JS.</p>
+      <p>// &copy; 2026 MY-BLOG — Pure HTML &middot; CSS &middot; JS</p>
     </div>
   </footer>
 

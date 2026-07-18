@@ -8,18 +8,19 @@ async function loadPosts() {
   const res = await fetch('posts/index.json');
   if (!res.ok) throw new Error('포스트 목록을 불러올 수 없습니다.');
   const posts = await res.json();
-  // 날짜 역순 정렬
   return posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
 function readingTime(wordCount) {
-  const min = Math.max(1, Math.round(wordCount / 200));
-  return `읽기 ${min}분`;
+  return `읽기 ${Math.max(1, Math.round(wordCount / 200))}분`;
 }
 
 function formatDate(dateStr) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}.${m}.${day}`;
 }
 
 function collectTags(posts) {
@@ -35,12 +36,8 @@ function renderTagFilter(tags) {
 
   const allBtn = document.createElement('button');
   allBtn.className = 'tag-chip' + (activeTags.size === 0 ? ' active' : '');
-  allBtn.textContent = '전체';
-  allBtn.addEventListener('click', () => {
-    activeTags.clear();
-    renderTagFilter(tags);
-    renderPosts();
-  });
+  allBtn.textContent = '#all';
+  allBtn.addEventListener('click', () => { activeTags.clear(); renderTagFilter(tags); renderPosts(); });
   container.appendChild(allBtn);
 
   tags.forEach(tag => {
@@ -48,11 +45,7 @@ function renderTagFilter(tags) {
     btn.className = 'tag-chip' + (activeTags.has(tag) ? ' active' : '');
     btn.textContent = '#' + tag;
     btn.addEventListener('click', () => {
-      if (activeTags.has(tag)) {
-        activeTags.delete(tag);
-      } else {
-        activeTags.add(tag);
-      }
+      activeTags.has(tag) ? activeTags.delete(tag) : activeTags.add(tag);
       renderTagFilter(tags);
       renderPosts();
     });
@@ -65,15 +58,20 @@ function filterPosts() {
   return allPosts.filter(post => {
     if (activeTags.size > 0) {
       const postTags = post.tags || [];
-      const hasAll = [...activeTags].every(t => postTags.includes(t));
-      if (!hasAll) return false;
+      if (![...activeTags].every(t => postTags.includes(t))) return false;
     }
     if (q) {
-      const haystack = [post.title, post.description, ...(post.tags || [])].join(' ').toLowerCase();
-      if (!haystack.includes(q)) return false;
+      const hay = [post.title, post.description, ...(post.tags || [])].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function renderPosts() {
@@ -81,62 +79,51 @@ function renderPosts() {
   const posts = filterPosts();
 
   if (!posts.length) {
-    container.innerHTML = '<p class="empty-msg">검색 결과가 없습니다.</p>';
+    container.innerHTML = '<p class="empty-msg">// 검색 결과 없음</p>';
     return;
   }
 
   container.innerHTML = '';
   posts.forEach(post => {
-    const wordCount = post.wordCount || 200;
     const a = document.createElement('a');
-    a.className = 'post-card';
+    a.className = 'archive-row';
     a.href = `post.html?slug=${encodeURIComponent(post.slug)}`;
 
     const tags = (post.tags || []).map(t =>
-      `<span class="tag-chip">#${t}</span>`
+      `<span class="tag-chip">#${escapeHtml(t)}</span>`
     ).join('');
 
     a.innerHTML = `
-      <div class="post-card-header">
-        <span class="post-card-title">${escapeHtml(post.title)}</span>
-        <span class="post-card-date">${formatDate(post.date)}</span>
-      </div>
-      ${post.description ? `<p class="post-card-desc">${escapeHtml(post.description)}</p>` : ''}
-      <div class="post-card-footer">
-        <div class="post-card-tags">${tags}</div>
-        <span class="post-card-reading-time">${readingTime(wordCount)}</span>
+      <time class="archive-date">${formatDate(post.date)}</time>
+      <div class="archive-sep"></div>
+      <div class="archive-body">
+        <span class="archive-title">${escapeHtml(post.title)}</span>
+        ${post.description ? `<p class="archive-desc">${escapeHtml(post.description)}</p>` : ''}
+        <div class="archive-meta">
+          ${tags}
+          <span class="archive-time">${readingTime(post.wordCount || 200)}</span>
+        </div>
       </div>
     `;
     container.appendChild(a);
   });
 }
 
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
 async function init() {
   try {
     allPosts = await loadPosts();
-    const tags = collectTags(allPosts);
-    renderTagFilter(tags);
+    renderTagFilter(collectTags(allPosts));
     renderPosts();
   } catch (e) {
     document.getElementById('post-list').innerHTML =
-      `<p class="empty-msg">오류: ${escapeHtml(e.message)}</p>`;
+      `<p class="empty-msg">// 오류: ${escapeHtml(e.message)}</p>`;
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.getElementById('search');
-  searchInput.addEventListener('input', e => {
+  document.getElementById('search').addEventListener('input', e => {
     searchQuery = e.target.value;
     renderPosts();
   });
-
   init();
 });
