@@ -1,0 +1,431 @@
+/* style.css - 위성 통과 도플러·RTT 시뮬레이터 */
+
+:root {
+  --bg: #0f0f1a;
+  --panel: #1a1a2e;
+  --accent: #4fc3f7;
+  --doppler-color: #ff6b6b;
+  --rtt-color: #51cf66;
+  --text: #e0e0e0;
+  --text-muted: #a0a0c0;
+  --border: #2a2a4a;
+  --btn-bg: #1e1e3a;
+  --btn-hover: #2a2a50;
+  --slider-track: #2a2a4a;
+  --slider-thumb: #4fc3f7;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ========== 헤더 ========== */
+.app-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  text-align: center;
+}
+
+.app-header h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+.app-header p {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 3px;
+}
+
+/* ========== 메인 레이아웃 ========== */
+.main-layout {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 60px);
+  min-height: 600px;
+}
+
+/* ========== 입력 패널 ========== */
+.input-panel {
+  width: 220px;
+  min-width: 200px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.param-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.param-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.param-value {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  background: var(--slider-track);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+/* 프리셋 버튼 */
+.preset-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  font-size: 0.72rem;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.preset-btn:hover {
+  background: var(--btn-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.preset-btn.active {
+  background: rgba(79, 195, 247, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* 구분선 */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2px 0;
+}
+
+/* ========== 재생 컨트롤 ========== */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.play-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 1.2rem;
+  background: rgba(79, 195, 247, 0.12);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.play-btn:hover {
+  background: rgba(79, 195, 247, 0.25);
+}
+
+.speed-row {
+  display: flex;
+  gap: 4px;
+}
+
+.speed-btn {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.speed-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.speed-btn.active {
+  background: rgba(79, 195, 247, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* 리셋 버튼 */
+.reset-btn {
+  width: 100%;
+  padding: 7px;
+  font-size: 0.8rem;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reset-btn:hover {
+  color: #ff8888;
+  border-color: #ff8888;
+}
+
+/* ========== 출력 패널 ========== */
+.output-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* 캔버스 영역 */
+.canvas-section {
+  flex: 0 0 auto;
+  height: 220px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  background: #020210;
+}
+
+#sim-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 그래프 영역 */
+.charts-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chart-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 14px 4px;
+  min-height: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.chart-wrap:last-child {
+  border-bottom: none;
+}
+
+.chart-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.chart-title span {
+  color: var(--doppler-color);
+}
+
+.chart-title.rtt-title span {
+  color: var(--rtt-color);
+}
+
+.chart-container {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+/* ========== 수치 요약 카드 ========== */
+.summary-card {
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 80px;
+}
+
+.summary-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+}
+
+.summary-value.doppler {
+  color: var(--doppler-color);
+}
+
+.summary-value.rtt {
+  color: var(--rtt-color);
+}
+
+/* 통과 진행 바 */
+.progress-bar-wrap {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.1s linear;
+  width: 0%;
+}
+
+/* ========== 모바일 반응형 ========== */
+@media (max-width: 640px) {
+  .main-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: unset;
+  }
+
+  .input-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .param-group {
+    min-width: 140px;
+    flex: 1;
+  }
+
+  .controls {
+    width: 100%;
+  }
+
+  .canvas-section {
+    height: 180px;
+  }
+
+  .charts-section {
+    min-height: 360px;
+  }
+
+  .chart-wrap {
+    flex: 0 0 160px;
+  }
+
+  .summary-card {
+    gap: 12px;
+    padding: 8px 12px;
+  }
+
+  .summary-item {
+    min-width: 70px;
+  }
+
+  .summary-value {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-header h1 {
+    font-size: 1rem;
+  }
+
+  .input-panel {
+    gap: 8px;
+  }
+
+  .param-group {
+    min-width: 120px;
+  }
+}

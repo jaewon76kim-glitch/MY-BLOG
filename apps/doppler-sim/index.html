@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>위성 통과 도플러·RTT 시뮬레이터</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>위성 통과 도플러·RTT 시뮬레이터</h1>
+  <p>위성이 지상국 상공을 통과할 때 발생하는 도플러 천이와 왕복 지연(RTT)을 실시간으로 시뮬레이션합니다</p>
+</header>
+
+<div class="main-layout">
+  <!-- 입력 패널 -->
+  <aside class="input-panel">
+
+    <!-- 고도 -->
+    <div class="param-group">
+      <span class="param-label">궤도 고도</span>
+      <span class="param-value" id="val-altitude">550 km</span>
+      <input type="range" id="slider-altitude" min="400" max="35786" step="100" value="550">
+      <div class="preset-row">
+        <button class="preset-btn active" data-alt="550">LEO<br>550</button>
+        <button class="preset-btn" data-alt="20200">MEO<br>20200</button>
+        <button class="preset-btn" data-alt="35786">GEO<br>35786</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 주파수 -->
+    <div class="param-group">
+      <span class="param-label">반송 주파수</span>
+      <span class="param-value" id="val-freq">12.0 GHz</span>
+      <input type="range" id="slider-freq" min="1" max="30" step="0.5" value="12">
+      <div class="preset-row">
+        <button class="preset-btn" data-freq="1.5">L<br>1.5</button>
+        <button class="preset-btn" data-freq="2.5">S<br>2.5</button>
+        <button class="preset-btn active" data-freq="12">Ku<br>12</button>
+        <button class="preset-btn" data-freq="20">Ka<br>20</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 최대 앙각 -->
+    <div class="param-group">
+      <span class="param-label">최대 앙각</span>
+      <span class="param-value" id="val-elmax">90°</span>
+      <input type="range" id="slider-elmax" min="10" max="90" step="5" value="90">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 재생 컨트롤 -->
+    <div class="controls">
+      <button class="play-btn" id="btn-play">▶ 재생</button>
+      <div class="speed-row">
+        <button class="speed-btn active" data-speed="1">×1</button>
+        <button class="speed-btn" data-speed="5">×5</button>
+        <button class="speed-btn" data-speed="10">×10</button>
+        <button class="speed-btn" data-speed="30">×30</button>
+      </div>
+      <button class="reset-btn" id="btn-reset">↺ 리셋</button>
+    </div>
+
+    <!-- 통과 시간 정보 -->
+    <div class="param-group">
+      <span class="param-label">통과 시간</span>
+      <span class="param-value" id="val-passtime">—</span>
+    </div>
+
+  </aside>
+
+  <!-- 출력 패널 -->
+  <div class="output-panel">
+
+    <!-- 캔버스 애니메이션 -->
+    <div class="canvas-section">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <canvas id="sim-canvas"></canvas>
+    </div>
+
+    <!-- 수치 요약 카드 -->
+    <div class="summary-card">
+      <div class="summary-item">
+        <span class="summary-label">앙각</span>
+        <span class="summary-value" id="sum-el">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">경사거리</span>
+        <span class="summary-value" id="sum-range">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">도플러</span>
+        <span class="summary-value doppler" id="sum-doppler">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">RTT</span>
+        <span class="summary-value rtt" id="sum-rtt">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">경과 시간</span>
+        <span class="summary-value" id="sum-elapsed">0.0 s</span>
+      </div>
+    </div>
+
+    <!-- 그래프 영역 -->
+    <div class="charts-section">
+      <div class="chart-wrap">
+        <div class="chart-title">
+          <span>도플러 천이 (kHz)</span> — 양수: 청색편이(접근), 음수: 적색편이(이탈)
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-doppler"></canvas>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title rtt-title">
+          <span>왕복 지연 RTT (ms)</span> — 최솟값 = 천정 통과 시점
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-rtt"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 스크립트 로드 순서: Chart.js → sim → renderer → chart → main -->
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/chart.js"></script>
+<script>
+// main 애플리케이션 로직 (전역, type="module" 불사용)
+
+(function () {
+  // DOM 참조
+  var sliderAlt  = document.getElementById('slider-altitude');
+  var sliderFreq = document.getElementById('slider-freq');
+  var sliderElmax = document.getElementById('slider-elmax');
+  var valAlt    = document.getElementById('val-altitude');
+  var valFreq   = document.getElementById('val-freq');
+  var valElmax  = document.getElementById('val-elmax');
+  var valPasstime = document.getElementById('val-passtime');
+
+  var btnPlay   = document.getElementById('btn-play');
+  var btnReset  = document.getElementById('btn-reset');
+  var progressBar = document.getElementById('progress-bar');
+
+  var sumEl      = document.getElementById('sum-el');
+  var sumRange   = document.getElementById('sum-range');
+  var sumDoppler = document.getElementById('sum-doppler');
+  var sumRTT     = document.getElementById('sum-rtt');
+  var sumElapsed = document.getElementById('sum-elapsed');
+
+  var canvasSim     = document.getElementById('sim-canvas');
+  var canvasDoppler = document.getElementById('chart-doppler');
+  var canvasRTT     = document.getElementById('chart-rtt');
+
+  // 상태
+  var params = {
+    h_km: 550,
+    f_ghz: 12,
+    El_max_deg: 90,
+    speedMul: 1
+  };
+
+  var rafId = null;
+  var lastTime = null;
+
+  // ---- 초기화 ----
+  function init() {
+    DopplerRenderer.init(canvasSim);
+    resetSim();
+
+    // 슬라이더 이벤트
+    sliderAlt.addEventListener('input', function () {
+      params.h_km = parseInt(this.value);
+      valAlt.textContent = params.h_km + ' km';
+      updateAltPresets();
+      onParamChange();
+    });
+
+    sliderFreq.addEventListener('input', function () {
+      params.f_ghz = parseFloat(this.value);
+      valFreq.textContent = params.f_ghz.toFixed(1) + ' GHz';
+      updateFreqPresets();
+      onParamChange();
+    });
+
+    sliderElmax.addEventListener('input', function () {
+      params.El_max_deg = parseInt(this.value);
+      valElmax.textContent = params.El_max_deg + '°';
+      onParamChange();
+    });
+
+    // 프리셋 버튼 (고도)
+    document.querySelectorAll('[data-alt]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var v = parseInt(this.getAttribute('data-alt'));
+        params.h_km = v;
+        sliderAlt.value = v;
+        valAlt.textContent = v + ' km';
+        updateAltPresets();
+        onParamChange();
+      });
+    });
+
+    // 프리셋 버튼 (주파수)
+    document.querySelectorAll('[data-freq]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var v = parseFloat(this.getAttribute('data-freq'));
+        params.f_ghz = v;
+        sliderFreq.value = v;
+        valFreq.textContent = v.toFixed(1) + ' GHz';
+        updateFreqPresets();
+        onParamChange();
+      });
+    });
+
+    // 속도 버튼
+    document.querySelectorAll('[data-speed]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        params.speedMul = parseInt(this.getAttribute('data-speed'));
+        DopplerSim.getState().speedMul = params.speedMul;
+        document.querySelectorAll('[data-speed]').forEach(function (b) {
+          b.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
+    });
+
+    // 재생/일시정지
+    btnPlay.addEventListener('click', function () {
+      if (DopplerSim.isDone()) {
+        resetSim();
+        startPlay();
+        return;
+      }
+      if (DopplerSim.isPlaying()) {
+        pauseSim();
+      } else {
+        startPlay();
+      }
+    });
+
+    // 리셋
+    btnReset.addEventListener('click', function () {
+      pauseSim();
+      resetSim();
+    });
+
+    // 창 크기 변경
+    window.addEventListener('resize', function () {
+      DopplerRenderer.resize();
+      DopplerRenderer.drawIdle(params.El_max_deg);
+    });
+  }
+
+  function onParamChange() {
+    pauseSim();
+    resetSim();
+    startPlay();
+  }
+
+  function resetSim() {
+    cancelAnimationFrame(rafId);
+    lastTime = null;
+    DopplerSim.setPlaying(false);
+
+    DopplerSim.reset(params);
+
+    // 통과 시간 표시
+    var T = DopplerSim.passTime(params.h_km, params.El_max_deg);
+    valPasstime.textContent = formatTime(T);
+
+    // 그래프 초기화
+    var maxKhz = DopplerSim.maxDoppler_kHz();
+    // LEO 최소 범위 보장
+    if (maxKhz < 5) maxKhz = 5;
+
+    // 초기 RTT (지평선에서)
+    var El0_rad = 0; // 지평선
+    var R0 = DopplerSim.slantRange(params.h_km, El0_rad);
+    var C = 3e8;
+    var initRTT = 2 * R0 * 1000 / C * 1000;
+
+    DopplerCharts.resetCharts(maxKhz, initRTT, canvasDoppler, canvasRTT);
+
+    // 캔버스 초기 그리기
+    DopplerRenderer.resetTrail();
+    DopplerRenderer.drawIdle(params.El_max_deg);
+
+    // 진행 바
+    progressBar.style.width = '0%';
+    btnPlay.textContent = '▶ 재생';
+
+    // 요약 초기화
+    updateSummary(null);
+  }
+
+  function startPlay() {
+    if (DopplerSim.isDone()) {
+      resetSim();
+    }
+    DopplerSim.setPlaying(true);
+    btnPlay.textContent = '⏸ 일시정지';
+    lastTime = null;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function pauseSim() {
+    DopplerSim.setPlaying(false);
+    cancelAnimationFrame(rafId);
+    rafId = null;
+    btnPlay.textContent = '▶ 재생';
+  }
+
+  // 애니메이션 루프
+  function loop(timestamp) {
+    if (!DopplerSim.isPlaying()) return;
+
+    if (lastTime === null) lastTime = timestamp;
+    var dtMs = timestamp - lastTime;
+    lastTime = timestamp;
+    var dtSec = Math.min(dtMs / 1000, 0.05); // 최대 50ms 클램프
+
+    var result = DopplerSim.step(dtSec);
+
+    // 캔버스 그리기
+    DopplerRenderer.draw(result, params.El_max_deg);
+
+    // 그래프 업데이트
+    if (result.visible) {
+      DopplerCharts.pushDoppler(result.elapsedSec, result.f_d_khz);
+      DopplerCharts.pushRTT(result.elapsedSec, result.RTT_ms);
+    }
+
+    // 요약 카드 업데이트
+    updateSummary(result);
+
+    // 진행 바
+    progressBar.style.width = (result.t * 100).toFixed(1) + '%';
+
+    if (result.done) {
+      pauseSim();
+      btnPlay.textContent = '↺ 완료 (클릭하여 재시작)';
+      return;
+    }
+
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function updateSummary(result) {
+    if (!result) {
+      sumEl.textContent = '—';
+      sumRange.textContent = '—';
+      sumDoppler.textContent = '—';
+      sumRTT.textContent = '—';
+      sumElapsed.textContent = '0.0 s';
+      return;
+    }
+    sumEl.textContent = result.El_deg.toFixed(1) + '°';
+    sumRange.textContent = result.R_km.toFixed(0) + ' km';
+
+    var fd = result.f_d_khz;
+    sumDoppler.textContent = (fd >= 0 ? '+' : '') + fd.toFixed(2) + ' kHz';
+    sumRTT.textContent = result.RTT_ms.toFixed(2) + ' ms';
+    sumElapsed.textContent = result.elapsedSec.toFixed(1) + ' s';
+  }
+
+  function formatTime(sec) {
+    if (sec < 60) return sec.toFixed(0) + ' s';
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + 'm ' + s + 's';
+  }
+
+  function updateAltPresets() {
+    document.querySelectorAll('[data-alt]').forEach(function (btn) {
+      btn.classList.remove('active');
+      if (parseInt(btn.getAttribute('data-alt')) === params.h_km) {
+        btn.classList.add('active');
+      }
+    });
+  }
+
+  function updateFreqPresets() {
+    document.querySelectorAll('[data-freq]').forEach(function (btn) {
+      btn.classList.remove('active');
+      if (parseFloat(btn.getAttribute('data-freq')) === params.f_ghz) {
+        btn.classList.add('active');
+      }
+    });
+  }
+
+  // 시작
+  init();
+
+})();
+</script>
+
+</body>
+</html>
