@@ -1,5 +1,13 @@
 [
   {
+    "slug": "ntn-doppler-precompensation",
+    "title": "3GPP NTN은 왜 단말이 스스로 도플러를 보정하게 했을까",
+    "date": "2026-07-18",
+    "tags": ["위성통신", "3GPP", "NTN", "표준"],
+    "description": "Rel-17 NTN 표준에서 단말이 GNSS와 위성 궤도력만으로 스스로 타이밍·도플러를 미리 보정하는 개루프(open-loop) 방식이 왜 가능한지, 지상 이동통신의 폐루프 방식과 무엇이 다른지 정리했다.",
+    "wordCount": 563
+  },
+  {
     "slug": "doppler-sim-devlog",
     "title": "위성 통과 도플러·RTT 시뮬레이터를 만들며",
     "date": "2026-07-18",
