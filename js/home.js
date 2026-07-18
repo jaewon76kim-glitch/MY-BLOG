@@ -53,6 +53,7 @@ function renderCategoryFilter(categories) {
 
   const allBtn = document.createElement('button');
   allBtn.className = 'category-tab' + (activeCategory === null ? ' active' : '');
+  allBtn.setAttribute('aria-pressed', String(activeCategory === null));
   allBtn.textContent = '전체';
   allBtn.addEventListener('click', () => {
     activeCategory = null;
@@ -65,6 +66,7 @@ function renderCategoryFilter(categories) {
   categories.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'category-tab' + (activeCategory === cat ? ' active' : '');
+    btn.setAttribute('aria-pressed', String(activeCategory === cat));
     btn.textContent = cat;
     btn.addEventListener('click', () => {
       activeCategory = (activeCategory === cat) ? null : cat;
@@ -95,6 +97,7 @@ function renderTagFilter(tags) {
 
   const allBtn = document.createElement('button');
   allBtn.className = 'tag-chip' + (activeTags.size === 0 ? ' active' : '');
+  allBtn.setAttribute('aria-pressed', String(activeTags.size === 0));
   allBtn.textContent = '전체';
   allBtn.addEventListener('click', () => {
     activeTags.clear();
@@ -106,6 +109,7 @@ function renderTagFilter(tags) {
   tags.forEach(tag => {
     const btn = document.createElement('button');
     btn.className = 'tag-chip' + (activeTags.has(tag) ? ' active' : '');
+    btn.setAttribute('aria-pressed', String(activeTags.has(tag)));
     btn.textContent = '#' + tag;
     btn.addEventListener('click', () => {
       if (activeTags.has(tag)) {
@@ -199,9 +203,11 @@ async function init() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('search');
+  let searchDebounceId = null;
   searchInput.addEventListener('input', e => {
     searchQuery = e.target.value;
-    renderPosts();
+    clearTimeout(searchDebounceId);
+    searchDebounceId = setTimeout(renderPosts, 200);
   });
 
   init();

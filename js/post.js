@@ -105,8 +105,8 @@ async function renderPost(slug) {
   // 페이지 타이틀 업데이트
   if (meta.title) document.title = `${meta.title} — My Blog`;
 
-  // HTML 변환
-  const bodyHtml = marked.parse(content);
+  // HTML 변환 (마크다운 본문에 섞여 들어올 수 있는 raw HTML/script를 새니타이즈)
+  const bodyHtml = DOMPurify.sanitize(marked.parse(content));
 
   // 태그 마크업
   const tagsHtml = (meta.tags || []).map(t =>

@@ -6,7 +6,7 @@
     "tags": ["위성통신", "3GPP", "NTN", "SIB19", "표준"],
     "category": "위성통신",
     "description": "지상 NR의 SIB1/SIB18은 셀이 정지해 있다는 전제 위에 설계돼 있다. NTN이 이 전제를 깨면서 Rel-17에서 왜 SIB19라는 새 시스템정보가 필요했는지, NTN-Config의 각 필드가 어떤 물리적 근거로 존재하는지 정리했다.",
-    "wordCount": 328
+    "wordCount": 505
   },
   {
     "slug": "ntn-doppler-precompensation",
@@ -51,6 +51,6 @@
     "tags": ["마크다운", "가이드", "작성법"],
     "category": "기타",
     "description": "이 블로그에서 마크다운을 어떻게 작성하는지, 어떻게 렌더링되는지 확인하는 레퍼런스 포스트입니다.",
-    "wordCount": 320
+    "wordCount": 236
   }
 ]

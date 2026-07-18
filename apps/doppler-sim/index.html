@@ -230,7 +230,7 @@
     document.querySelectorAll('[data-speed]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         params.speedMul = parseInt(this.getAttribute('data-speed'));
-        DopplerSim.getState().speedMul = params.speedMul;
+        DopplerSim.setSpeedMul(params.speedMul);
         document.querySelectorAll('[data-speed]').forEach(function (b) {
           b.classList.remove('active');
         });

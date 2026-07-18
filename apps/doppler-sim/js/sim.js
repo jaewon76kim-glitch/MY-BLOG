@@ -134,6 +134,10 @@ var DopplerSim = (function () {
     return state;
   }
 
+  function setSpeedMul(val) {
+    state.speedMul = val;
+  }
+
   // 최대 도플러 추정 (kHz) — 차트 Y축 범위용
   // sin(π*t) 모델에서 피크 |dR/dt| = π * Re * v / (2*(Re+h))
   // (El_max에 무관하게 동일 — passtime 공식과 상쇄됨)
@@ -152,6 +156,7 @@ var DopplerSim = (function () {
     isPlaying: isPlaying,
     isDone: isDone,
     getState: getState,
+    setSpeedMul: setSpeedMul,
     maxDoppler_kHz: maxDoppler_kHz,
     orbitalVelocity: orbitalVelocity,
     passTime: passTime,
