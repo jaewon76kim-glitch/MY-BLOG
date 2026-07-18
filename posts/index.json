@@ -4,6 +4,7 @@
     "title": "3GPP NTN은 왜 단말이 스스로 도플러를 보정하게 했을까",
     "date": "2026-07-18",
     "tags": ["위성통신", "3GPP", "NTN", "표준"],
+    "category": "위성통신",
     "description": "Rel-17 NTN 표준에서 단말이 GNSS와 위성 궤도력만으로 스스로 타이밍·도플러를 미리 보정하는 개루프(open-loop) 방식이 왜 가능한지, 지상 이동통신의 폐루프 방식과 무엇이 다른지 정리했다.",
     "wordCount": 563
   },
@@ -12,6 +13,7 @@
     "title": "위성 통과 도플러·RTT 시뮬레이터를 만들며",
     "date": "2026-07-18",
     "tags": ["위성통신", "Canvas", "시뮬레이션", "웹개발"],
+    "category": "위성통신",
     "description": "LEO/MEO/GEO 위성 통과 시 도플러 천이와 왕복 전파지연(RTT)을 실시간으로 시각화하는 웹앱을 만들면서 겪은 물리 계산과 구현 과정을 정리했다.",
     "wordCount": 441
   },
@@ -20,6 +22,7 @@
     "title": "오늘 배운 것",
     "date": "2026-07-17",
     "tags": ["HTML", "CSS", "JavaScript", "웹개발"],
+    "category": "기타",
     "description": "클로드 코드로 블로그를 만들면서 HTML, CSS, JavaScript가 각각 어떤 역할을 하는지 몸으로 배웠다.",
     "wordCount": 380
   },
@@ -28,6 +31,7 @@
     "title": "안녕하세요, My Blog입니다",
     "date": "2026-07-17",
     "tags": ["소개", "블로그"],
+    "category": "기타",
     "description": "순수 HTML, CSS, JavaScript로만 만든 정적 블로그를 소개합니다.",
     "wordCount": 280
   },
@@ -36,6 +40,7 @@
     "title": "마크다운 작성 가이드",
     "date": "2026-07-10",
     "tags": ["마크다운", "가이드", "작성법"],
+    "category": "기타",
     "description": "이 블로그에서 마크다운을 어떻게 작성하는지, 어떻게 렌더링되는지 확인하는 레퍼런스 포스트입니다.",
     "wordCount": 320
   }

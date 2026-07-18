@@ -16,7 +16,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 3. Review — 별도 서브에이전트를 만들어 검증한다. 브라우저에서 정상 동작하는지, 코드에 문제가 없는지 확인하고 review.md를 작성한다. 문제가 있으면 수정한다.
 
-4. Embed — 블로그 메인 페이지(index.html)에 웹앱 카드를 추가한다. 카드에는 제목, 설명, 미리보기 이미지 또는 iframe을 넣는다. 깃 커밋한다.
+4. Embed — 블로그 메인 페이지(index.html)에 웹앱 카드를 추가한다. 카드에는 제목, 설명, 미리보기 이미지 또는 iframe을 넣는다. 앱 카드(`.app-card`)에 `data-category` 속성으로 아래 카테고리 목록에서 고른 값을 지정한다(`app-badge`에 표시되는 값과 일치시킨다). 깃 커밋한다.
+
+## 카테고리
+
+블로그의 글/웹앱은 `C:\Users\hugok\Claude\Projects\doc` 하위 폴더 이름을 카테고리로 사용한다. 새 글(`posts/index.json`의 `category` 필드)과 새 웹앱 카드(`data-category`)는 반드시 아래 목록 중 하나를 지정한다. 목록에 없는 폴더를 다루게 되면 이 목록에 추가하고, 어디에도 안 맞는 글(블로그 운영기 등)은 `기타`로 지정한다.
+
+고정 순서(js/home.js의 `CATEGORIES`와 일치시킬 것): 위성통신, 머신러닝과_인공지능, OS, 해석역학과_장이론, 물리전자와_반도체공학, 무한과_극한, 독서, 소설, 유튜브_목록
 
 ## 서브에이전트 규칙
 

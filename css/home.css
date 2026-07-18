@@ -19,6 +19,39 @@
 }
 
 /* ──────────────────────────────────────────
+   카테고리 필터
+────────────────────────────────────────── */
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  min-height: 1px;
+}
+
+.category-tab {
+  display: inline-block;
+  padding: 0.4em 0.9em;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition),
+              color var(--transition);
+  white-space: nowrap;
+}
+
+.category-tab:hover,
+.category-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ──────────────────────────────────────────
    웹앱 섹션
 ────────────────────────────────────────── */
 .apps-section {
