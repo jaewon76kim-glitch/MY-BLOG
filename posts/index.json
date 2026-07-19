@@ -1,5 +1,14 @@
 [
   {
+    "slug": "satellite-link-budget-eirp-gt",
+    "title": "위성 링크버짓은 왜 EIRP와 G/T 두 숫자로 요약될까",
+    "date": "2026-07-19",
+    "tags": ["위성통신", "링크버짓", "EIRP", "G/T"],
+    "category": "위성통신",
+    "description": "위성링크버짓의 송신측·수신측 성능이 왜 각각 EIRP(곱)와 G/T(비율) 하나의 숫자로 요약되는지, 그리고 상향·하향 링크의 비대칭이 왜 위성통신 시스템 설계 전체를 관통하는 제약이 되는지 정리했다.",
+    "wordCount": 754
+  },
+  {
     "slug": "remote-control-claude-code-with-tailscale",
     "title": "핸드폰에서 PC WSL의 Claude Code를 원격으로 조종하는 법 — Tailscale, SSH, tmux",
     "date": "2026-07-19",
