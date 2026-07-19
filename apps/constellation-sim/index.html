@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSK/QAM 성상도 & BER 시뮬레이터</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>PSK/QAM 성상도 & BER 시뮬레이터</h1>
+  <p>변조방식과 Eb/N0을 조절하면 AWGN 잡음이 낀 수신 성상도를 몬테카를로로 실시간 시뮬레이션하고, 실측 SER/BER을 이론값·BER-vs-Eb/N0 곡선과 비교합니다</p>
+</header>
+
+<div class="main-layout">
+  <!-- 입력 패널 -->
+  <aside class="input-panel">
+
+    <div class="param-group">
+      <span class="param-label">변조방식</span>
+      <div class="preset-row">
+        <button class="preset-btn" data-mod="BPSK">BPSK</button>
+        <button class="preset-btn active" data-mod="QPSK">QPSK</button>
+        <button class="preset-btn" data-mod="8PSK">8PSK</button>
+        <button class="preset-btn" data-mod="16QAM">16QAM</button>
+        <button class="preset-btn" data-mod="64QAM">64QAM</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="param-group">
+      <span class="param-label">Eb/N0</span>
+      <span class="param-value" id="val-ebn0">8.0 dB</span>
+      <input type="range" id="slider-ebn0" min="-5" max="20" step="0.5" value="8">
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">표시 심볼 수</span>
+      <span class="param-value" id="val-nsym">500</span>
+      <input type="range" id="slider-nsym" min="100" max="3000" step="50" value="500">
+    </div>
+
+    <hr class="divider">
+
+    <div class="param-group">
+      <button class="action-btn" id="btn-resim">다시 시뮬레이션</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="param-group">
+      <div class="hint-box">
+        <strong>apps/link-budget-calc</strong>에서 계산한 Eb/N0 값을 여기 슬라이더에 입력해 실제 복조 성능을 확인해보세요.
+      </div>
+    </div>
+
+    <div class="param-group">
+      <div class="hint-box">
+        위성링크(특히 GEO)는 왕복시간이 240ms를 넘어 적응변조 피드백이 느립니다. 그래서 지상 셀룰러보다 낮은 차수의 변조(QPSK, 8PSK)와 강력한 FEC를 함께 써서 SNR 여유를 두는 설계가 전통적으로 선호됩니다.
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- 출력 패널 -->
+  <div class="output-panel">
+
+    <!-- 성상도 + 요약카드 -->
+    <div class="result-grid">
+      <div class="chart-wrap">
+        <div class="chart-title">
+          <span id="const-title">QPSK</span> 성상도 — 이상적 성상점(◆) · 수신점(반투명) · 오판정 강조 · 판정경계
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-constellation"></canvas>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-card-title">SER / BER 비교</span>
+
+        <div class="summary-table">
+          <span></span>
+          <span class="row-head">실측</span>
+          <span class="row-head">이론</span>
+
+          <span class="metric-label">SER</span>
+          <span class="metric-value accent" id="sum-ser-meas">—</span>
+          <span class="metric-value" id="sum-ser-theory">—</span>
+
+          <span class="metric-label">BER</span>
+          <span class="metric-value accent" id="sum-ber-meas">—</span>
+          <span class="metric-value" id="sum-ber-theory">—</span>
+        </div>
+
+        <div class="error-rate-box">
+          <span>오판정 심볼</span>
+          <span class="metric-value" id="sum-error-count">—</span>
+        </div>
+
+        <p class="sample-note">
+          BER은 그레이코딩 근사(BER≈SER/log2M, 고SNR 근사)로 SER에서 환산합니다. 표시 심볼 수가 적을 때는 실측값이 이론값과 크게 차이날 수 있습니다 — 심볼 수를 늘리거나 "다시 시뮬레이션"을 눌러 다른 표본을 확인해보세요.
+        </p>
+      </div>
+    </div>
+
+    <!-- BER vs Eb/N0 곡선 -->
+    <div class="chart-wrap">
+      <div class="chart-title">
+        <span>BER vs Eb/N0 곡선</span> — 5개 변조방식 이론곡선(로그 y축) + 현재 동작점(●)
+      </div>
+      <div class="chart-container ber-chart-container">
+        <canvas id="chart-ber-curve"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 스크립트 로드 순서: Chart.js → modulation → noise → charts → main -->
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/modulation.js"></script>
+<script src="js/noise.js"></script>
+<script src="js/charts.js"></script>
+<script>
+// main 애플리케이션 로직 (전역, type="module" 불사용)
+
+(function () {
+
+  var state = {
+    modKey: 'QPSK',
+    ebn0_dB: 8,
+    numSymbols: 500
+  };
+
+  var el = {};
+  [
+    'val-ebn0', 'slider-ebn0',
+    'val-nsym', 'slider-nsym',
+    'btn-resim',
+    'const-title',
+    'sum-ser-meas', 'sum-ser-theory',
+    'sum-ber-meas', 'sum-ber-theory',
+    'sum-error-count',
+    'chart-constellation', 'chart-ber-curve'
+  ].forEach(function (id) {
+    el[id] = document.getElementById(id);
+  });
+
+  function init() {
+    bindSliders();
+    bindModButtons();
+    bindResimButton();
+
+    ConstellationCharts.initConstellationChart(el['chart-constellation']);
+    ConstellationCharts.initBerCurveChart(el['chart-ber-curve']);
+
+    recompute();
+  }
+
+  function bindSliders() {
+    el['slider-ebn0'].addEventListener('input', function () {
+      state.ebn0_dB = parseFloat(this.value);
+      el['val-ebn0'].textContent = state.ebn0_dB.toFixed(1) + ' dB';
+      recompute();
+    });
+    el['slider-nsym'].addEventListener('input', function () {
+      state.numSymbols = parseInt(this.value, 10);
+      el['val-nsym'].textContent = state.numSymbols.toString();
+      recompute();
+    });
+  }
+
+  function bindModButtons() {
+    document.querySelectorAll('[data-mod]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.modKey = this.getAttribute('data-mod');
+        setActive('[data-mod]', this);
+        el['const-title'].textContent = state.modKey;
+        recompute();
+      });
+    });
+  }
+
+  function bindResimButton() {
+    el['btn-resim'].addEventListener('click', function () {
+      recompute();
+    });
+  }
+
+  function setActive(selector, activeBtn) {
+    document.querySelectorAll(selector).forEach(function (b) {
+      b.classList.remove('active');
+    });
+    activeBtn.classList.add('active');
+  }
+
+  // ---- 계산 & 렌더링 ----
+  function recompute() {
+    var sim = NoiseSim.runSimulation(state.modKey, state.ebn0_dB, state.numSymbols);
+
+    ConstellationCharts.updateConstellationChart(state.modKey, sim);
+    ConstellationCharts.updateBerCurrentPoint(state.modKey, state.ebn0_dB);
+
+    var serTheory = Modulation.theorySER(state.modKey, state.ebn0_dB);
+    var berTheory = Modulation.theoryBER(state.modKey, state.ebn0_dB);
+
+    el['sum-ser-meas'].textContent = formatRate(sim.ser);
+    el['sum-ser-theory'].textContent = formatRate(serTheory);
+    el['sum-ber-meas'].textContent = formatRate(sim.ber);
+    el['sum-ber-theory'].textContent = formatRate(berTheory);
+    el['sum-error-count'].textContent = sim.errorCount + ' / ' + sim.numSymbols;
+  }
+
+  function formatRate(p) {
+    if (p <= 0) return '0';
+    if (p >= 0.001) return (p * 100).toFixed(3) + ' %';
+    return p.toExponential(2);
+  }
+
+  init();
+
+})();
+</script>
+
+</body>
+</html>
