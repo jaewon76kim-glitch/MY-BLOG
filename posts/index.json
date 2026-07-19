@@ -1,5 +1,14 @@
 [
   {
+    "slug": "remote-control-claude-code-with-tailscale",
+    "title": "핸드폰에서 PC WSL의 Claude Code를 원격으로 조종하는 법 — Tailscale, SSH, tmux",
+    "date": "2026-07-19",
+    "tags": ["원격접속", "Tailscale", "SSH", "tmux", "WSL", "Claude Code"],
+    "category": "기타",
+    "description": "핸드폰 SSH 앱으로 PC(WSL)의 Claude Code 세션에 접속해 이어서 작업하는 원격 환경을 구축한 과정. Tailscale·SSH·Termius·tmux가 각각 어떤 역할을 하는지, 그리고 WSL 인스턴스가 유휴 상태로 꺼지는 함정을 어떻게 피했는지 정리했다.",
+    "wordCount": 1059
+  },
+  {
     "slug": "ntn-handover",
     "title": "위성이 움직이면, 핸드오버는 왜 이렇게 잦아질까 — NTN 핸드오버의 종류와 RACH-less 절차",
     "date": "2026-07-19",
