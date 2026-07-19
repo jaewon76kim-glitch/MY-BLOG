@@ -1,0 +1,471 @@
+/* style.css - 위성 링크버짓 계산기 (apps/doppler-sim의 다크 톤을 계승) */
+
+:root {
+  --bg: #0f0f1a;
+  --panel: #1a1a2e;
+  --accent: #4fc3f7;
+  --rain-color: #4fc3f7;
+  --outage-color: #ff6b6b;
+  --good-color: #51cf66;
+  --bad-color: #ff6b6b;
+  --warn-color: #ffd43b;
+  --text: #e0e0e0;
+  --text-muted: #a0a0c0;
+  --border: #2a2a4a;
+  --btn-bg: #1e1e3a;
+  --btn-hover: #2a2a50;
+  --slider-track: #2a2a4a;
+  --slider-thumb: #4fc3f7;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ========== 헤더 ========== */
+.app-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  text-align: center;
+}
+
+.app-header h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+.app-header p {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 3px;
+}
+
+/* ========== 메인 레이아웃 ========== */
+.main-layout {
+  display: flex;
+  gap: 0;
+  min-height: calc(100vh - 60px);
+  align-items: stretch;
+}
+
+/* ========== 입력 패널 ========== */
+.input-panel {
+  width: 260px;
+  min-width: 240px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  max-height: calc(100vh - 60px);
+}
+
+.param-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.param-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.param-value {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--slider-track);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+/* 프리셋 버튼 */
+.preset-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 6px;
+  font-size: 0.72rem;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.preset-btn.wide {
+  padding: 8px 6px;
+  font-size: 0.78rem;
+  white-space: normal;
+}
+
+.preset-sub {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.preset-btn:hover {
+  background: var(--btn-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.preset-btn.active {
+  background: rgba(79, 195, 247, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* 구분선 */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2px 0;
+}
+
+/* ========== 출력 패널 ========== */
+.output-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  overflow-y: auto;
+  min-width: 0;
+  max-height: calc(100vh - 60px);
+}
+
+/* ========== 수치 요약 카드 ========== */
+.summary-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--text);
+}
+
+.summary-value.accent {
+  color: var(--accent);
+}
+
+.summary-value.rain {
+  color: var(--rain-color);
+}
+
+.summary-value.positive {
+  color: var(--good-color);
+}
+
+.summary-value.negative {
+  color: var(--bad-color);
+}
+
+/* ========== 보조 지표 ========== */
+.aux-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.aux-card strong {
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+}
+
+/* ========== 마진 게이지 ========== */
+.gauge-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.gauge-status {
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.gauge-status.positive {
+  color: var(--good-color);
+}
+
+.gauge-status.negative {
+  color: var(--bad-color);
+}
+
+.gauge-track {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  background: var(--slider-track);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gauge-zero-line {
+  position: absolute;
+  left: 40%; /* -20~30 스케일에서 0dB 위치 = 40% (JS에서 재계산되지 않는 정적 표시선) */
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-muted);
+  z-index: 2;
+}
+
+.gauge-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  background: var(--good-color);
+  transition: left 0.15s, width 0.15s;
+}
+
+.gauge-fill.negative {
+  background: var(--bad-color);
+}
+
+.gauge-marker {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 22px;
+  background: var(--warn-color);
+  border-radius: 2px;
+  z-index: 3;
+  transition: left 0.15s;
+  box-shadow: 0 0 4px rgba(255, 212, 59, 0.7);
+}
+
+.gauge-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* ========== 차트 영역 ========== */
+.chart-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.waterfall-wrap {
+  flex: 0 0 auto;
+}
+
+.chart-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.chart-title span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.chart-title .rain-title {
+  color: var(--rain-color);
+}
+
+.chart-title .outage-title {
+  color: var(--outage-color);
+}
+
+.chart-container {
+  position: relative;
+  flex: 1;
+  min-height: 220px;
+}
+
+.waterfall-container {
+  min-height: 260px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.charts-grid .chart-container {
+  min-height: 240px;
+}
+
+/* ========== 모바일 반응형 ========== */
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .input-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 10px;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .param-group {
+    min-width: 150px;
+    flex: 1 1 45%;
+  }
+
+  .output-panel {
+    max-height: none;
+    overflow-y: visible;
+    padding: 12px;
+  }
+
+  .summary-card {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .summary-value {
+    font-size: 0.92rem;
+  }
+
+  .aux-card {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .chart-container {
+    min-height: 180px;
+  }
+
+  .waterfall-container {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-header h1 {
+    font-size: 1rem;
+  }
+
+  .input-panel {
+    gap: 8px;
+  }
+
+  .param-group {
+    min-width: 130px;
+  }
+}

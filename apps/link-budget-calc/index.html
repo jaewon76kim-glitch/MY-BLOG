@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>위성 링크버짓 계산기</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>위성 링크버짓 계산기</h1>
+  <p>송신 EIRP·수신 G/T·경로손실·강우감쇠를 슬라이더로 조정하며 Eₛ/N₀, 링크마진, 아웃티지 확률을 실시간으로 계산합니다</p>
+</header>
+
+<div class="main-layout">
+  <!-- 입력 패널 -->
+  <aside class="input-panel">
+
+    <!-- 업/다운링크 토글 -->
+    <div class="param-group">
+      <span class="param-label">링크 방향</span>
+      <div class="preset-row">
+        <button class="preset-btn wide active" id="btn-downlink" data-dir="downlink">다운링크<br><span class="preset-sub">위성→게이트웨이</span></button>
+        <button class="preset-btn wide" id="btn-uplink" data-dir="uplink">업링크<br><span class="preset-sub">게이트웨이→위성</span></button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 송신 -->
+    <div class="param-group">
+      <span class="param-label" id="label-pt">송신전력 Pₜ (위성)</span>
+      <span class="param-value" id="val-pt">15.0 dBW</span>
+      <input type="range" id="slider-pt" min="-10" max="50" step="0.5" value="15">
+    </div>
+
+    <div class="param-group">
+      <span class="param-label" id="label-gt">송신 안테나 이득 G_T (위성)</span>
+      <span class="param-value" id="val-gt">30.0 dBi</span>
+      <input type="range" id="slider-gt" min="0" max="60" step="0.5" value="30">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 수신 -->
+    <div class="param-group">
+      <span class="param-label" id="label-gr">수신 안테나 이득 G_R (게이트웨이)</span>
+      <span class="param-value" id="val-gr">40.0 dBi</span>
+      <input type="range" id="slider-gr" min="0" max="60" step="0.5" value="40">
+    </div>
+
+    <div class="param-group">
+      <span class="param-label" id="label-tant">안테나 잡음온도 T_ant (게이트웨이)</span>
+      <span class="param-value" id="val-tant">50 K</span>
+      <input type="range" id="slider-tant" min="20" max="290" step="5" value="50">
+    </div>
+
+    <div class="param-group">
+      <span class="param-label" id="label-f">수신기 잡음지수 F (게이트웨이)</span>
+      <span class="param-value" id="val-f">1.5 dB</span>
+      <input type="range" id="slider-f" min="0.5" max="5" step="0.1" value="1.5">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 궤도 -->
+    <div class="param-group">
+      <span class="param-label">궤도 고도 h</span>
+      <span class="param-value" id="val-orbit">GEO · 35786 km</span>
+      <div class="preset-row">
+        <button class="preset-btn" data-orbit="550">LEO<br>550</button>
+        <button class="preset-btn" data-orbit="20200">MEO<br>20200</button>
+        <button class="preset-btn active" data-orbit="35786">GEO<br>35786</button>
+      </div>
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">앙각 θ</span>
+      <span class="param-value" id="val-elevation">40°</span>
+      <input type="range" id="slider-elevation" min="5" max="90" step="1" value="40">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 주파수 -->
+    <div class="param-group">
+      <span class="param-label">반송주파수 f_c</span>
+      <span class="param-value" id="val-freq">12.0 GHz</span>
+      <input type="range" id="slider-freq" min="1" max="30" step="0.5" value="12">
+      <div class="preset-row">
+        <button class="preset-btn" data-freq="1.5">L<br>1.5</button>
+        <button class="preset-btn" data-freq="2.5">S<br>2.5</button>
+        <button class="preset-btn" data-freq="6">C<br>6</button>
+        <button class="preset-btn active" data-freq="12">Ku<br>12</button>
+        <button class="preset-btn" data-freq="20">Ka<br>20</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 강우 -->
+    <div class="param-group">
+      <span class="param-label">강우강도 R₀.₀₁</span>
+      <span class="param-value" id="val-rain">30 mm/h</span>
+      <input type="range" id="slider-rain" min="0" max="150" step="1" value="30">
+      <div class="preset-row">
+        <button class="preset-btn" data-rainregion="10">건조<br>10</button>
+        <button class="preset-btn active" data-rainregion="30">온대<br>30</button>
+        <button class="preset-btn" data-rainregion="95">열대<br>95</button>
+      </div>
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">강우고도 h_R</span>
+      <span class="param-value" id="val-hr">3.5 km</span>
+      <input type="range" id="slider-hr" min="2" max="5" step="0.1" value="3.5">
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">지상국 해발고도 h_S</span>
+      <span class="param-value" id="val-hs">0.0 km</span>
+      <input type="range" id="slider-hs" min="0" max="2" step="0.05" value="0">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 변조/심볼률 -->
+    <div class="param-group">
+      <span class="param-label">심볼률 R_s</span>
+      <span class="param-value" id="val-rs">10.0 Msps</span>
+      <input type="range" id="slider-rs" min="0.1" max="100" step="0.1" value="10">
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">변조방식 (요구 Eₛ/N₀ 자동입력)</span>
+      <span class="param-value" id="val-modulation">QPSK · 6.5 dB</span>
+      <div class="preset-row">
+        <button class="preset-btn" data-mod="BPSK" data-esn0="4.5">BPSK</button>
+        <button class="preset-btn active" data-mod="QPSK" data-esn0="6.5">QPSK</button>
+        <button class="preset-btn" data-mod="8PSK" data-esn0="10.0">8PSK</button>
+        <button class="preset-btn" data-mod="16QAM" data-esn0="13.0">16QAM</button>
+      </div>
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">급전선 손실 L_rf</span>
+      <span class="param-value" id="val-lrf">1.0 dB</span>
+      <input type="range" id="slider-lrf" min="0" max="3" step="0.1" value="1">
+    </div>
+
+    <hr class="divider">
+
+    <div class="param-group">
+      <span class="param-label">쉐도잉 표준편차 σₛ</span>
+      <span class="param-value" id="val-sigma">6.0 dB</span>
+      <input type="range" id="slider-sigma" min="1" max="15" step="0.5" value="6">
+    </div>
+
+  </aside>
+
+  <!-- 출력 패널 -->
+  <div class="output-panel">
+
+    <!-- 수치 요약 카드 -->
+    <div class="summary-card">
+      <div class="summary-item">
+        <span class="summary-label">EIRP</span>
+        <span class="summary-value" id="sum-eirp">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">G/T</span>
+        <span class="summary-value" id="sum-gt">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">L_FS</span>
+        <span class="summary-value" id="sum-lfs">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">A_rain</span>
+        <span class="summary-value rain" id="sum-arain">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Eₛ/N₀</span>
+        <span class="summary-value accent" id="sum-esn0">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">링크마진</span>
+        <span class="summary-value" id="sum-margin">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">아웃티지 확률</span>
+        <span class="summary-value" id="sum-outage">—</span>
+      </div>
+    </div>
+
+    <!-- 보조 지표 -->
+    <div class="aux-card">
+      <span class="aux-item">수신감도 S_rx: <strong id="aux-srx">—</strong></span>
+      <span class="aux-item">최대허용 경로손실 L_p,max: <strong id="aux-lpmax">—</strong></span>
+      <span class="aux-item">슬랜트거리: <strong id="aux-range">—</strong></span>
+    </div>
+
+    <!-- 마진 게이지 -->
+    <div class="gauge-section">
+      <div class="gauge-header">
+        <span>링크마진 게이지</span>
+        <span id="gauge-status" class="gauge-status">—</span>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-zero-line"></div>
+        <div class="gauge-fill" id="gauge-fill"></div>
+        <div class="gauge-marker" id="gauge-marker"></div>
+      </div>
+      <div class="gauge-scale">
+        <span>-20 dB</span>
+        <span>0 dB (요구치)</span>
+        <span>+30 dB</span>
+      </div>
+    </div>
+
+    <!-- 워터폴 차트 -->
+    <div class="chart-wrap waterfall-wrap">
+      <div class="chart-title">
+        <span>링크버짓 워터폴</span> — EIRP → +G/T → −L_p → −A_rain → +1/k_B → −R_s → −L_rf
+      </div>
+      <div class="chart-container waterfall-container">
+        <canvas id="chart-waterfall"></canvas>
+      </div>
+    </div>
+
+    <!-- 곡선 그래프 영역 -->
+    <div class="charts-grid">
+      <div class="chart-wrap">
+        <div class="chart-title">
+          <span class="rain-title">강우감쇠 곡선</span> — 현재 주파수·앙각 기준 A₀.₀₁(R) 스윕
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-rain"></canvas>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">
+          <span class="outage-title">아웃티지 확률 곡선</span> — 현재 σₛ 기준 Oₙ(마진) 스윕
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-outage"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 스크립트 로드 순서: Chart.js → linkbudget → rain → charts → main -->
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/linkbudget.js"></script>
+<script src="js/rain.js"></script>
+<script src="js/charts.js"></script>
+<script>
+// main 애플리케이션 로직 (전역, type="module" 불사용)
+
+(function () {
+
+  var DOWNLINK_DEFAULTS = { Pt: 15, GT: 30, GR: 40, Tant: 50, F: 1.5 };
+  var UPLINK_DEFAULTS = { Pt: 40, GT: 55, GR: 20, Tant: 290, F: 3.0 };
+
+  var LABELS = {
+    downlink: {
+      pt: '송신전력 Pₜ (위성)',
+      gt: '송신 안테나 이득 G_T (위성)',
+      gr: '수신 안테나 이득 G_R (게이트웨이)',
+      tant: '안테나 잡음온도 T_ant (게이트웨이)',
+      f: '수신기 잡음지수 F (게이트웨이)'
+    },
+    uplink: {
+      pt: '송신전력 Pₜ (게이트웨이)',
+      gt: '송신 안테나 이득 G_T (게이트웨이)',
+      gr: '수신 안테나 이득 G_R (위성)',
+      tant: '안테나 잡음온도 T_ant (위성)',
+      f: '수신기 잡음지수 F (위성)'
+    }
+  };
+
+  // ---- 상태 ----
+  var state = {
+    direction: 'downlink',
+    Pt: 15,
+    GT: 30,
+    GR: 40,
+    Tant: 50,
+    F: 1.5,
+    h_km: 35786,
+    elevation: 40,
+    fc_GHz: 12,
+    R001: 30,
+    hR: 3.5,
+    hS: 0,
+    Rs: 10,
+    EsN0min: 6.5,
+    modulation: 'QPSK',
+    Lrf: 1.0,
+    sigma_s: 6.0
+  };
+
+  // ---- DOM 참조 ----
+  var el = {};
+  [
+    'btn-downlink', 'btn-uplink',
+    'label-pt', 'val-pt', 'slider-pt',
+    'label-gt', 'val-gt', 'slider-gt',
+    'label-gr', 'val-gr', 'slider-gr',
+    'label-tant', 'val-tant', 'slider-tant',
+    'label-f', 'val-f', 'slider-f',
+    'val-orbit',
+    'val-elevation', 'slider-elevation',
+    'val-freq', 'slider-freq',
+    'val-rain', 'slider-rain',
+    'val-hr', 'slider-hr',
+    'val-hs', 'slider-hs',
+    'val-rs', 'slider-rs',
+    'val-modulation',
+    'val-lrf', 'slider-lrf',
+    'val-sigma', 'slider-sigma',
+    'sum-eirp', 'sum-gt', 'sum-lfs', 'sum-arain', 'sum-esn0', 'sum-margin', 'sum-outage',
+    'aux-srx', 'aux-lpmax', 'aux-range',
+    'gauge-fill', 'gauge-marker', 'gauge-status',
+    'chart-waterfall', 'chart-rain', 'chart-outage'
+  ].forEach(function (id) {
+    el[id] = document.getElementById(id);
+  });
+
+  // ---- 초기화 ----
+  function init() {
+    bindSliders();
+    bindPresets();
+    bindDirectionToggle();
+
+    LBCharts.initWaterfall(el['chart-waterfall']);
+    LBCharts.initRainCurve(el['chart-rain']);
+    LBCharts.initOutageCurve(el['chart-outage']);
+
+    applyDirectionLabels();
+    syncSlidersFromState();
+    recompute();
+
+    window.addEventListener('resize', function () {
+      // Chart.js가 responsive:true이므로 별도 처리 불필요
+    });
+  }
+
+  function bindSliders() {
+    el['slider-pt'].addEventListener('input', function () {
+      state.Pt = parseFloat(this.value);
+      el['val-pt'].textContent = state.Pt.toFixed(1) + ' dBW';
+      recompute();
+    });
+    el['slider-gt'].addEventListener('input', function () {
+      state.GT = parseFloat(this.value);
+      el['val-gt'].textContent = state.GT.toFixed(1) + ' dBi';
+      recompute();
+    });
+    el['slider-gr'].addEventListener('input', function () {
+      state.GR = parseFloat(this.value);
+      el['val-gr'].textContent = state.GR.toFixed(1) + ' dBi';
+      recompute();
+    });
+    el['slider-tant'].addEventListener('input', function () {
+      state.Tant = parseFloat(this.value);
+      el['val-tant'].textContent = state.Tant.toFixed(0) + ' K';
+      recompute();
+    });
+    el['slider-f'].addEventListener('input', function () {
+      state.F = parseFloat(this.value);
+      el['val-f'].textContent = state.F.toFixed(1) + ' dB';
+      recompute();
+    });
+    el['slider-elevation'].addEventListener('input', function () {
+      state.elevation = parseFloat(this.value);
+      el['val-elevation'].textContent = state.elevation.toFixed(0) + '°';
+      recompute();
+    });
+    el['slider-freq'].addEventListener('input', function () {
+      state.fc_GHz = parseFloat(this.value);
+      el['val-freq'].textContent = state.fc_GHz.toFixed(1) + ' GHz';
+      updateFreqPresetActive();
+      recompute();
+    });
+    el['slider-rain'].addEventListener('input', function () {
+      state.R001 = parseFloat(this.value);
+      el['val-rain'].textContent = state.R001.toFixed(0) + ' mm/h';
+      updateRainPresetActive();
+      recompute();
+    });
+    el['slider-hr'].addEventListener('input', function () {
+      state.hR = parseFloat(this.value);
+      el['val-hr'].textContent = state.hR.toFixed(1) + ' km';
+      recompute();
+    });
+    el['slider-hs'].addEventListener('input', function () {
+      state.hS = parseFloat(this.value);
+      el['val-hs'].textContent = state.hS.toFixed(2) + ' km';
+      recompute();
+    });
+    el['slider-rs'].addEventListener('input', function () {
+      state.Rs = parseFloat(this.value);
+      el['val-rs'].textContent = state.Rs.toFixed(1) + ' Msps';
+      recompute();
+    });
+    el['slider-lrf'].addEventListener('input', function () {
+      state.Lrf = parseFloat(this.value);
+      el['val-lrf'].textContent = state.Lrf.toFixed(1) + ' dB';
+      recompute();
+    });
+    el['slider-sigma'].addEventListener('input', function () {
+      state.sigma_s = parseFloat(this.value);
+      el['val-sigma'].textContent = state.sigma_s.toFixed(1) + ' dB';
+      recompute();
+    });
+  }
+
+  function bindPresets() {
+    // 궤도 프리셋
+    document.querySelectorAll('[data-orbit]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var h = parseInt(this.getAttribute('data-orbit'));
+        state.h_km = h;
+        var label = h === 550 ? 'LEO' : (h === 20200 ? 'MEO' : 'GEO');
+        el['val-orbit'].textContent = label + ' · ' + h + ' km';
+        setActive('[data-orbit]', this);
+        recompute();
+      });
+    });
+
+    // 주파수 프리셋
+    document.querySelectorAll('[data-freq]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var f = parseFloat(this.getAttribute('data-freq'));
+        state.fc_GHz = f;
+        el['slider-freq'].value = f;
+        el['val-freq'].textContent = f.toFixed(1) + ' GHz';
+        setActive('[data-freq]', this);
+        recompute();
+      });
+    });
+
+    // 강우 지역 프리셋
+    document.querySelectorAll('[data-rainregion]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var r = parseFloat(this.getAttribute('data-rainregion'));
+        state.R001 = r;
+        el['slider-rain'].value = r;
+        el['val-rain'].textContent = r.toFixed(0) + ' mm/h';
+        setActive('[data-rainregion]', this);
+        recompute();
+      });
+    });
+
+    // 변조방식 프리셋
+    document.querySelectorAll('[data-mod]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var mod = this.getAttribute('data-mod');
+        var esn0 = parseFloat(this.getAttribute('data-esn0'));
+        state.modulation = mod;
+        state.EsN0min = esn0;
+        el['val-modulation'].textContent = mod + ' · ' + esn0.toFixed(1) + ' dB';
+        setActive('[data-mod]', this);
+        recompute();
+      });
+    });
+  }
+
+  function bindDirectionToggle() {
+    el['btn-downlink'].addEventListener('click', function () {
+      setDirection('downlink');
+    });
+    el['btn-uplink'].addEventListener('click', function () {
+      setDirection('uplink');
+    });
+  }
+
+  function setDirection(dir) {
+    state.direction = dir;
+    var d = dir === 'downlink' ? DOWNLINK_DEFAULTS : UPLINK_DEFAULTS;
+    state.Pt = d.Pt;
+    state.GT = d.GT;
+    state.GR = d.GR;
+    state.Tant = d.Tant;
+    state.F = d.F;
+
+    el['btn-downlink'].classList.toggle('active', dir === 'downlink');
+    el['btn-uplink'].classList.toggle('active', dir === 'uplink');
+
+    applyDirectionLabels();
+    syncSlidersFromState();
+    recompute();
+  }
+
+  function applyDirectionLabels() {
+    var L = LABELS[state.direction];
+    el['label-pt'].textContent = L.pt;
+    el['label-gt'].textContent = L.gt;
+    el['label-gr'].textContent = L.gr;
+    el['label-tant'].textContent = L.tant;
+    el['label-f'].textContent = L.f;
+  }
+
+  function syncSlidersFromState() {
+    el['slider-pt'].value = state.Pt;
+    el['val-pt'].textContent = state.Pt.toFixed(1) + ' dBW';
+    el['slider-gt'].value = state.GT;
+    el['val-gt'].textContent = state.GT.toFixed(1) + ' dBi';
+    el['slider-gr'].value = state.GR;
+    el['val-gr'].textContent = state.GR.toFixed(1) + ' dBi';
+    el['slider-tant'].value = state.Tant;
+    el['val-tant'].textContent = state.Tant.toFixed(0) + ' K';
+    el['slider-f'].value = state.F;
+    el['val-f'].textContent = state.F.toFixed(1) + ' dB';
+  }
+
+  function setActive(selector, activeBtn) {
+    document.querySelectorAll(selector).forEach(function (b) {
+      b.classList.remove('active');
+    });
+    activeBtn.classList.add('active');
+  }
+
+  function updateFreqPresetActive() {
+    document.querySelectorAll('[data-freq]').forEach(function (btn) {
+      btn.classList.toggle('active', parseFloat(btn.getAttribute('data-freq')) === state.fc_GHz);
+    });
+  }
+
+  function updateRainPresetActive() {
+    document.querySelectorAll('[data-rainregion]').forEach(function (btn) {
+      btn.classList.toggle('active', parseFloat(btn.getAttribute('data-rainregion')) === state.R001);
+    });
+  }
+
+  // ---- 계산 & 렌더링 ----
+  function recompute() {
+    // EIRP, G/T
+    var eirp = LinkBudget.eirp_dBW(state.Pt, state.GT);
+    var tsys = LinkBudget.sysNoiseTemp_K(state.Tant, state.F);
+    var gt = LinkBudget.gt_dB(state.GR, tsys);
+
+    // 슬랜트 거리, 자유공간 손실
+    var d_km = LinkBudget.slantRange_km(state.h_km, state.elevation);
+    var lfs = LinkBudget.freeSpaceLoss_dB(d_km, state.fc_GHz);
+
+    // 강우감쇠
+    var rain = RainModel.rainAttenuation({
+      fc_GHz: state.fc_GHz,
+      elevation_deg: state.elevation,
+      hR_km: state.hR,
+      hS_km: state.hS,
+      R001_mmh: state.R001
+    });
+    var arain = rain.A001;
+
+    // Es/N0, 링크마진
+    var rsDb = LinkBudget.symbolRate_dB(state.Rs);
+    var esn0 = LinkBudget.esN0_dB(eirp, gt, lfs, arain, rsDb, state.Lrf);
+    var margin = LinkBudget.linkMargin_dB(esn0, state.EsN0min);
+
+    // 아웃티지 확률
+    var outage = LinkBudget.outageProbability(margin, state.sigma_s);
+
+    // 보조 지표: 수신감도, 최대허용 경로손실
+    var srxDbw = LinkBudget.sensitivity_dBW(state.EsN0min, rsDb, tsys);
+    var srxDbm = srxDbw + 30;
+    var lpMax = LinkBudget.maxAllowablePathLoss_dB(eirp, state.GR, srxDbw);
+
+    // ---- 요약 카드 ----
+    el['sum-eirp'].textContent = eirp.toFixed(1) + ' dBW';
+    el['sum-gt'].textContent = gt.toFixed(1) + ' dB/K';
+    el['sum-lfs'].textContent = lfs.toFixed(1) + ' dB';
+    el['sum-arain'].textContent = arain.toFixed(2) + ' dB';
+    el['sum-esn0'].textContent = esn0.toFixed(1) + ' dB';
+
+    el['sum-margin'].textContent = (margin >= 0 ? '+' : '') + margin.toFixed(1) + ' dB';
+    el['sum-margin'].classList.toggle('positive', margin >= 0);
+    el['sum-margin'].classList.toggle('negative', margin < 0);
+
+    el['sum-outage'].textContent = formatProbability(outage);
+
+    el['aux-srx'].textContent = srxDbm.toFixed(1) + ' dBm';
+    el['aux-lpmax'].textContent = lpMax.toFixed(1) + ' dB';
+    el['aux-range'].textContent = d_km.toFixed(0) + ' km';
+
+    // ---- 마진 게이지 ----
+    updateGauge(margin);
+
+    // ---- 워터폴 차트 ----
+    LBCharts.updateWaterfall([
+      { label: 'EIRP', delta: eirp, isStart: true },
+      { label: '+G/T', delta: gt },
+      { label: '−L_p', delta: -lfs },
+      { label: '−A_rain', delta: -arain },
+      { label: '+1/k_B', delta: -LinkBudget.KB_DB },
+      { label: '−R_s', delta: -rsDb },
+      { label: '−L_rf (Eₛ/N₀)', delta: -state.Lrf }
+    ]);
+
+    // ---- 강우감쇠 곡선 ----
+    var rainCurve = [];
+    for (var r = 0; r <= 150; r += 3) {
+      var a = RainModel.rainAttenuation({
+        fc_GHz: state.fc_GHz,
+        elevation_deg: state.elevation,
+        hR_km: state.hR,
+        hS_km: state.hS,
+        R001_mmh: r
+      }).A001;
+      rainCurve.push({ x: r, y: a });
+    }
+    LBCharts.updateRainCurve(rainCurve, { x: state.R001, y: arain });
+
+    // ---- 아웃티지 확률 곡선 ----
+    var outageCurve = [];
+    var MIN_OUTAGE = 1e-9;
+    for (var m = -20; m <= 30; m += 1) {
+      var o = LinkBudget.outageProbability(m, state.sigma_s);
+      if (o < MIN_OUTAGE) o = MIN_OUTAGE;
+      outageCurve.push({ x: m, y: o });
+    }
+    var outagePlotVal = outage < MIN_OUTAGE ? MIN_OUTAGE : outage;
+    LBCharts.updateOutageCurve(outageCurve, { x: margin, y: outagePlotVal });
+  }
+
+  function updateGauge(margin_dB) {
+    var GAUGE_MIN = -20;
+    var GAUGE_MAX = 30;
+    var clamped = Math.max(GAUGE_MIN, Math.min(GAUGE_MAX, margin_dB));
+    var zeroPct = (0 - GAUGE_MIN) / (GAUGE_MAX - GAUGE_MIN) * 100;
+    var valPct = (clamped - GAUGE_MIN) / (GAUGE_MAX - GAUGE_MIN) * 100;
+
+    var fillEl = el['gauge-fill'];
+    var markerEl = el['gauge-marker'];
+    var statusEl = el['gauge-status'];
+
+    if (margin_dB >= 0) {
+      fillEl.style.left = zeroPct + '%';
+      fillEl.style.width = Math.max(0, valPct - zeroPct) + '%';
+      fillEl.classList.remove('negative');
+      fillEl.classList.add('positive');
+      statusEl.textContent = '충분 (여유 ' + margin_dB.toFixed(1) + ' dB)';
+      statusEl.classList.remove('negative');
+      statusEl.classList.add('positive');
+    } else {
+      fillEl.style.left = valPct + '%';
+      fillEl.style.width = Math.max(0, zeroPct - valPct) + '%';
+      fillEl.classList.remove('positive');
+      fillEl.classList.add('negative');
+      statusEl.textContent = '부족 (' + margin_dB.toFixed(1) + ' dB)';
+      statusEl.classList.remove('positive');
+      statusEl.classList.add('negative');
+    }
+    markerEl.style.left = valPct + '%';
+  }
+
+  function formatProbability(p) {
+    if (p >= 0.01) return (p * 100).toFixed(2) + ' %';
+    if (p <= 0) return '0 %';
+    return (p * 100).toExponential(2) + ' %';
+  }
+
+  init();
+
+})();
+</script>
+
+</body>
+</html>
