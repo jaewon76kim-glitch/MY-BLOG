@@ -1,0 +1,416 @@
+/* style.css - 위성링크 소규모 페이딩 시뮬레이터 (apps/link-budget-calc, doppler-sim의 다크 톤 계승) */
+
+:root {
+  --bg: #0f0f1a;
+  --panel: #1a1a2e;
+  --accent: #4fc3f7;
+  --rayleigh-color: #ff6b6b;
+  --rician-color: #51cf66;
+  --nakagami-color: #ffd43b;
+  --text: #e0e0e0;
+  --text-muted: #a0a0c0;
+  --border: #2a2a4a;
+  --btn-bg: #1e1e3a;
+  --btn-hover: #2a2a50;
+  --slider-track: #2a2a4a;
+  --slider-thumb: #4fc3f7;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ========== 헤더 ========== */
+.app-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  text-align: center;
+}
+
+.app-header h1 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.3px;
+}
+
+.app-header p {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 3px;
+}
+
+/* ========== 메인 레이아웃 ========== */
+.main-layout {
+  display: flex;
+  gap: 0;
+  min-height: calc(100vh - 60px);
+  align-items: stretch;
+}
+
+/* ========== 입력 패널 ========== */
+.input-panel {
+  width: 270px;
+  min-width: 250px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  max-height: calc(100vh - 60px);
+}
+
+.param-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.param-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.param-value {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--slider-track);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+/* 프리셋 / 모델 버튼 */
+.preset-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.preset-row.preset-col {
+  flex-direction: column;
+}
+
+.preset-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 6px;
+  font-size: 0.75rem;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.preset-btn.wide {
+  padding: 8px 8px;
+  font-size: 0.76rem;
+  white-space: normal;
+  text-align: left;
+}
+
+.preset-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.preset-btn:hover {
+  background: var(--btn-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.preset-btn.active {
+  background: rgba(79, 195, 247, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* 모델 버튼별 활성 강조색 */
+#btn-model-rayleigh.active {
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--rayleigh-color);
+  border-color: var(--rayleigh-color);
+}
+
+#btn-model-rician.active {
+  background: rgba(81, 207, 102, 0.15);
+  color: var(--rician-color);
+  border-color: var(--rician-color);
+}
+
+#btn-model-nakagami.active {
+  background: rgba(255, 212, 59, 0.15);
+  color: var(--nakagami-color);
+  border-color: var(--nakagami-color);
+}
+
+/* 구분선 */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2px 0;
+}
+
+/* ========== 재생 컨트롤 ========== */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.play-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 1.05rem;
+  background: rgba(79, 195, 247, 0.12);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.play-btn:hover {
+  background: rgba(79, 195, 247, 0.25);
+}
+
+.reset-btn {
+  width: 100%;
+  padding: 7px;
+  font-size: 0.8rem;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reset-btn:hover {
+  color: #ff8888;
+  border-color: #ff8888;
+}
+
+/* 안내 문구 */
+.hint-box {
+  background: rgba(79, 195, 247, 0.08);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.hint-box strong {
+  color: var(--accent);
+}
+
+/* ========== 출력 패널 ========== */
+.output-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  overflow-y: auto;
+  min-width: 0;
+  max-height: calc(100vh - 60px);
+}
+
+/* ========== 수치 요약 카드 ========== */
+.summary-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 1.02rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--text);
+}
+
+.summary-value.accent {
+  color: var(--accent);
+}
+
+/* ========== 차트 영역 ========== */
+.chart-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chart-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.chart-title span:first-child {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.chart-container {
+  position: relative;
+  flex: 1;
+  min-height: 240px;
+}
+
+/* ========== 모바일 반응형 ========== */
+@media (max-width: 900px) {
+  .chart-container {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .input-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 10px;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .param-group {
+    min-width: 150px;
+    flex: 1 1 45%;
+  }
+
+  .controls {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .preset-row.preset-col {
+    width: 100%;
+  }
+
+  .output-panel {
+    max-height: none;
+    overflow-y: visible;
+    padding: 12px;
+  }
+
+  .summary-card {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .summary-value {
+    font-size: 0.9rem;
+  }
+
+  .chart-container {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-header h1 {
+    font-size: 0.98rem;
+  }
+
+  .input-panel {
+    gap: 8px;
+  }
+
+  .param-group {
+    min-width: 130px;
+    flex: 1 1 100%;
+  }
+
+  .chart-container {
+    min-height: 180px;
+  }
+}

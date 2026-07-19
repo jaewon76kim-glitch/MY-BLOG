@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>케플러 궤도역학 시뮬레이터</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>케플러 궤도역학 시뮬레이터</h1>
+  <p>장반경·이심률을 조절해 타원 궤도와 케플러 제2법칙(근지점에서 빠르고 원지점에서 느림) 운동을 실시간으로 시각화합니다</p>
+</header>
+
+<div class="main-layout">
+  <!-- 입력 패널 -->
+  <aside class="input-panel">
+
+    <!-- 장반경 -->
+    <div class="param-group">
+      <span class="param-label">장반경 a</span>
+      <span class="param-value" id="val-a">6928 km</span>
+      <input type="range" id="slider-a" min="6478" max="45000" step="1" value="6928">
+    </div>
+
+    <!-- 이심률 -->
+    <div class="param-group">
+      <span class="param-label">이심률 e</span>
+      <span class="param-value" id="val-e">0.00</span>
+      <input type="range" id="slider-e" min="0" max="0.8" step="0.01" value="0">
+    </div>
+
+    <!-- 프리셋 -->
+    <div class="param-group">
+      <span class="param-label">궤도 프리셋 (원궤도)</span>
+      <div class="preset-row">
+        <button class="preset-btn active" data-preset="LEO">LEO<br>550km</button>
+        <button class="preset-btn" data-preset="MEO">MEO<br>20200km</button>
+        <button class="preset-btn" data-preset="GEO">GEO<br>35786km</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 궤도경사각 (지상궤적용) -->
+    <div class="param-group">
+      <span class="param-label">궤도경사각 i (지상궤적용)</span>
+      <span class="param-value" id="val-i">51.6°</span>
+      <input type="range" id="slider-i" min="0" max="90" step="0.1" value="51.6">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 재생 컨트롤 -->
+    <div class="controls">
+      <button class="play-btn" id="btn-play">▶ 재생</button>
+      <div class="speed-row">
+        <button class="speed-btn" data-speed="0.5">×0.5</button>
+        <button class="speed-btn active" data-speed="1">×1</button>
+        <button class="speed-btn" data-speed="3">×3</button>
+        <button class="speed-btn" data-speed="8">×8</button>
+      </div>
+      <button class="reset-btn" id="btn-reset">↺ 리셋</button>
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">선택된 프리셋</span>
+      <span class="param-value badge" id="val-presetbadge">LEO</span>
+    </div>
+
+  </aside>
+
+  <!-- 출력 패널 -->
+  <div class="output-panel">
+
+    <!-- 궤도 애니메이션 캔버스 -->
+    <div class="canvas-section">
+      <canvas id="orbit-canvas"></canvas>
+    </div>
+
+    <!-- 경고 배너 (근지점이 지구 표면 아래로 내려간 비현실적 값일 때) -->
+    <div class="warn-box" id="warn-box" style="display:none;"></div>
+
+    <!-- 수치 요약 카드 -->
+    <div class="summary-card">
+      <div class="summary-item">
+        <span class="summary-label">궤도주기 T</span>
+        <span class="summary-value accent" id="sum-T">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">근지점속도 v_p</span>
+        <span class="summary-value" id="sum-vp">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">원지점속도 v_a</span>
+        <span class="summary-value" id="sum-va">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">현재속도 v(t)</span>
+        <span class="summary-value sat" id="sum-vt">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">근지점 고도</span>
+        <span class="summary-value" id="sum-rpalt">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">원지점 고도</span>
+        <span class="summary-value" id="sum-raalt">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">이심률 e</span>
+        <span class="summary-value" id="sum-ecc">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">장반경 a</span>
+        <span class="summary-value" id="sum-sma">—</span>
+      </div>
+    </div>
+
+    <!-- 지상궤적 -->
+    <div class="groundtrack-section">
+      <div class="chart-title">지상궤적(ground track) — 경사각 i, 근지점인수·승교점적경=0으로 단순화</div>
+      <canvas id="groundtrack-canvas"></canvas>
+    </div>
+
+  </div>
+</div>
+
+<footer class="app-footnote">
+  본문(위성통신 교재 8장 1절)은 원궤도 특수해를 다루며, 이 앱은 이를 일반 타원 궤도로 확장했습니다.
+</footer>
+
+<!-- 스크립트 로드 순서: orbit(물리) → renderer(궤도 캔버스) → groundtrack(지도 캔버스) → main(상태/이벤트) -->
+<script src="js/orbit.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/groundtrack.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

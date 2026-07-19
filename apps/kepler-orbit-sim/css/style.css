@@ -1,0 +1,446 @@
+/* style.css - 케플러 궤도역학 시뮬레이터 (기존 앱들의 다크 톤을 계승) */
+
+:root {
+  --bg: #0f0f1a;
+  --panel: #1a1a2e;
+  --accent: #4fc3f7;
+  --earth-color: #4a7fd6;
+  --orbit-color: #e0e0e0;
+  --satellite-color: #ffd43b;
+  --sector-color: rgba(79, 195, 247, 0.25);
+  --perigee-color: #4fc3f7;
+  --apogee-color: #ff6b6b;
+  --warn-color: #ffd43b;
+  --text: #e0e0e0;
+  --text-muted: #a0a0c0;
+  --border: #2a2a4a;
+  --btn-bg: #1e1e3a;
+  --btn-hover: #2a2a50;
+  --slider-track: #2a2a4a;
+  --slider-thumb: #4fc3f7;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ========== 헤더 ========== */
+.app-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  text-align: center;
+}
+
+.app-header h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+.app-header p {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 3px;
+}
+
+/* ========== 메인 레이아웃 ========== */
+.main-layout {
+  display: flex;
+  gap: 0;
+  min-height: calc(100vh - 60px);
+  align-items: stretch;
+}
+
+/* ========== 입력 패널 ========== */
+.input-panel {
+  width: 260px;
+  min-width: 240px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  max-height: calc(100vh - 60px);
+}
+
+.param-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.param-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.param-value {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.param-value.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(79, 195, 247, 0.15);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  width: fit-content;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--slider-track);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+/* 프리셋 버튼 */
+.preset-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 6px;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.preset-btn:hover {
+  background: var(--btn-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.preset-btn.active {
+  background: rgba(79, 195, 247, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* 구분선 */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2px 0;
+}
+
+/* ========== 재생 컨트롤 ========== */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.play-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 1.1rem;
+  background: rgba(79, 195, 247, 0.12);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.play-btn:hover {
+  background: rgba(79, 195, 247, 0.25);
+}
+
+.speed-row {
+  display: flex;
+  gap: 4px;
+}
+
+.speed-btn {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.speed-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.speed-btn.active {
+  background: rgba(79, 195, 247, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.reset-btn {
+  width: 100%;
+  padding: 7px;
+  font-size: 0.8rem;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reset-btn:hover {
+  color: #ff8888;
+  border-color: #ff8888;
+}
+
+/* ========== 출력 패널 ========== */
+.output-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  overflow-y: auto;
+  min-width: 0;
+  max-height: calc(100vh - 60px);
+}
+
+/* 궤도 캔버스 */
+.canvas-section {
+  background: #05050f;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  height: 420px;
+  position: relative;
+  overflow: hidden;
+}
+
+#orbit-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 경고 배너 */
+.warn-box {
+  background: rgba(255, 212, 59, 0.12);
+  border: 1px solid var(--warn-color);
+  color: var(--warn-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+/* ========== 수치 요약 카드 ========== */
+.summary-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--text);
+}
+
+.summary-value.accent {
+  color: var(--accent);
+}
+
+.summary-value.sat {
+  color: var(--satellite-color);
+}
+
+/* ========== 지상궤적 ========== */
+.groundtrack-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chart-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+#groundtrack-canvas {
+  width: 100%;
+  height: 220px;
+  display: block;
+  border-radius: 4px;
+}
+
+/* ========== 하단 각주 ========== */
+.app-footnote {
+  text-align: center;
+  padding: 10px 16px 16px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+/* ========== 모바일 반응형 ========== */
+@media (max-width: 900px) {
+  .canvas-section {
+    height: 360px;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .input-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 10px;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .param-group {
+    min-width: 150px;
+    flex: 1 1 45%;
+  }
+
+  .controls {
+    width: 100%;
+  }
+
+  .output-panel {
+    max-height: none;
+    overflow-y: visible;
+    padding: 12px;
+  }
+
+  .canvas-section {
+    height: 300px;
+  }
+
+  .summary-card {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .summary-value {
+    font-size: 0.92rem;
+  }
+
+  #groundtrack-canvas {
+    height: 180px;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-header h1 {
+    font-size: 1rem;
+  }
+
+  .input-panel {
+    gap: 8px;
+  }
+
+  .param-group {
+    min-width: 130px;
+  }
+
+  .canvas-section {
+    height: 240px;
+  }
+
+  #groundtrack-canvas {
+    height: 150px;
+  }
+}

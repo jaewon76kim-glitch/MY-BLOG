@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>위성링크 소규모 페이딩 시뮬레이터</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>위성링크 소규모 페이딩 시뮬레이터: 레일리 · 라이시안 · 나카가미</h1>
+  <p>위성-지상 링크의 소규모 페이딩을 시간축 포락선 애니메이션과 몬테카를로 히스토그램으로 함께 보여주고, 실측 아웃티지 확률을 이론값과 겹쳐 비교합니다</p>
+</header>
+
+<div class="main-layout">
+  <!-- 입력 패널 -->
+  <aside class="input-panel">
+
+    <!-- 페이딩 모델 전환 -->
+    <div class="param-group">
+      <span class="param-label">페이딩 모델</span>
+      <div class="preset-row">
+        <button class="preset-btn active" id="btn-model-rayleigh" data-model="rayleigh">Rayleigh</button>
+        <button class="preset-btn" id="btn-model-rician" data-model="rician">Rician</button>
+        <button class="preset-btn" id="btn-model-nakagami" data-model="nakagami">Nakagami-m</button>
+      </div>
+    </div>
+
+    <!-- K-factor (라이시안 전용) -->
+    <div class="param-group" id="group-k" style="display:none;">
+      <span class="param-label">K-factor (LOS/산란 전력비)</span>
+      <span class="param-value" id="val-k">10.0 dB</span>
+      <input type="range" id="slider-k" min="-10" max="20" step="0.5" value="10">
+    </div>
+
+    <!-- m (나카가미 전용) -->
+    <div class="param-group" id="group-m" style="display:none;">
+      <span class="param-label">m (페이딩 심도 파라미터)</span>
+      <span class="param-value" id="val-m">1.0</span>
+      <input type="range" id="slider-m" min="0.5" max="10" step="0.1" value="1.0">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 평균 SNR -->
+    <div class="param-group">
+      <span class="param-label">평균 SNR γ̄</span>
+      <span class="param-value" id="val-gammabar">10.0 dB</span>
+      <input type="range" id="slider-gammabar" min="-5" max="25" step="0.5" value="10">
+    </div>
+
+    <!-- 도플러 확산 -->
+    <div class="param-group">
+      <span class="param-label">도플러 확산 f_D <span id="val-fd-label">(완만한 페이딩)</span></span>
+      <span class="param-value" id="val-fd">3.0 Hz</span>
+      <input type="range" id="slider-fd" min="0.2" max="40" step="0.2" value="3.0">
+    </div>
+
+    <!-- 아웃티지 임계값 -->
+    <div class="param-group">
+      <span class="param-label">아웃티지 임계값 γ_th/γ̄</span>
+      <span class="param-value" id="val-th">0.0 dB</span>
+      <input type="range" id="slider-th" min="-15" max="10" step="0.5" value="0">
+    </div>
+
+    <hr class="divider">
+
+    <!-- 재생 컨트롤 -->
+    <div class="controls">
+      <button class="play-btn" id="btn-play">▶ 재생</button>
+      <button class="reset-btn" id="btn-reset">↺ 통계 리셋</button>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 프리셋 -->
+    <div class="param-group">
+      <span class="param-label">물리적 프리셋</span>
+      <div class="preset-row preset-col">
+        <button class="preset-btn wide" data-preset="urban-nlos">지상 도심 NLOS<br><span class="preset-sub">Rayleigh, K=0</span></button>
+        <button class="preset-btn wide" data-preset="sat-open-ka">위성 개활지 고앙각 Ka대역<br><span class="preset-sub">Rician, K≈15dB</span></button>
+        <button class="preset-btn wide" data-preset="sat-urban-low">위성 도심협곡·저앙각<br><span class="preset-sub">Rician, K≈0dB</span></button>
+        <button class="preset-btn wide" data-preset="indoor-multipath">실내 심한 다중경로<br><span class="preset-sub">Nakagami, m=0.5</span></button>
+      </div>
+    </div>
+
+    <div class="param-group">
+      <div class="hint-box">
+        K=0일 때 라이시안은 레일리와 정확히 같고, m=1일 때 나카가미도 레일리(지수분포)와 정확히 같습니다.
+        K가 클수록(위성 LOS가 강할수록) 라이시안은 페이딩 없는 AWGN 채널에 가까워지고, m&lt;1은 레일리보다
+        더 심한 페이딩을 뜻합니다.
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- 출력 패널 -->
+  <div class="output-panel">
+
+    <!-- 요약 카드 -->
+    <div class="summary-card">
+      <div class="summary-item">
+        <span class="summary-label">누적 샘플 수</span>
+        <span class="summary-value" id="sum-samples">0</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">실측 아웃티지</span>
+        <span class="summary-value accent" id="sum-outage-meas">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">이론 아웃티지</span>
+        <span class="summary-value" id="sum-outage-theory">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">실측 평균 (정규화)</span>
+        <span class="summary-value" id="sum-mean">—</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">현재 파라미터</span>
+        <span class="summary-value" id="sum-param">K=∞ (레일리)</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">상호 근사 변환</span>
+        <span class="summary-value" id="sum-conv">—</span>
+      </div>
+    </div>
+
+    <!-- 차트 1: 시간축 포락선 -->
+    <div class="chart-wrap">
+      <div class="chart-title">
+        <span>시간축 포락선</span> — 실시간 순시 SNR(dB), 빨간 점선 = 아웃티지 임계값, 붉은 구간 = 임계값 미만
+      </div>
+      <div class="chart-container">
+        <canvas id="chart-envelope"></canvas>
+      </div>
+    </div>
+
+    <!-- 차트 2: PDF vs 히스토그램 -->
+    <div class="chart-wrap">
+      <div class="chart-title">
+        <span>이론 PDF vs 몬테카를로 히스토그램</span> — 정규화 SNR γ/γ̄ 기준
+      </div>
+      <div class="chart-container">
+        <canvas id="chart-pdf"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 스크립트 로드 순서: Chart.js → theory → fading → stats → charts → main -->
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/theory.js"></script>
+<script src="js/fading.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
