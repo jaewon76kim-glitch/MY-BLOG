@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>경사하강법 손실 지형 시뮬레이터</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>경사하강법 손실 지형 시뮬레이터</h1>
+  <p>산점도에 데이터 점을 찍고, MSE 등고선 위에서 경사하강법이 실제로 어떻게 움직이는지 — 학습률·배치/SGD·릿지 정규화의 효과까지 — 직접 조작하며 확인합니다</p>
+</header>
+
+<div class="main-layout">
+
+  <!-- 좌: 산점도 패널 -->
+  <div class="panel scatter-panel">
+    <div class="panel-title">
+      <span>산점도</span> — 클릭: 점 추가 · 점 위 클릭/우클릭: 점 삭제
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="scatter-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- 우: 등고선 패널 -->
+  <div class="panel contour-panel">
+    <div class="panel-title">
+      <span>MSE 등고선</span> — 클릭: 경사하강 시작점 지정
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="contour-canvas"></canvas>
+    </div>
+    <div class="legend-row">
+      <span class="legend-item"><i class="swatch swatch-ols"></i>OLS 해 (★)</span>
+      <span class="legend-item"><i class="swatch swatch-ridge"></i>릿지 해 (λ)</span>
+      <span class="legend-item"><i class="swatch swatch-start"></i>시작점</span>
+      <span class="legend-item"><i class="swatch swatch-batch"></i>배치 경로</span>
+      <span class="legend-item"><i class="swatch swatch-sgd"></i>SGD 경로</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- 컨트롤 바 -->
+<div class="control-bar">
+
+  <div class="control-group">
+    <span class="control-label">학습률 η (로그 스케일)</span>
+    <span class="control-value" id="val-eta">0.020</span>
+    <input type="range" id="slider-eta" min="-3" max="0" step="0.01" value="-1.699">
+  </div>
+
+  <div class="control-group">
+    <span class="control-label">정규화 강도 λ (릿지)</span>
+    <span class="control-value" id="val-lambda">0.0</span>
+    <input type="range" id="slider-lambda" min="0" max="20" step="0.1" value="0">
+  </div>
+
+  <div class="control-group mode-group">
+    <span class="control-label">경로 표시</span>
+    <label class="check-row"><input type="checkbox" id="chk-batch" checked><span>배치 GD (전체 데이터)</span></label>
+    <label class="check-row"><input type="checkbox" id="chk-sgd"><span>SGD (무작위 1개)</span></label>
+  </div>
+
+  <div class="control-group btn-group">
+    <button id="btn-play" class="ctrl-btn primary">시작</button>
+    <button id="btn-pause" class="ctrl-btn" disabled>일시정지</button>
+    <button id="btn-reset" class="ctrl-btn">리셋</button>
+  </div>
+
+  <div class="control-group status-group">
+    <span class="status-item">스텝: <strong id="stat-step">0</strong></span>
+    <span class="status-item">MSE: <strong id="stat-mse">—</strong></span>
+    <span class="status-item">상태: <strong id="stat-status">시작점을 등고선 위에서 클릭하세요</strong></span>
+  </div>
+
+</div>
+
+<!-- 보조 그래프: 스텝별 MSE 감소 곡선 -->
+<div class="chart-panel">
+  <div class="panel-title">
+    <span>스텝별 MSE 감소 곡선</span> — 배치(빨강) / SGD(보라) 경로의 수렴 속도 비교
+  </div>
+  <div class="chart-container">
+    <canvas id="mse-chart"></canvas>
+  </div>
+</div>
+
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/regression.js"></script>
+<script src="js/contour.js"></script>
+<script src="js/gradient-descent.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
