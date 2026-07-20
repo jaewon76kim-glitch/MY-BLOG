@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNN 합성곱 연산 실험실</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>CNN 합성곱 연산 실험실</h1>
+  <p>완전연결층이 이미지에서 왜 비효율적인지부터, 합성곱·스트라이드·패딩·풀링이 어떻게 파라미터를 아끼는지,
+    1×1 합성곱과 잔차연결이 각각 무엇을 해결하는지까지 — 실제 숫자를 직접 조작하며 눈으로 확인합니다.</p>
+</header>
+
+<nav class="nav-wrap">
+  <div class="nav-tabs" id="nav-tabs"></div>
+  <select class="nav-select" id="nav-select" aria-label="섹션 이동"></select>
+</nav>
+
+<main>
+
+  <!-- ===================== 섹션 1: 합성곱 슬라이딩 데모 ===================== -->
+  <section id="section-1" class="section">
+    <div class="section-head">
+      <h2>1. 합성곱 슬라이딩 데모</h2>
+      <p class="section-desc">토이 이미지 위를 3×3 커널이 슬라이딩하며 특징맵을 만드는 과정을
+        원소별 곱-합(dot product) 계산식과 함께 확인합니다. 이미지 셀을 좌클릭하면 밝기가 올라가고,
+        우클릭하면 내려갑니다 (교재 8부 §1 부분연결+가중치공유 시각화).</p>
+    </div>
+
+    <div class="s1-layout">
+      <div class="panel s1-image-panel">
+        <div class="panel-title"><span>토이 이미지 (10×10)</span> — 좌클릭: 밝기 ↑ · 우클릭: 밝기 ↓</div>
+        <div class="canvas-scroll">
+          <canvas id="conv-image-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="panel s1-kernel-panel">
+        <div class="panel-title"><span>커널 선택</span></div>
+        <select id="kernel-preset-select" class="select-input">
+          <option value="edge">엣지 검출</option>
+          <option value="blur">블러 (평균)</option>
+          <option value="sharpen">샤픈</option>
+          <option value="identity">항등(변화 없음)</option>
+          <option value="custom">커스텀 (직접 입력)</option>
+        </select>
+        <div id="kernel-grid" class="kernel-grid"></div>
+        <div class="hint-text">커스텀 선택 시 9칸을 직접 입력할 수 있습니다.</div>
+      </div>
+
+      <div class="panel s1-feature-panel">
+        <div class="panel-title"><span>특징맵</span> — 강조된 칸: 현재 위치</div>
+        <div class="canvas-scroll">
+          <canvas id="conv-feature-canvas"></canvas>
+        </div>
+        <div id="dotproduct-text" class="dotproduct-box"></div>
+      </div>
+    </div>
+
+    <div class="control-bar s1-controls">
+      <div class="control-group btn-group">
+        <button id="btn-conv-play" class="ctrl-btn primary">재생</button>
+        <button id="btn-conv-pause" class="ctrl-btn" disabled>일시정지</button>
+        <button id="btn-conv-step" class="ctrl-btn">한 스텝</button>
+        <button id="btn-conv-reset" class="ctrl-btn">처음으로</button>
+      </div>
+      <div class="control-group">
+        <span class="control-label">재생 속도 (느림 ← → 빠름)</span>
+        <input type="range" id="conv-speed-slider" min="1" max="10" step="1" value="4">
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 2: 하이퍼파라미터 탐색기 ===================== -->
+  <section id="section-2" class="section">
+    <div class="section-head">
+      <h2>2. 스트라이드 / 패딩 / 풀링 탐색기</h2>
+      <p class="section-desc">커널 크기 h, 스트라이드 s, 패딩 p를 조절하면 출력 특징맵 크기
+        n' = ⌊(n+2p-h)/s⌋+1 이 실시간으로 재계산됩니다. 기본값 n=11, h=3, s=1, p=0 → n'=9
+        (교재 예시 재현). 패딩은 회색 칸으로 표시됩니다.</p>
+    </div>
+
+    <div class="hp-controls">
+      <div class="control-group">
+        <span class="control-label">입력 크기 n</span>
+        <input type="number" id="hp-n-input" class="number-input" min="3" max="40">
+      </div>
+      <div class="control-group">
+        <span class="control-label">커널 크기 h = <span id="hp-h-val">3</span></span>
+        <input type="range" id="hp-h-slider" min="1" max="9" step="1" value="3">
+      </div>
+      <div class="control-group">
+        <span class="control-label">스트라이드 s = <span id="hp-s-val">1</span></span>
+        <input type="range" id="hp-s-slider" min="1" max="5" step="1" value="1">
+      </div>
+      <div class="control-group">
+        <span class="control-label">패딩 p = <span id="hp-p-val">0</span></span>
+        <input type="range" id="hp-p-slider" min="0" max="5" step="1" value="0">
+      </div>
+    </div>
+
+    <div id="hp-formula-text" class="formula-box"></div>
+
+    <div class="hp-canvas-row">
+      <div class="panel">
+        <div class="panel-title"><span>입력 (패딩 포함)</span></div>
+        <div class="canvas-scroll">
+          <canvas id="hp-input-canvas"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span>출력 특징맵</span></div>
+        <div class="canvas-scroll">
+          <canvas id="hp-output-canvas"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span>풀링 결과</span></div>
+        <div class="canvas-scroll">
+          <canvas id="hp-pool-canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="hp-pool-controls control-bar">
+      <div class="control-group btn-group">
+        <button id="hp-pool-max-btn" class="ctrl-btn toggle-active">최대풀링</button>
+        <button id="hp-pool-avg-btn" class="ctrl-btn">평균풀링</button>
+      </div>
+      <div class="control-group">
+        <span class="control-label">풀링 윈도우 = <span id="hp-pool-size-val">2</span></span>
+        <input type="range" id="hp-pool-size-slider" min="1" max="5" step="1" value="2">
+      </div>
+      <div class="control-group">
+        <span class="control-label">풀링 스트라이드 = <span id="hp-pool-stride-val">2</span></span>
+        <input type="range" id="hp-pool-stride-slider" min="1" max="5" step="1" value="2">
+      </div>
+      <div class="control-group">
+        <span class="control-label">풀링 결과 크기</span>
+        <span id="hp-pool-info" class="control-value-text"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 3: 파라미터 수 비교 ===================== -->
+  <section id="section-3" class="section">
+    <div class="section-head">
+      <h2>3. 완전연결 vs 합성곱 — 파라미터 수 비교</h2>
+      <p class="section-desc">"LeNet-5 예시 불러오기"를 누르면 교재의 156개 vs 약 480만개(순수 곱셈
+        기준) 비교를 재현합니다 (입력 32×32×1, 5×5 커널 6개). 아래 계산기는 완전연결층에도 편향을
+        더하는 관례를 적용해 482만개로 표시합니다.</p>
+    </div>
+
+    <div class="pc-controls">
+      <div class="control-group">
+        <span class="control-label">입력 높이 H</span>
+        <input type="number" id="pc-H-input" class="number-input" min="1" max="256">
+      </div>
+      <div class="control-group">
+        <span class="control-label">입력 너비 W</span>
+        <input type="number" id="pc-W-input" class="number-input" min="1" max="256">
+      </div>
+      <div class="control-group">
+        <span class="control-label">입력 채널 C_in</span>
+        <input type="number" id="pc-Cin-input" class="number-input" min="1" max="512">
+      </div>
+      <div class="control-group">
+        <span class="control-label">커널 크기 h</span>
+        <input type="number" id="pc-h-input" class="number-input" min="1" max="32">
+      </div>
+      <div class="control-group">
+        <span class="control-label">출력 채널 C_out</span>
+        <input type="number" id="pc-Cout-input" class="number-input" min="1" max="1024">
+      </div>
+      <div class="control-group btn-group">
+        <button id="pc-lenet-btn" class="ctrl-btn primary">LeNet-5 예시 불러오기</button>
+      </div>
+    </div>
+
+    <div class="pc-result-row">
+      <div class="result-card">
+        <div class="result-label">완전연결(FC) 파라미터</div>
+        <div id="pc-fc-value" class="result-value fc-color"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">합성곱 파라미터</div>
+        <div id="pc-conv-value" class="result-value conv-color"></div>
+      </div>
+    </div>
+    <div id="pc-assumption-text" class="hint-text"></div>
+
+    <div class="chart-panel">
+      <div class="chart-container">
+        <canvas id="pc-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 4: 1x1 합성곱 계산기 ===================== -->
+  <section id="section-4" class="section">
+    <div class="section-head">
+      <h2>4. 1×1 합성곱 연산량 절감 계산기</h2>
+      <p class="section-desc">"GoogLeNet 예시 불러오기"를 누르면 교재의 726만회 vs 45만회 비교를
+        그대로 재현합니다 (입력 채널 120, 1×1로 6채널로 줄인 뒤 5×5 커널 20개 적용, 특징맵 11×11).</p>
+    </div>
+
+    <div class="bn-controls">
+      <div class="control-group">
+        <span class="control-label">특징맵 높이 H</span>
+        <input type="number" id="bn-H-input" class="number-input" min="1" max="64">
+      </div>
+      <div class="control-group">
+        <span class="control-label">특징맵 너비 W</span>
+        <input type="number" id="bn-W-input" class="number-input" min="1" max="64">
+      </div>
+      <div class="control-group">
+        <span class="control-label">입력 채널 C_in</span>
+        <input type="number" id="bn-Cin-input" class="number-input" min="1" max="1024">
+      </div>
+      <div class="control-group">
+        <span class="control-label">출력 채널 C_out</span>
+        <input type="number" id="bn-Cout-input" class="number-input" min="1" max="1024">
+      </div>
+      <div class="control-group">
+        <span class="control-label">큰 커널 크기 k</span>
+        <input type="number" id="bn-k-input" class="number-input" min="1" max="11">
+      </div>
+      <div class="control-group">
+        <span class="control-label">병목 채널 C_bottleneck</span>
+        <input type="number" id="bn-Cbottleneck-input" class="number-input" min="1" max="1024">
+      </div>
+      <div class="control-group btn-group">
+        <button id="bn-googlenet-btn" class="ctrl-btn primary">GoogLeNet 예시 불러오기</button>
+      </div>
+    </div>
+
+    <div class="pc-result-row">
+      <div class="result-card">
+        <div class="result-label">직접 큰 커널 적용</div>
+        <div id="bn-direct-value" class="result-value fc-color"></div>
+        <div id="bn-direct-korean" class="result-sub"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">1×1 병목 후 적용</div>
+        <div id="bn-bottleneck-value" class="result-value conv-color"></div>
+        <div id="bn-bottleneck-korean" class="result-sub"></div>
+      </div>
+    </div>
+    <div id="bn-ratio-text" class="hint-text highlight-text"></div>
+    <div id="bn-breakdown-text" class="hint-text"></div>
+
+    <div class="chart-panel">
+      <div class="chart-container">
+        <canvas id="bn-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 5: 잔차연결 기울기 흐름 ===================== -->
+  <section id="section-5" class="section">
+    <div class="section-head">
+      <h2>5. 잔차연결(ResNet) 기울기 흐름 비교</h2>
+      <p class="section-desc">층 수 L과 평균 기울기 인자 f'을 조절하면, 일반 신경망(곱셈 경로만)과
+        잔차연결(곱셈 경로 + 덧셈 지름길 1)의 ∂x_L/∂x_1 값이 층수에 따라 어떻게 달라지는지 비교합니다.</p>
+    </div>
+
+    <div class="control-bar rg-controls">
+      <div class="control-group">
+        <span class="control-label">층 수 L = <span id="rg-L-val">20</span></span>
+        <input type="range" id="rg-L-slider" min="1" max="60" step="1" value="20">
+      </div>
+      <div class="control-group">
+        <span class="control-label">평균 기울기 인자 f' = <span id="rg-fprime-val">0.50</span></span>
+        <input type="range" id="rg-fprime-slider" min="0.1" max="1.0" step="0.01" value="0.5">
+      </div>
+      <div class="control-group check-group">
+        <label class="check-row"><input type="checkbox" id="rg-log-toggle"><span>y축 로그 스케일</span></label>
+      </div>
+    </div>
+
+    <div id="rg-summary-text" class="hint-text highlight-text"></div>
+
+    <div class="chart-panel">
+      <div class="chart-container">
+        <canvas id="rg-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>CNN 합성곱 연산 실험실 — 순전파(forward pass) 계산만으로 합성곱, 파라미터 효율성, 1×1 합성곱, 잔차연결을 시연합니다.</p>
+</footer>
+
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/conv-math.js"></script>
+<script src="js/conv-demo.js"></script>
+<script src="js/hyperparam-explorer.js"></script>
+<script src="js/param-count.js"></script>
+<script src="js/bottleneck-calc.js"></script>
+<script src="js/resnet-gradient.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
