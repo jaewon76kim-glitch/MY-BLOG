@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>베이즈 추론 실험실</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>베이즈 추론 실험실</h1>
+  <p>암 검사의 기저율 오류, 오션뷰 호텔의 생성적 분류(MAP), 그리고 숫자게임으로 보는 MLE와 MAP의
+    갈림길까지 — 베이즈 정리가 실제 숫자에서 어떻게 작동하는지 슬라이더와 클릭으로 직접 확인합니다.</p>
+</header>
+
+<nav class="nav-wrap">
+  <div class="nav-tabs" id="nav-tabs"></div>
+  <select class="nav-select" id="nav-select" aria-label="섹션 이동"></select>
+</nav>
+
+<main>
+
+  <!-- ===================== 섹션 1: 기저율 오류 · 베이즈 정리 계산기 ===================== -->
+  <section id="section-1" class="section">
+    <div class="section-head">
+      <h2>1. 기저율 오류 — 베이즈 정리 계산기</h2>
+      <p class="section-desc">암 검사의 민감도 p(양성|암), 위양성률 p(양성|암 아님), 사전확률 p(암)을
+        조절하면 전체 확률의 법칙과 베이즈 정리로 p(암|양성)이 실시간으로 재계산됩니다. 민감도가 80%로
+        높아도 암의 사전확률(기저율)이 낮으면 양성 판정을 받은 사람이 실제 암일 확률은 여전히 낮을 수
+        있습니다 — 기본값(0.8, 0.096, 0.01)에서는 약 7.8%입니다.</p>
+    </div>
+
+    <div class="br-layout">
+      <div class="panel br-left">
+        <div class="control-group">
+          <span class="control-label">민감도 p(양성|암) = <span id="br-sens-val">0.800</span></span>
+          <input type="range" id="br-sens-slider" min="0" max="1" step="0.001" value="0.8">
+        </div>
+        <div class="control-group">
+          <span class="control-label">위양성률 p(양성|암 아님) = <span id="br-fpr-val">0.096</span></span>
+          <input type="range" id="br-fpr-slider" min="0" max="1" step="0.001" value="0.096">
+        </div>
+        <div class="control-group">
+          <span class="control-label">사전확률 p(암) = <span id="br-prior-val">0.010</span></span>
+          <input type="range" id="br-prior-slider" min="0.0001" max="0.5" step="0.0001" value="0.01">
+        </div>
+        <button id="br-reset-btn" class="ctrl-btn">교재 기본값으로 재설정</button>
+        <div id="br-formula-text" class="formula-box br-formula-box"></div>
+      </div>
+
+      <div class="panel br-right">
+        <div class="panel-title"><span>100명 아이콘 격자</span> — 100명 중 각 유형의 인원수</div>
+        <div id="br-icon-grid" class="br-icon-grid"></div>
+        <div id="br-legend-counts" class="br-legend"></div>
+        <div class="br-result-box">
+          <div class="result-label">p(암|양성)</div>
+          <div id="br-result-value" class="result-value br-result-color"></div>
+          <div id="br-result-sub" class="hint-text"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 2: 조건부확률 방향성(성적표 예제) ===================== -->
+  <section id="section-2" class="section">
+    <div class="section-head">
+      <h2>2. 조건부확률 방향성 — 성적표 예제</h2>
+      <p class="section-desc">2×2 분할표(열심히 공부함/안 함 × A+ 받음/그 외)의 4칸을 직접 수정하면
+        p(A+|공부함)과 p(공부함|A+)을 나란히 계산합니다. p(A|B)와 p(B|A)는 서로 다른 질문이며, 표의
+        숫자에 따라 우연히 같을 수도 다를 수도 있습니다.</p>
+    </div>
+
+    <div class="ct-layout">
+      <div class="panel ct-table-panel">
+        <div class="panel-title"><span>2×2 분할표</span> — 숫자를 직접 수정할 수 있습니다</div>
+        <table class="ct-table">
+          <thead>
+            <tr><th></th><th>A+ 받음</th><th>그 외</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>열심히 공부함</th>
+              <td><input type="number" id="ct-input-studied-aplus" class="number-input ct-cell-input" min="0"></td>
+              <td><input type="number" id="ct-input-studied-other" class="number-input ct-cell-input" min="0"></td>
+            </tr>
+            <tr>
+              <th>공부 안 함</th>
+              <td><input type="number" id="ct-input-notstudied-aplus" class="number-input ct-cell-input" min="0"></td>
+              <td><input type="number" id="ct-input-notstudied-other" class="number-input ct-cell-input" min="0"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="control-group btn-group ct-preset-btns">
+          <button id="ct-preset1-btn" class="ctrl-btn">예시 1 (18/2/2/8)</button>
+          <button id="ct-preset2-btn" class="ctrl-btn">예시 2 (10/10/2/8)</button>
+        </div>
+      </div>
+
+      <div class="panel ct-result-panel">
+        <div class="ct-result-card">
+          <div class="result-label">p(A+ | 공부함)</div>
+          <div id="ct-p-aplus-given-studied" class="result-value ct-color-a"></div>
+          <div id="ct-formula-a" class="hint-text"></div>
+        </div>
+        <div class="ct-result-card">
+          <div class="result-label">p(공부함 | A+)</div>
+          <div id="ct-p-studied-given-aplus" class="result-value ct-color-b"></div>
+          <div id="ct-formula-b" class="hint-text"></div>
+        </div>
+        <div id="ct-diff-note" class="hint-text highlight-text ct-diff-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 3: 생성적 분류기(오션뷰 호텔 MAP) ===================== -->
+  <section id="section-3" class="section">
+    <div class="section-head">
+      <h2>3. 생성적 분류기 — 오션뷰 호텔 MAP 분류</h2>
+      <p class="section-desc">클래스(호텔)별 우도 p(오션뷰|y=c)와 사전확률 p(y=c)를 조절하면 베이즈
+        정리로 정규화된 사후확률이 즉시 갱신됩니다. 사후확률이 가장 큰 클래스가 MAP(최대 사후확률)
+        선택입니다 — 기본값에서는 호텔 A(사후확률 50%)가 선택됩니다.</p>
+    </div>
+
+    <div id="gc-class-controls" class="gc-class-controls"></div>
+    <div class="control-group btn-group">
+      <button id="gc-reset-btn" class="ctrl-btn">교재 기본값으로 재설정</button>
+    </div>
+
+    <div id="gc-evidence-text" class="formula-box gc-evidence-box"></div>
+    <div id="gc-map-text" class="hint-text highlight-text gc-map-box"></div>
+
+    <div class="chart-panel">
+      <div class="chart-container">
+        <canvas id="gc-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 4: 숫자게임 가설공간 탐색기 ===================== -->
+  <section id="section-4" class="section">
+    <div class="section-head">
+      <h2>4. 숫자게임(Number Game) 가설공간 탐색기</h2>
+      <p class="section-desc">1~100 격자에서 숫자를 클릭해 데이터 D에 추가/제거하면, 고정된 가설공간
+        중 D와 모순되지 않는 가설들의 강한 표집 우도 p(D|h)=(1/|h|)^N을 계산해 비교합니다. D={16}일 때는
+        "2의 거듭제곱"이 근소 우세하지만, D={16,8,2,64}로 데이터가 늘면 우도비가 약 4800:1까지 벌어집니다.</p>
+    </div>
+
+    <div class="ng-layout">
+      <div class="panel ng-grid-panel">
+        <div class="panel-title"><span>1~100 숫자 격자</span> — 클릭으로 D에 추가/제거</div>
+        <div id="ng-number-grid" class="ng-number-grid"></div>
+        <div id="ng-data-text" class="hint-text ng-data-text"></div>
+        <div class="control-group btn-group ng-preset-btns">
+          <button id="ng-preset-16-btn" class="ctrl-btn">D = {16}</button>
+          <button id="ng-preset-4nums-btn" class="ctrl-btn">D = {16, 8, 2, 64}</button>
+          <button id="ng-clear-btn" class="ctrl-btn">비우기</button>
+        </div>
+      </div>
+
+      <div class="panel ng-result-panel">
+        <div class="panel-title"><span>가설별 p(D|h)</span> — 로그 스케일, 모순 가설은 목록에서만 표시</div>
+        <div class="chart-container ng-chart-container">
+          <canvas id="ng-chart"></canvas>
+        </div>
+        <div id="ng-hypothesis-list" class="ng-hypothesis-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 5: MLE ↔ MAP 갈림길 ===================== -->
+  <section id="section-5" class="section">
+    <div class="section-head">
+      <h2>5. MLE ↔ MAP 갈림길</h2>
+      <p class="section-desc">"2의 거듭제곱"(h_two, |h|=6, 자연스러운 가설)과 "32를 제외한 2의
+        거듭제곱"(h', |h|=5, 조작적이고 부자연스러운 가설)을 비교합니다. 우도만 보면(MLE) h'이 더
+        간결한 가설공간 덕에 항상 유리하지만, h_two에 더 높은 사전확률(자연스러움 가중치)을 주면
+        사후확률(MAP)은 작은 N에서 h_two가 역전합니다. N을 늘리면 우도 항이 사전 항을 압도해
+        결국 MAP도 MLE와 같은 결론(h')으로 수렴합니다.</p>
+    </div>
+
+    <div class="control-bar mm-controls">
+      <div class="control-group">
+        <span class="control-label">데이터 개수 N = <span id="mm-N-val">4</span></span>
+        <input type="range" id="mm-N-slider" min="1" max="60" step="1" value="4">
+      </div>
+      <div class="control-group check-group">
+        <label class="check-row"><input type="checkbox" id="mm-prior-toggle" checked>
+          <span>사전확률 반영 (MAP) — 끄면 우도만 사용(MLE)</span></label>
+      </div>
+    </div>
+
+    <div id="mm-prior-controls" class="control-bar mm-prior-controls">
+      <div class="control-group">
+        <span class="control-label">p(h_two) 사전확률 = <span id="mm-prior-two-val">0.100</span></span>
+        <input type="range" id="mm-prior-two-slider" min="0.001" max="0.3" step="0.001" value="0.1">
+      </div>
+      <div class="control-group">
+        <span class="control-label">p(h') 사전확률 = <span id="mm-prior-hprime-val">0.001</span></span>
+        <input type="range" id="mm-prior-hprime-slider" min="0.001" max="0.3" step="0.001" value="0.001">
+      </div>
+      <div class="control-group">
+        <span class="control-label">p(h_even) 사전확률 = <span id="mm-prior-even-val">0.050</span></span>
+        <input type="range" id="mm-prior-even-slider" min="0.001" max="0.3" step="0.001" value="0.05">
+      </div>
+    </div>
+
+    <div id="mm-summary-text" class="hint-text highlight-text mm-summary-box"></div>
+
+    <div class="chart-panel">
+      <div class="chart-container">
+        <canvas id="mm-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>베이즈 추론 실험실 — 반복 최적화 없이 닫힌 형태 공식만으로 베이즈 정리, 생성적 분류, 숫자게임의
+    우도/사전확률 계산을 시연합니다.</p>
+</footer>
+
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/bayes-math.js"></script>
+<script src="js/base-rate-calculator.js"></script>
+<script src="js/contingency-table.js"></script>
+<script src="js/generative-classifier.js"></script>
+<script src="js/number-game.js"></script>
+<script src="js/mle-map-divergence.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
