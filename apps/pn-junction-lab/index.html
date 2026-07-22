@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PN 접합 다이오드 실험실</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>PN 접합 다이오드 실험실</h1>
+  <p>억셉터/도너 농도, 온도, 인가전압을 슬라이더로 조절하면 실리콘 PN 접합의 내장전위·에너지밴드 휨·공핍층
+    폭과 전기장·전위 분포·쇼클리 다이오드 I-V 곡선이 닫힌 형태 공식으로 실시간 재계산됩니다. 도핑이
+    비대칭일수록 공핍층이 저농도 쪽으로 넓게 형성되고, 도핑이 낮을수록 포화전류가 커진다는 직관을
+    직접 확인해 보세요.</p>
+</header>
+
+<nav class="nav-wrap">
+  <div class="nav-tabs" id="nav-tabs"></div>
+  <select class="nav-select" id="nav-select" aria-label="섹션 이동"></select>
+</nav>
+
+<div class="control-panel" id="control-panel">
+  <div class="control-panel-head">
+    <div class="control-panel-title">접합 형성 컨트롤 패널</div>
+    <button id="panel-toggle-btn" class="ctrl-btn panel-toggle-btn" aria-expanded="true">패널 접기</button>
+  </div>
+  <div class="control-panel-body" id="control-panel-body">
+    <div class="control-bar cp-bar">
+      <div class="control-group">
+        <span class="control-label">억셉터 농도 N_A = <span id="na-val">-</span></span>
+        <input type="range" id="na-slider" min="14" max="19" step="0.01" value="17">
+      </div>
+      <div class="control-group">
+        <span class="control-label">도너 농도 N_D = <span id="nd-val">-</span></span>
+        <input type="range" id="nd-slider" min="14" max="19" step="0.01" value="15">
+      </div>
+      <div class="control-group">
+        <span class="control-label">온도 T = <span id="t-val">300</span> K</span>
+        <input type="range" id="t-slider" min="250" max="450" step="1" value="300">
+      </div>
+      <div class="control-group">
+        <span class="control-label">인가전압 V = <span id="v-val">0.000</span> V</span>
+        <input type="range" id="v-slider" min="-1" max="0.7" step="0.005" value="0">
+      </div>
+      <div class="control-group">
+        <span class="control-label">단면적 A = <span id="a-val">-</span></span>
+        <input type="range" id="a-slider" min="-6" max="-2" step="0.1" value="-4">
+      </div>
+    </div>
+    <div class="control-summary" id="control-summary">
+      <div class="summary-card">
+        <div class="result-label">진성 캐리어 농도 n_i(T)</div>
+        <div id="summary-ni" class="result-value summary-ni-color">-</div>
+      </div>
+      <div class="summary-card">
+        <div class="result-label">내장전위 V_bi</div>
+        <div id="summary-vbi" class="result-value summary-vbi-color">-</div>
+      </div>
+      <div class="summary-card">
+        <div class="result-label">열전압 k_BT/e (≈26mV @300K)</div>
+        <div id="summary-vt" class="result-value summary-vt-color">-</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== 섹션 1: 에너지밴드 다이어그램 ===================== -->
+  <section id="section-1" class="section">
+    <div class="section-head">
+      <h2>1. 에너지밴드 다이어그램</h2>
+      <p class="section-desc">접합 전(같은 실리콘이므로 진공 기준 E_c/E_v/E_i는 두 영역에서 동일하고
+        E_F 위치만 다름)과 접합 후(단일 E_F로 정렬되며 밴드가 e(V_bi-V)만큼 휘어짐)를 비교합니다.
+        공핍층 안의 곡선은 실제 전위 분포 φ(x)를 그대로 사용해 그렸습니다.</p>
+    </div>
+
+    <div class="control-bar bd-toggle-bar">
+      <div class="control-group btn-group">
+        <button id="bd-before-btn" class="ctrl-btn">접합 전 (분리된 두 반도체)</button>
+        <button id="bd-after-btn" class="ctrl-btn primary">접합 후 (밴드 정렬)</button>
+      </div>
+    </div>
+
+    <div class="panel bd-panel">
+      <div class="bd-legend" id="bd-legend"></div>
+      <div class="chart-container bd-canvas-container">
+        <canvas id="bd-canvas"></canvas>
+      </div>
+      <div id="bd-bending-text" class="hint-text highlight-text bd-bending-box"></div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 2: 공핍층 프로파일 ===================== -->
+  <section id="section-2" class="section">
+    <div class="section-head">
+      <h2>2. 공핍층 프로파일</h2>
+      <p class="section-desc">계단접합 근사로 전하밀도 ρ(x), 전기장 E(x)(삼각형), 전위 φ(x)(포물선 2개를
+        이어붙인 곡선)를 세로로 나란히 그립니다. 도핑이 비대칭일수록 공핍층이 저농도 쪽으로 훨씬 넓게
+        형성됩니다(전기적 중성 조건 N_A x_p = N_D x_n).</p>
+    </div>
+
+    <div class="dp-layout">
+      <div class="panel dp-graphs">
+        <div class="dp-graph-block">
+          <div class="panel-title"><span>전하밀도</span> ρ(x)</div>
+          <canvas id="dp-rho-canvas" class="dp-canvas"></canvas>
+        </div>
+        <div class="dp-graph-block">
+          <div class="panel-title"><span>전기장</span> E(x)</div>
+          <canvas id="dp-field-canvas" class="dp-canvas"></canvas>
+        </div>
+        <div class="dp-graph-block">
+          <div class="panel-title"><span>전위</span> φ(x)</div>
+          <canvas id="dp-potential-canvas" class="dp-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="panel dp-numbers">
+        <div class="panel-title">공핍층 요약</div>
+        <div class="dp-num-row"><span class="dp-num-label">공핍층 폭 W</span><span id="dp-w-val" class="dp-num-value">-</span></div>
+        <div class="dp-num-row"><span class="dp-num-label">x_p (p측 공핍폭)</span><span id="dp-xp-val" class="dp-num-value">-</span></div>
+        <div class="dp-num-row"><span class="dp-num-label">x_n (n측 공핍폭)</span><span id="dp-xn-val" class="dp-num-value">-</span></div>
+        <div class="dp-num-row"><span class="dp-num-label">최대 전기장 E_max</span><span id="dp-emax-val" class="dp-num-value">-</span></div>
+        <div id="dp-note-text" class="hint-text dp-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 섹션 3: 쇼클리 다이오드 I-V 곡선 ===================== -->
+  <section id="section-3" class="section">
+    <div class="section-head">
+      <h2>3. 쇼클리 다이오드 I-V 곡선</h2>
+      <p class="section-desc">I(V) = I0(e^{V/(k_BT/e)} - 1)를 그립니다. 역방향(V≪0)에서는 -I0로
+        포화되고, 순방향에서 V가 열전압(≈26mV)보다 훨씬 커지면 전류가 지수적으로 폭증합니다.</p>
+    </div>
+
+    <div class="control-bar iv-toggle-bar">
+      <div class="control-group">
+        <span class="result-label">포화전류 I0</span>
+        <span id="iv-i0-val" class="result-value iv-i0-color">-</span>
+      </div>
+      <div class="control-group btn-group">
+        <button id="iv-linear-btn" class="ctrl-btn primary">Y축 선형</button>
+        <button id="iv-log-btn" class="ctrl-btn">Y축 로그(|I|)</button>
+      </div>
+    </div>
+
+    <div class="chart-panel">
+      <div class="chart-container">
+        <canvas id="iv-chart"></canvas>
+      </div>
+    </div>
+    <div id="iv-op-text" class="hint-text highlight-text iv-op-box"></div>
+  </section>
+
+  <!-- ===================== 섹션 4: 도핑 프리셋 비교 ===================== -->
+  <section id="section-4" class="section">
+    <div class="section-head">
+      <h2>4. 도핑 프리셋 비교</h2>
+      <p class="section-desc">클릭 한 번으로 N_A/N_D를 바꾸면 위 컨트롤 패널과 섹션 1~3 전체가 함께
+        갱신됩니다. V_bi는 프리셋 간 크게 다르지 않지만, W의 분배(x_p vs x_n)와 I0는 자릿수 단위로
+        달라집니다.</p>
+    </div>
+
+    <div class="control-bar btn-group preset-btns" id="preset-btns"></div>
+
+    <div class="panel preset-table-panel">
+      <div class="panel-title"><span>프리셋 비교표</span> — 현재 T, A 기준(V=0, 무바이어스)</div>
+      <div class="table-scroll">
+        <table class="preset-table" id="preset-table">
+          <thead>
+            <tr><th>프리셋</th><th>N_A</th><th>N_D</th><th>V_bi</th><th>W</th><th>x_p / x_n</th><th>I0</th></tr>
+          </thead>
+          <tbody id="preset-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>PN 접합 다이오드 실험실 — 반복 최적화 없이 닫힌 형태 공식(질량작용법칙, 내장전위, 공핍층 폭,
+    쇼클리 다이오드 방정식)만으로 실리콘 PN 접합의 정전기학과 I-V 특성을 계산합니다.</p>
+</footer>
+
+<script src="js/vendor/chart.umd.min.js"></script>
+<script src="js/semiconductor-constants.js"></script>
+<script src="js/semiconductor-math.js"></script>
+<script src="js/band-diagram.js"></script>
+<script src="js/depletion-profile.js"></script>
+<script src="js/iv-curve.js"></script>
+<script src="js/presets.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
