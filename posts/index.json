@@ -1,5 +1,23 @@
 [
   {
+    "slug": "ml-deep-learning-perceptron-to-llm",
+    "title": "퍼셉트론에서 LLM까지 — 딥러닝 핵심 알고리즘이 푸는 문제들",
+    "date": "2026-07-24",
+    "tags": ["딥러닝", "CNN", "트랜스포머", "LLM"],
+    "category": "머신러닝과_인공지능",
+    "description": "개인 교재 \"머신러닝과 인공지능의 역사\" 7~11부를 따라, 퍼셉트론·역전파·CNN·RNN/LSTM·어텐션/트랜스포머·LLM이 각각 어떤 문제를 풀기 위해 등장했는지 키워드와 핵심 수식으로 정리했다.",
+    "wordCount": 740
+  },
+  {
+    "slug": "ml-classical-algorithms-bayes-to-svm",
+    "title": "베이즈 정리에서 SVM까지 — 고전 머신러닝 핵심 알고리즘이 푸는 문제들",
+    "date": "2026-07-24",
+    "tags": ["머신러닝", "베이즈학습", "회귀", "SVM"],
+    "category": "머신러닝과_인공지능",
+    "description": "개인 교재 \"머신러닝과 인공지능의 역사\" 1~6부를 따라, 베이즈 정리·MLE/MAP·회귀·분류·군집화·SVM이 각각 어떤 문제를 풀기 위해 등장했는지 키워드와 핵심 수식으로 정리했다.",
+    "wordCount": 897
+  },
+  {
     "slug": "satellite-link-budget-eirp-gt",
     "title": "위성 링크버짓은 왜 EIRP와 G/T 두 숫자로 요약될까",
     "date": "2026-07-19",
