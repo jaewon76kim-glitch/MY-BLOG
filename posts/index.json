@@ -6,7 +6,7 @@
     "tags": ["CNN", "GoogLeNet", "인셉션모듈", "딥러닝"],
     "category": "머신러닝과_인공지능",
     "description": "GoogLeNet이 1×1 합성곱으로 연산량 병목을 없애는 계산 과정, naive 인셉션 모듈의 문제와 개선된 구조, 완전연결층을 대체하는 전역평균풀링의 파라미터 절감까지 자세히 정리했다.",
-    "wordCount": 953
+    "wordCount": 997
   },
   {
     "slug": "ml-deep-learning-perceptron-to-llm",
