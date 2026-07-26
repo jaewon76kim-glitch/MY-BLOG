@@ -4,9 +4,9 @@
     "title": "AI 생태계 지도 — 데이터센터부터 파운드리, HBM, AI 모델 기업까지",
     "date": "2026-07-26",
     "tags": ["AI산업", "반도체", "빅테크", "산업분석"],
-    "category": "기타",
+    "category": "머신러닝과_인공지능",
     "description": "엔비디아·TSMC·SK하이닉스부터 OpenAI·Anthropic·구글까지, AI를 둘러싼 기업들의 수익구조와 협력·경쟁 관계를 단계별로 정리하고 한국 기업의 위치를 짚어본다.",
-    "wordCount": 2858
+    "wordCount": 3026
   },
   {
     "slug": "googlenet-inception-module-1x1-bottleneck",
