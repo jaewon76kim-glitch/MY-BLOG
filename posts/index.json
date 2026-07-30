@@ -1,5 +1,14 @@
 [
   {
+    "slug": "working-with-claude-orchestrator-setup",
+    "title": "Claude로 작업하기 — 오케스트레이터, 메모리, MCP로 여러 프로젝트를 엮은 구조",
+    "date": "2026-07-30",
+    "tags": ["Claude Code", "오케스트레이터", "메모리", "MCP", "원격접속"],
+    "category": "기타",
+    "description": "Windows의 Claude Cowork(교재 작업)와 WSL의 Claude Code(이 블로그)를 따로 쓰다가 생긴 문제를, 오케스트레이터·메모리·스킬·MCP 네 가지 장치로 엮은 구조를 정리했다. 핸드폰으로 원격 작업지시를 내리는 설정도 함께 담았다.",
+    "wordCount": 1227
+  },
+  {
     "slug": "on-device-ai-chip-map-2026",
     "title": "온디바이스 AI 지도 — 스마트폰·PC·자동차의 NPU 전쟁, 그리고 진학 전공 가이드",
     "date": "2026-07-29",
