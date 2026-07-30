@@ -87,6 +87,9 @@ CLAUDE.md의 "작업 사이클"은 원래 웹앱 주제(apps/ 폴더, doc/ 하�
 작성 후 아래를 확인한다(문제가 있으면 즉시 고친다):
 
 - `python3 -m json.tool posts/index.json`으로 JSON 문법 확인
+- `python3 scripts/validate_posts.py`로 스키마 확인(2026-07-30 추가) — 문법만 보는
+  `json.tool`과 달리 필수 필드 존재, `category`가 `js/home.js`의 `CATEGORIES`에
+  실제로 있는지, `date` 형식, slug 중복 여부까지 확인한다. 실패하면 즉시 고친다.
 - frontmatter가 `---\n...\n---\n`형식으로 정확히 닫혀 있는지, 다른 글과 필드명이
   일치하는지(`title/date/tags/description`)
 - 본문에서 참조하는 링크(예: 앱 링크 `apps/{앱}/index.html`)가 실제로 존재하는지
