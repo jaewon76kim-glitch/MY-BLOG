@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3GPP UE 프로토콜 스펙 지도</title>
+  <meta name="description" content="LTE/NR 단말 프로토콜 개발자가 봐야 하는 3GPP 스펙을 프로토콜 스택 구조 위에 배치한 지도">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="app-header">
+    <h1>3GPP UE 프로토콜 스펙 지도</h1>
+    <p>LTE/NR 단말 프로토콜 개발자가 봐야 하는 스펙을, 번호 나열이 아니라 <strong>스택 구조 위에</strong> 놓았습니다.</p>
+  </header>
+
+  <div class="controls">
+    <input id="search" type="search" placeholder="스펙 번호나 키워드 검색 (예: 38.331, RACH, 도플러)"
+           aria-label="스펙 검색" autocomplete="off">
+    <button id="btn-ntn" class="toggle ntn" type="button" aria-pressed="false">NTN만</button>
+  </div>
+
+  <main id="view"></main>
+
+</div>
+
+<script src="js/specs.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
