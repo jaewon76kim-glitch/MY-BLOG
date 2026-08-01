@@ -14,6 +14,7 @@
 const MODULES = [
   /* Overview · Architecture (Stage 2) — 스택의 한 layer가 아니라 그 layer
      전체를 서술하는 문서. 스택과 같은 위→아래 순서로 배치한다. */
+  { id: 'ov-ims', name: 'IMS Architecture',  desc: 'IMS core architecture and session flows, stage 2 — 스택의 IMS · Services에 대응' },
   { id: 'ov-lcs', name: 'LCS Architecture',  desc: 'Location services and positioning, stage 2 — 스택의 LCS · Positioning에 대응' },
   { id: 'ov-sec', name: 'Security Architecture', desc: 'Authentication and key hierarchy — 스택의 USIM · UICC 위에서 도는 절차' },
   { id: 'ov-nas', name: 'System Architecture', desc: 'EPS / 5GS system architecture and end-to-end procedures — 스택의 NAS · Core에 대응' },
@@ -51,6 +52,14 @@ const SPECS = [
   /* ══ Overview · Architecture (Stage 2) ══════════════
      스택의 한 layer가 아니라 그 layer 전체를 서술하는 문서.
      스택과 같은 위→아래 순서로 배치해, 이 구획만 봐도 큰 그림이 잡히게 한다. */
+
+  /* ── IMS Architecture ── */
+  { id: '23.228', m: 'ov-ims', s: 'Common', rel: 'Rel-5~',
+    kw: 'IMS architecture stage 2 CSCF P-CSCF S-CSCF I-CSCF HSS registration session 아키텍처',
+    title: 'IP Multimedia Subsystem (IMS); Stage 2',
+    short: 'IMS architecture (Stage 2)',
+    when: '★ IMS의 구조 문서 — P-CSCF/S-CSCF/I-CSCF와 HSS의 역할 분담, IMS 등록과 세션 확립의 흐름. 24.229의 SIP 메시지를 펼치기 전에 "이 메시지가 왜 이 노드로 가는가"를 여기서 잡는다.',
+    xref: 'SIP 메시지 본문은 24.229' },
 
   /* ── LCS Architecture ── */
   { id: '23.271', m: 'ov-lcs', s: 'Common', peer: '23.273', rel: 'Rel-99~',
@@ -377,7 +386,8 @@ const SPECS = [
     kw: 'SIP SDP VoLTE VoNR registration call setup 호제어',
     title: 'IP multimedia call control protocol based on SIP and SDP; Stage 3',
     short: 'IMS SIP call control',
-    when: '★ VoLTE/VoNR registration·call setup SIP 메시지. 매우 두껍고 IETF RFC를 대량 참조하므로 각오하고 펼칠 것.' },
+    when: '★ VoLTE/VoNR registration·call setup SIP 메시지. 매우 두껍고 IETF RFC를 대량 참조하므로 각오하고 펼칠 것.',
+    xref: '구조와 노드 역할은 23.228' },
   { id: '26.114', m: 'ims', s: 'Common', rel: 'Rel-7~',
     kw: 'MTSI codec jitter buffer media adaptation 음성품질',
     title: 'IMS; Multimedia telephony; Media handling and interaction',

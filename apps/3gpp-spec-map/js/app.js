@@ -7,7 +7,7 @@ const $ = (sel) => document.querySelector(sel);
 // 정하는(PLMN Selection) 상위 기능이라 NAS 위에 놓는다. 그 아래가 스택 본체.
 const STACK_ORDER = ['te', 'ims', 'sms', 'lcs', 'sec', 'plmn', 'nas', 'uecap', 'rrc', 'rrm', 'sdap', 'pdcp', 'rlc', 'mac', 'phy-proc', 'phy', 'rf'];
 // 총론·아키텍처 — 스택과 같은 위→아래 순서라 이 구획만 봐도 큰 그림이 잡힌다
-const OVERVIEW_ORDER = ['ov-lcs', 'ov-sec', 'ov-nas', 'ov-ran', 'ov-phy'];
+const OVERVIEW_ORDER = ['ov-ims', 'ov-lcs', 'ov-sec', 'ov-nas', 'ov-ran', 'ov-phy'];
 // 스택을 검증하는 시험 규격. 공통 시험환경(t-com)은 나머지 셋이 참조하는
 // 토대이므로 맨 아래에 둔다.
 const TEST_ORDER = ['t-pct', 't-rrm', 't-rct', 't-com'];
