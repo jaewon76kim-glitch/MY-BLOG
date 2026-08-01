@@ -7,7 +7,7 @@ const $ = (sel) => document.querySelector(sel);
 // 정하는(PLMN Selection) 상위 기능이라 NAS 위에 놓는다. 그 아래가 스택 본체.
 const STACK_ORDER = ['ims', 'sms', 'lcs', 'sec', 'plmn', 'nas', 'rrc', 'sdap', 'pdcp', 'rlc', 'mac', 'phy', 'rf'];
 // 옆 기둥 — 스택의 한 layer가 아니라 스택 전체를 가로지르거나 그 바깥에 있는 것들
-const PILLAR_ORDER = ['uecap', 'te', 't-com', 't-pct', 't-rrm', 't-rct'];
+const PILLAR_ORDER = ['uecap', 'te', 'ntn-tr', 't-com', 't-pct', 't-rrm', 't-rct'];
 
 let ntnOnly = false;
 let query = '';
@@ -86,7 +86,7 @@ function renderOverview() {
       ${stack}
     </div>
     <div class="pillars">
-      <h2>UE Capability · AT · Test</h2>
+      <h2>UE Capability · AT · NTN Study · Test</h2>
       <p class="pillar-note">스택의 한 layer에 속하지 않고, 스택 전체를 가로지르거나 그 바깥에 있는 문서들입니다.</p>
       <div class="pillar-grid">${pillars}</div>
     </div>
