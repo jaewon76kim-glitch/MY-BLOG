@@ -36,7 +36,7 @@ const MODULES = [
   { id: 'sec',    name: 'USIM · UICC',       desc: 'UICC–terminal interface and the USIM application — the card boundary' },
   { id: 'rf',     name: 'RF · Performance',  desc: 'Tx/Rx requirements, bands and performance — the analog boundary beneath PHY' },
   { id: 'ims',    name: 'IMS · Services',    desc: 'VoLTE/VoNR call control and media — rides the user plane, not NAS' },
-  { id: 'sms',    name: 'SMS · CBS',         desc: 'Short message transport and encoding, CBS/ETWS/CMAS — carried over NAS' },
+  { id: 'sms',    name: 'SMS · CBS',         desc: 'Short message and cell broadcast payload — SMS rides NAS, CBS/ETWS/CMAS rides RRC system information' },
   { id: 'lcs',    name: 'LCS · Positioning', desc: 'UE positioning — LPP carried over NAS, plus stage-2 procedures' },
   { id: 'plmn',   name: 'PLMN Selection',    desc: 'PLMN selection and reselection — steers what NAS registers to' },
   { id: 'te',     name: 'AT · TE–MT',        desc: 'AT command set and TE–MT interface — the host-facing boundary above the whole stack' },
@@ -418,10 +418,11 @@ const SPECS = [
     when: 'IMS를 통한 SMS. SIP MESSAGE 안에 23.040 TPDU를 그대로 넣어 보낸다 — VoLTE/VoNR 단말의 SMS 경로.',
     xref: 'SIP 본문은 24.229' },
   { id: '23.041', m: 'sms', s: 'Common', rel: 'Rel-99~',
-    kw: 'cell broadcast CBS ETWS CMAS PWS 재난문자 긴급재난문자 방송',
+    kw: 'cell broadcast CBS ETWS CMAS PWS SIB warningMessageSegment message identifier serial number 재난문자 긴급재난문자 방송',
     title: 'Technical realization of Cell Broadcast Service (CBS)',
     short: 'Cell Broadcast (CBS · ETWS · CMAS)',
-    when: '재난문자의 본문 — CBS 메시지 구조와 ETWS/CMAS(PWS) 동작. 점대점 SMS와 완전히 다른 경로(broadcast)라는 점이 핵심.' },
+    when: '★ 재난문자의 본문 — CB 메시지 구조(Message Identifier, Serial Number, Data Coding Scheme, page 분할)와 ETWS/CMAS(PWS) 동작. <b>전송은 NAS가 아니라 RRC system information이다</b> — LTE는 SIB10(ETWS primary)·SIB11(secondary)·SIB12(CMAS), NR은 SIB6·SIB7·SIB8. 이 문서가 정의하는 것은 그 SIB에 실리는 payload다.',
+    xref: 'SIB 정의와 전송은 36.331 / 38.331. 망 측은 S1-AP/NGAP Write-Replace Warning' },
 
   /* ── AT · TE–MT (스택 최상단, host↔modem 경계) ────── */
   { id: '27.007', m: 'te', s: 'Common', rel: 'Rel-99~',
