@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>베이즈 추론 실험실</title>
+  <title>Bayes 추론 실험실</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="app-header">
-  <h1>베이즈 추론 실험실</h1>
+  <h1>Bayes 추론 실험실</h1>
   <p>암 검사의 기저율 오류, 오션뷰 호텔의 생성적 분류(MAP), 그리고 숫자게임으로 보는 MLE와 MAP의
-    갈림길까지 — 베이즈 정리가 실제 숫자에서 어떻게 작동하는지 슬라이더와 클릭으로 직접 확인합니다.</p>
+    갈림길까지 — Bayes' theorem가 실제 숫자에서 어떻게 작동하는지 슬라이더와 클릭으로 직접 확인합니다.</p>
 </header>
 
 <nav class="nav-wrap">
@@ -21,13 +21,13 @@
 
 <main>
 
-  <!-- ===================== 섹션 1: 기저율 오류 · 베이즈 정리 계산기 ===================== -->
+  <!-- ===================== 섹션 1: 기저율 오류 · Bayes' theorem 계산기 ===================== -->
   <section id="section-1" class="section">
     <div class="section-head">
-      <h2>1. 기저율 오류 — 베이즈 정리 계산기</h2>
-      <p class="section-desc">암 검사의 민감도 p(양성|암), 위양성률 p(양성|암 아님), 사전확률 p(암)을
-        조절하면 전체 확률의 법칙과 베이즈 정리로 p(암|양성)이 실시간으로 재계산됩니다. 민감도가 80%로
-        높아도 암의 사전확률(기저율)이 낮으면 양성 판정을 받은 사람이 실제 암일 확률은 여전히 낮을 수
+      <h2>1. 기저율 오류 — Bayes' theorem 계산기</h2>
+      <p class="section-desc">암 검사의 민감도 p(양성|암), 위양성률 p(양성|암 아님), prior p(암)을
+        조절하면 전체 확률의 법칙과 Bayes' theorem로 p(암|양성)이 실시간으로 재계산됩니다. 민감도가 80%로
+        높아도 암의 prior(기저율)이 낮으면 양성 판정을 받은 사람이 실제 암일 확률은 여전히 낮을 수
         있습니다 — 기본값(0.8, 0.096, 0.01)에서는 약 7.8%입니다.</p>
     </div>
 
@@ -42,7 +42,7 @@
           <input type="range" id="br-fpr-slider" min="0" max="1" step="0.001" value="0.096">
         </div>
         <div class="control-group">
-          <span class="control-label">사전확률 p(암) = <span id="br-prior-val">0.010</span></span>
+          <span class="control-label">prior p(암) = <span id="br-prior-val">0.010</span></span>
           <input type="range" id="br-prior-slider" min="0.0001" max="0.5" step="0.0001" value="0.01">
         </div>
         <button id="br-reset-btn" class="ctrl-btn">교재 기본값으로 재설정</button>
@@ -117,9 +117,9 @@
   <section id="section-3" class="section">
     <div class="section-head">
       <h2>3. 생성적 분류기 — 오션뷰 호텔 MAP 분류</h2>
-      <p class="section-desc">클래스(호텔)별 우도 p(오션뷰|y=c)와 사전확률 p(y=c)를 조절하면 베이즈
-        정리로 정규화된 사후확률이 즉시 갱신됩니다. 사후확률이 가장 큰 클래스가 MAP(최대 사후확률)
-        선택입니다 — 기본값에서는 호텔 A(사후확률 50%)가 선택됩니다.</p>
+      <p class="section-desc">클래스(호텔)별 likelihood p(오션뷰|y=c)와 prior p(y=c)를 조절하면 Bayes
+        정리로 normalization된 posterior가 즉시 갱신됩니다. posterior가 가장 큰 클래스가 MAP(최대 posterior)
+        선택입니다 — 기본값에서는 호텔 A(posterior 50%)가 선택됩니다.</p>
     </div>
 
     <div id="gc-class-controls" class="gc-class-controls"></div>
@@ -142,8 +142,8 @@
     <div class="section-head">
       <h2>4. 숫자게임(Number Game) 가설공간 탐색기</h2>
       <p class="section-desc">1~100 격자에서 숫자를 클릭해 데이터 D에 추가/제거하면, 고정된 가설공간
-        중 D와 모순되지 않는 가설들의 강한 표집 우도 p(D|h)=(1/|h|)^N을 계산해 비교합니다. D={16}일 때는
-        "2의 거듭제곱"이 근소 우세하지만, D={16,8,2,64}로 데이터가 늘면 우도비가 약 4800:1까지 벌어집니다.</p>
+        중 D와 모순되지 않는 가설들의 강한 표집 likelihood p(D|h)=(1/|h|)^N을 계산해 비교합니다. D={16}일 때는
+        "2의 거듭제곱"이 근소 우세하지만, D={16,8,2,64}로 데이터가 늘면 likelihood비가 약 4800:1까지 벌어집니다.</p>
     </div>
 
     <div class="ng-layout">
@@ -173,10 +173,10 @@
     <div class="section-head">
       <h2>5. MLE ↔ MAP 갈림길</h2>
       <p class="section-desc">"2의 거듭제곱"(h_two, |h|=6, 자연스러운 가설)과 "32를 제외한 2의
-        거듭제곱"(h', |h|=5, 조작적이고 부자연스러운 가설)을 비교합니다. 우도만 보면(MLE) h'이 더
-        간결한 가설공간 덕에 항상 유리하지만, h_two에 더 높은 사전확률(자연스러움 가중치)을 주면
-        사후확률(MAP)은 작은 N에서 h_two가 역전합니다. N을 늘리면 우도 항이 사전 항을 압도해
-        결국 MAP도 MLE와 같은 결론(h')으로 수렴합니다.</p>
+        거듭제곱"(h', |h|=5, 조작적이고 부자연스러운 가설)을 비교합니다. likelihood만 보면(MLE) h'이 더
+        간결한 가설공간 덕에 항상 유리하지만, h_two에 더 높은 prior(자연스러움 weight)을 주면
+        posterior(MAP)은 작은 N에서 h_two가 역전합니다. N을 늘리면 likelihood 항이 사전 항을 압도해
+        결국 MAP도 MLE와 같은 결론(h')으로 convergence합니다.</p>
     </div>
 
     <div class="control-bar mm-controls">
@@ -186,21 +186,21 @@
       </div>
       <div class="control-group check-group">
         <label class="check-row"><input type="checkbox" id="mm-prior-toggle" checked>
-          <span>사전확률 반영 (MAP) — 끄면 우도만 사용(MLE)</span></label>
+          <span>prior 반영 (MAP) — 끄면 likelihood만 사용(MLE)</span></label>
       </div>
     </div>
 
     <div id="mm-prior-controls" class="control-bar mm-prior-controls">
       <div class="control-group">
-        <span class="control-label">p(h_two) 사전확률 = <span id="mm-prior-two-val">0.100</span></span>
+        <span class="control-label">p(h_two) prior = <span id="mm-prior-two-val">0.100</span></span>
         <input type="range" id="mm-prior-two-slider" min="0.001" max="0.3" step="0.001" value="0.1">
       </div>
       <div class="control-group">
-        <span class="control-label">p(h') 사전확률 = <span id="mm-prior-hprime-val">0.001</span></span>
+        <span class="control-label">p(h') prior = <span id="mm-prior-hprime-val">0.001</span></span>
         <input type="range" id="mm-prior-hprime-slider" min="0.001" max="0.3" step="0.001" value="0.001">
       </div>
       <div class="control-group">
-        <span class="control-label">p(h_even) 사전확률 = <span id="mm-prior-even-val">0.050</span></span>
+        <span class="control-label">p(h_even) prior = <span id="mm-prior-even-val">0.050</span></span>
         <input type="range" id="mm-prior-even-slider" min="0.001" max="0.3" step="0.001" value="0.05">
       </div>
     </div>
@@ -217,8 +217,8 @@
 </main>
 
 <footer class="app-footer">
-  <p>베이즈 추론 실험실 — 반복 최적화 없이 닫힌 형태 공식만으로 베이즈 정리, 생성적 분류, 숫자게임의
-    우도/사전확률 계산을 시연합니다.</p>
+  <p>Bayes 추론 실험실 — iteration 최적화 없이 닫힌 형태 공식만으로 Bayes' theorem, 생성적 분류, 숫자게임의
+    likelihood/prior 계산을 시연합니다.</p>
 </footer>
 
 <script src="js/vendor/chart.umd.min.js"></script>

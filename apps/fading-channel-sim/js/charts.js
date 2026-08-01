@@ -188,7 +188,7 @@ var FadingCharts = (function () {
         scales: {
           x: {
             type: 'linear',
-            title: { display: true, text: '정규화 SNR γ/γ̄', color: '#909090', font: { size: 10 } },
+            title: { display: true, text: 'normalization SNR γ/γ̄', color: '#909090', font: { size: 10 } },
             ticks: { color: '#909090', font: { size: 9 }, maxTicksLimit: 8 },
             grid: { color: 'rgba(60,60,100,0.3)' }
           },

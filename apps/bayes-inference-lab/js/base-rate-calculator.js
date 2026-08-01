@@ -1,6 +1,6 @@
-/* base-rate-calculator.js — 섹션 1: 기저율 오류 · 베이즈 정리 계산기
- * 민감도 p(양성|암), 위양성률 p(양성|암 아님), 사전확률 p(암) 슬라이더를 조절하면
- * 전체 확률의 법칙과 베이즈 정리로 p(암|양성)을 실시간 재계산하고,
+/* base-rate-calculator.js — 섹션 1: 기저율 오류 · Bayes' theorem 계산기
+ * 민감도 p(양성|암), 위양성률 p(양성|암 아님), prior p(암) 슬라이더를 조절하면
+ * 전체 확률의 법칙과 Bayes' theorem로 p(암|양성)을 실시간 재계산하고,
  * 100명 아이콘 격자(4색)로 시각화한다.
  */
 
@@ -30,7 +30,7 @@ function brRenderResult(calc) {
   var sub = document.getElementById('br-result-sub');
   if (sub) {
     sub.textContent = '민감도 ' + (brState.sensitivity * 100).toFixed(1) +
-      '%로 높아도, 암의 사전확률이 낮으면(기저율) 양성 판정을 받아도 실제 암일 확률은 이렇게 낮을 수 있습니다.';
+      '%로 높아도, 암의 prior가 낮으면(기저율) 양성 판정을 받아도 실제 암일 확률은 이렇게 낮을 수 있습니다.';
   }
 }
 

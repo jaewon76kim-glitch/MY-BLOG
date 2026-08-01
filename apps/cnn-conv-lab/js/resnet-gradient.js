@@ -1,5 +1,5 @@
-/* resnet-gradient.js — 섹션 5: 잔차연결(ResNet) 기울기 흐름 비교
- * 층 수 L, 평균 기울기 인자 f'(0.1~1.0)를 조절하면
+/* resnet-gradient.js — 섹션 5: 잔차연결(ResNet) gradient 흐름 비교
+ * 층 수 L, 평균 gradient 인자 f'(0.1~1.0)를 조절하면
  * "일반 신경망"(곱셈 경로만, Π f') 과 "잔차연결 포함"(Π f' + 1)의 dx_L/dx_1 값을
  * 층수에 따라 라인차트로 비교한다.
  */
@@ -95,7 +95,7 @@ function rgRenderSummary() {
   if (el) {
     el.innerHTML =
       'L=' + rgState.Lmax + '일 때: 일반 신경망 = ' + lastPlain.toExponential(3) +
-      ' (0으로 수렴) · 잔차연결 = ' + lastResidual.toFixed(6) + ' (항상 ≥ 1 유지)';
+      ' (0으로 convergence) · 잔차연결 = ' + lastResidual.toFixed(6) + ' (항상 ≥ 1 유지)';
   }
 }
 

@@ -1,6 +1,6 @@
 /* generative-classifier.js — 섹션 3: 생성적 분류기(오션뷰 호텔 MAP 분류)
- * 클래스별(호텔 A/B/C) 우도 p(x|y=c)와 사전확률 p(y=c) 슬라이더를 조절하면
- * 베이즈 정리로 정규화된 사후확률 막대그래프를 즉시 갱신하고 MAP 클래스를 강조한다.
+ * 클래스별(호텔 A/B/C) likelihood p(x|y=c)와 prior p(y=c) 슬라이더를 조절하면
+ * Bayes' theorem로 normalization된 posterior 막대그래프를 즉시 갱신하고 MAP 클래스를 강조한다.
  */
 
 var gcState = {
@@ -28,7 +28,7 @@ function gcRenderText(calc) {
   if (mapEl && calc.mapIndex >= 0) {
     var winner = calc.results[calc.mapIndex];
     mapEl.innerHTML = 'MAP 선택: <strong style="color:' + GC_COLORS[calc.mapIndex % GC_COLORS.length] + '">' +
-      winner.name + '</strong> (사후확률 ' + (winner.posterior * 100).toFixed(1) + '%)';
+      winner.name + '</strong> (posterior ' + (winner.posterior * 100).toFixed(1) + '%)';
   }
 }
 
@@ -43,7 +43,7 @@ function gcRenderChart(calc) {
   var chartData = {
     labels: labels,
     datasets: [{
-      label: '사후확률 p(y=c|오션뷰)',
+      label: 'posterior p(y=c|오션뷰)',
       data: data,
       backgroundColor: colors,
       borderRadius: 4
@@ -63,7 +63,7 @@ function gcRenderChart(calc) {
     scales: {
       y: {
         min: 0, max: 1,
-        title: { display: true, text: '사후확률', color: '#a0a0c0' },
+        title: { display: true, text: 'posterior', color: '#a0a0c0' },
         ticks: {
           color: '#a0a0c0',
           callback: function (v) { return (v * 100).toFixed(0) + '%'; }
@@ -112,7 +112,7 @@ function gcBuildControls() {
     likWrap.className = 'gc-slider-wrap';
     var likLabel = document.createElement('span');
     likLabel.className = 'control-label';
-    likLabel.textContent = '우도 p(x|y=c) = ';
+    likLabel.textContent = 'likelihood p(x|y=c) = ';
     var likVal = document.createElement('span');
     likVal.className = 'gc-slider-val';
     likVal.textContent = c.likelihood.toFixed(2);
@@ -133,7 +133,7 @@ function gcBuildControls() {
     priorWrap.className = 'gc-slider-wrap';
     var priorLabel = document.createElement('span');
     priorLabel.className = 'control-label';
-    priorLabel.textContent = '사전확률 p(y=c) = ';
+    priorLabel.textContent = 'prior p(y=c) = ';
     var priorVal = document.createElement('span');
     priorVal.className = 'gc-slider-val';
     priorVal.textContent = c.prior.toFixed(2);

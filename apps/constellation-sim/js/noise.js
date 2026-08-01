@@ -27,7 +27,7 @@ var NoiseSim = (function () {
     var ebn0_lin = Math.pow(10, ebn0_dB / 10);
     var esn0_lin = ebn0_lin * cfg.bitsPerSymbol;
 
-    // 성상점이 평균 심볼에너지 Es=1로 정규화되어 있으므로 N0 = Es/(Es/N0) = 1/esn0_lin
+    // 성상점이 평균 심볼에너지 Es=1로 normalization되어 있으므로 N0 = Es/(Es/N0) = 1/esn0_lin
     var N0 = 1 / esn0_lin;
     var sigma = Math.sqrt(N0 / 2); // n ~ N(0, N0/2), I/Q 각 축에 독립적으로 적용
 

@@ -1,4 +1,4 @@
-// gradient-descent.js - 배치/SGD 스텝 반복 로직과 애니메이션 프레임 스케줄링.
+// gradient-descent.js - batch/SGD 스텝 iteration 로직과 애니메이션 프레임 스케줄링.
 // 전역 객체 GDEngine 으로 노출 (type="module" 미사용).
 //
 // 두 개의 독립된 경로(배치, SGD)를 같은 시작점에서 동시에 추적해
@@ -9,7 +9,7 @@
 var GDEngine = (function () {
 
   var DIVERGE_THRESHOLD = 1e8; // 이 값을 넘으면 발산으로 간주
-  var GRAD_NORM_EPS = 1e-5;    // 그라디언트 노름이 이 아래로 떨어지면 수렴으로 간주
+  var GRAD_NORM_EPS = 1e-5;    // 그라디언트 노름이 이 아래로 떨어지면 convergence로 간주
   var STEPS_PER_FRAME = 3;     // 프레임당 진행할 스텝 수 (애니메이션 체감 속도)
 
   var state = null;
@@ -84,7 +84,7 @@ var GDEngine = (function () {
       pathState.status = 'diverged';
       pathState.diverged = true;
     } else if (!useSGD && gradNorm < GRAD_NORM_EPS) {
-      // 배치 경로에서만 그라디언트 노름 기준 수렴 판정 (SGD는 잡음 때문에 노름이 0에 잘 안 붙음)
+      // batch 경로에서만 그라디언트 노름 기준 convergence 판정 (SGD는 noise 때문에 노름이 0에 잘 안 붙음)
       pathState.status = 'converged';
       pathState.converged = true;
     }

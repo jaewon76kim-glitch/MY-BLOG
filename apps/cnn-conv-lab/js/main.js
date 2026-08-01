@@ -1,10 +1,10 @@
 /* main.js — 섹션 간 네비게이션, 공통 이벤트 바인딩, 전체 조립 */
 
 var NAV_SECTIONS = [
-  { id: 'section-1', label: '1. 합성곱 슬라이딩' },
-  { id: 'section-2', label: '2. 하이퍼파라미터' },
-  { id: 'section-3', label: '3. 파라미터 수 비교' },
-  { id: 'section-4', label: '4. 1×1 합성곱' },
+  { id: 'section-1', label: '1. convolution 슬라이딩' },
+  { id: 'section-2', label: '2. hyperparameter' },
+  { id: 'section-3', label: '3. parameter 수 비교' },
+  { id: 'section-4', label: '4. 1×1 convolution' },
   { id: 'section-5', label: '5. 잔차연결' }
 ];
 

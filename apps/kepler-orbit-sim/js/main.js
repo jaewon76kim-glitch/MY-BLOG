@@ -29,7 +29,7 @@
   var canvasOrbit = document.getElementById('orbit-canvas');
   var canvasGround = document.getElementById('groundtrack-canvas');
 
-  // ---- 프리셋 정의 (LEO/MEO/GEO, 모두 원궤도 e=0 기본값) ----
+  // ---- 프리셋 정의 (LEO/MEO/GEO, 모두 원orbit e=0 기본값) ----
   var PRESETS = {
     LEO: 6928,   // 6378 + 550 km (Starlink 예시)
     MEO: 26578,  // 6378 + 20200 km (GPS 예시)
@@ -51,8 +51,8 @@
   var rafId = null;
   var lastTimestamp = null;
 
-  var simTimeSec = 0;   // 궤도 시뮬레이션 누적 시간(초) — 케플러 방정식 M(t)=n*t 에 사용
-  var currentT = 0;     // 현재 궤도주기(초)
+  var simTimeSec = 0;   // orbit 시뮬레이션 누적 시간(초) — 케플러 방정식 M(t)=n*t 에 사용
+  var currentT = 0;     // 현재 orbital period(초)
   var timeScaleAuto = 1; // 실제 1초당 시뮬레이션 진행 초(자동 스케일)
 
   var groundTrackPoints = []; // {lon, lat, t}
@@ -128,7 +128,7 @@
     renderStatic();
   }
 
-  // a 또는 e 슬라이더/프리셋 변경 시: 애니메이션을 리셋하고 새 궤도로 다시 시작한다(규칙 5)
+  // a 또는 e 슬라이더/프리셋 변경 시: 애니메이션을 리셋하고 새 orbit으로 다시 시작한다(규칙 5)
   function onOrbitParamChange() {
     var wasPlaying = playing;
     pause();
@@ -180,7 +180,7 @@
     var a_m = params.a_km * 1000;
     var st = KeplerOrbit.stateAtTime(simTimeSec, a_m, params.e);
 
-    var windowSec = currentT * 0.03; // 면적속도 부채꼴에 사용할 슬라이딩 시간창(궤도주기의 3%)
+    var windowSec = currentT * 0.03; // 면적속도 부채꼴에 사용할 슬라이딩 시간창(orbital period의 3%)
     KeplerRenderer.pushSectorPoint(st.x, st.y, simTimeSec, windowSec);
     KeplerRenderer.draw(a_m, params.e, st);
 
@@ -220,7 +220,7 @@
 
     if (rpAlt < 0) {
       warnBox.style.display = 'block';
-      warnBox.textContent = '⚠ 근지점 고도가 음수입니다 — 지구 표면과 궤도가 교차하는 비현실적 값입니다(교육용 2체 문제 계산은 계속 유효).';
+      warnBox.textContent = '⚠ 근지점 altitude가 음수입니다 — 지구 표면과 orbit이 교차하는 비현실적 값입니다(교육용 2체 문제 계산은 계속 유효).';
     } else {
       warnBox.style.display = 'none';
     }

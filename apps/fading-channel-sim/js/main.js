@@ -120,7 +120,7 @@
     el['slider-gammabar'].addEventListener('input', function () {
       state.gammaBar_dB = parseFloat(this.value);
       el['val-gammabar'].textContent = state.gammaBar_dB.toFixed(1) + ' dB';
-      // γ̄는 정규화 분포(x=γ/γ̄) 자체를 바꾸지 않으므로 통계 리셋 불필요 — 표시 스케일만 갱신
+      // γ̄는 normalization 분포(x=γ/γ̄) 자체를 바꾸지 않으므로 통계 리셋 불필요 — 표시 스케일만 갱신
       FadingCharts.setEnvelopeYRange(state.gammaBar_dB);
       updateSummary();
     });
@@ -129,7 +129,7 @@
       state.fD_Hz = parseFloat(this.value);
       el['val-fd'].textContent = state.fD_Hz.toFixed(1) + ' Hz';
       updateFdLabel();
-      // f_D는 시간 상관(페이딩 속도)만 바꾸고 정규화 분포는 바꾸지 않으므로 통계 리셋 불필요
+      // f_D는 시간 상관(fading 속도)만 바꾸고 normalization 분포는 바꾸지 않으므로 통계 리셋 불필요
     });
 
     el['slider-th'].addEventListener('input', function () {
@@ -143,10 +143,10 @@
 
   function updateFdLabel() {
     var label;
-    if (state.fD_Hz < 3) label = '(매우 완만한 페이딩)';
-    else if (state.fD_Hz < 10) label = '(완만한 페이딩)';
-    else if (state.fD_Hz < 25) label = '(보통 속도 페이딩)';
-    else label = '(빠른 페이딩)';
+    if (state.fD_Hz < 3) label = '(매우 완만한 fading)';
+    else if (state.fD_Hz < 10) label = '(완만한 fading)';
+    else if (state.fD_Hz < 25) label = '(보통 속도 fading)';
+    else label = '(빠른 fading)';
     el['val-fd-label'].textContent = label;
   }
 
@@ -228,7 +228,7 @@
     rafId = null;
   }
 
-  // ---- 채널 생성기 재생성 ----
+  // ---- channel 생성기 재생성 ----
   function recreateGenerator() {
     generator = Fading.createGenerator(state.model);
     elapsedTime = 0;
@@ -305,7 +305,7 @@
       el['sum-param'].textContent = 'm = ' + state.m.toFixed(2);
       var kEq = Theory.kFromM(state.m);
       if (kEq === null) {
-        el['sum-conv'].textContent = '해당 K 없음 (레일리보다 심한 페이딩)';
+        el['sum-conv'].textContent = '해당 K 없음 (레일리보다 심한 fading)';
       } else {
         el['sum-conv'].textContent = '≈ Rician K = ' + (10 * Math.log10(kEq)).toFixed(2) + ' dB';
       }

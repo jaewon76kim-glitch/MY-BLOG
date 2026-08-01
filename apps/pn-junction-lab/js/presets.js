@@ -4,9 +4,9 @@
  */
 
 var DOPING_PRESETS = [
-  { id: 'sym', name: '대칭 접합', NA: 1e17, ND: 1e17, desc: 'N_A = N_D = 10¹⁷' },
-  { id: 'asym', name: '비대칭 p+n 접합', NA: 1e18, ND: 1e15, desc: 'N_A ≫ N_D (실제 정류 다이오드 구조)' },
-  { id: 'low', name: '저농도 접합', NA: 1e15, ND: 1e15, desc: 'N_A = N_D = 10¹⁵' }
+  { id: 'sym', name: '대칭 junction', NA: 1e17, ND: 1e17, desc: 'N_A = N_D = 10¹⁷' },
+  { id: 'asym', name: '비대칭 p+n junction', NA: 1e18, ND: 1e15, desc: 'N_A ≫ N_D (실제 정류 다이오드 구조)' },
+  { id: 'low', name: '저농도 junction', NA: 1e15, ND: 1e15, desc: 'N_A = N_D = 10¹⁵' }
 ];
 
 function presetsBuildButtons() {

@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>위성 통과 도플러·RTT 시뮬레이터</title>
+  <title>위성 통과 Doppler·RTT 시뮬레이터</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="app-header">
-  <h1>위성 통과 도플러·RTT 시뮬레이터</h1>
-  <p>위성이 지상국 상공을 통과할 때 발생하는 도플러 천이와 왕복 지연(RTT)을 실시간으로 시뮬레이션합니다</p>
+  <h1>위성 통과 Doppler·RTT 시뮬레이터</h1>
+  <p>위성이 지상국 상공을 통과할 때 발생하는 Doppler 천이와 왕복 지연(RTT)을 실시간으로 시뮬레이션합니다</p>
 </header>
 
 <div class="main-layout">
   <!-- 입력 패널 -->
   <aside class="input-panel">
 
-    <!-- 고도 -->
+    <!-- altitude -->
     <div class="param-group">
-      <span class="param-label">궤도 고도</span>
+      <span class="param-label">orbit altitude</span>
       <span class="param-value" id="val-altitude">550 km</span>
       <input type="range" id="slider-altitude" min="400" max="35786" step="100" value="550">
       <div class="preset-row">
@@ -46,9 +46,9 @@
 
     <hr class="divider">
 
-    <!-- 최대 앙각 -->
+    <!-- 최대 elevation angle -->
     <div class="param-group">
-      <span class="param-label">최대 앙각</span>
+      <span class="param-label">최대 elevation angle</span>
       <span class="param-value" id="val-elmax">90°</span>
       <input type="range" id="slider-elmax" min="10" max="90" step="5" value="90">
     </div>
@@ -89,7 +89,7 @@
     <!-- 수치 요약 카드 -->
     <div class="summary-card">
       <div class="summary-item">
-        <span class="summary-label">앙각</span>
+        <span class="summary-label">elevation angle</span>
         <span class="summary-value" id="sum-el">—</span>
       </div>
       <div class="summary-item">
@@ -97,7 +97,7 @@
         <span class="summary-value" id="sum-range">—</span>
       </div>
       <div class="summary-item">
-        <span class="summary-label">도플러</span>
+        <span class="summary-label">Doppler</span>
         <span class="summary-value doppler" id="sum-doppler">—</span>
       </div>
       <div class="summary-item">
@@ -114,7 +114,7 @@
     <div class="charts-section">
       <div class="chart-wrap">
         <div class="chart-title">
-          <span>도플러 천이 (kHz)</span> — 양수: 청색편이(접근), 음수: 적색편이(이탈)
+          <span>Doppler 천이 (kHz)</span> — 양수: 청색편이(접근), 음수: 적색편이(이탈)
         </div>
         <div class="chart-container">
           <canvas id="chart-doppler"></canvas>
@@ -202,7 +202,7 @@
       onParamChange();
     });
 
-    // 프리셋 버튼 (고도)
+    // 프리셋 버튼 (altitude)
     document.querySelectorAll('[data-alt]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var v = parseInt(this.getAttribute('data-alt'));

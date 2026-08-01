@@ -1,8 +1,8 @@
-// orbit.js - 케플러 궤도역학 계산 (전역 변수 방식, type="module" 사용 안 함)
+// orbit.js - 케플러 orbital mechanics 계산 (전역 변수 방식, type="module" 사용 안 함)
 //
-// 참고: 위성통신 교재 8장 1절은 "원궤도" 특수해(힘 균형 GM_E m/r^2 = m v^2/r)만 다룬다.
-// 이 모듈은 그 결과를 장반경 a를 이용한 일반 타원 궤도(e>0) 공식으로 확장한 것으로,
-// e=0을 대입하면 모든 공식이 교재의 원궤도 공식과 정확히 일치한다.
+// 참고: 위성통신 교재 8장 1절은 "원orbit" 특수해(힘 균형 GM_E m/r^2 = m v^2/r)만 다룬다.
+// 이 모듈은 그 결과를 semi-major axis a를 이용한 일반 타원 orbit(e>0) 공식으로 확장한 것으로,
+// e=0을 대입하면 모든 공식이 교재의 원orbit 공식과 정확히 일치한다.
 
 var KeplerOrbit = (function () {
   'use strict';
@@ -18,7 +18,7 @@ var KeplerOrbit = (function () {
   }
 
   // 비스비바 방정식: v(r,a) = sqrt(GM_E (2/r - 1/a))
-  // e=0이면 r=a이므로 v = sqrt(GM_E/a) = sqrt(GM_E/r) → 교재의 원궤도 속도 공식과 일치
+  // e=0이면 r=a이므로 v = sqrt(GM_E/a) = sqrt(GM_E/r) → 교재의 원orbit 속도 공식과 일치
   function velocity(r_m, a_m) {
     var val = GM_E * (2 / r_m - 1 / a_m);
     if (val < 0) val = 0; // 수치오차 방지
@@ -47,14 +47,14 @@ var KeplerOrbit = (function () {
     );
   }
 
-  // 궤도 방정식(원뿔곡선)으로 진근점이각 ν에서의 반지름 — 정적 타원 궤도 그리기용
+  // orbit 방정식(원뿔곡선)으로 진근점이각 ν에서의 반지름 — 정적 타원 orbit 그리기용
   // r(ν) = a(1-e^2) / (1 + e cos ν)
   function radiusAtNu(a_m, e, nu) {
     return a_m * (1 - e * e) / (1 + e * Math.cos(nu));
   }
 
-  // 시뮬레이션 시각 t(초)에서의 전체 궤도 상태
-  // a_m: 장반경(m), e: 이심률
+  // 시뮬레이션 시각 t(초)에서의 전체 orbit 상태
+  // a_m: semi-major axis(m), e: eccentricity
   function stateAtTime(t_sec, a_m, e) {
     var T = periodSec(a_m);
     var n = 2 * Math.PI / T; // 평균운동

@@ -1,7 +1,7 @@
-// fading.js - 채널 생성: Clarke/Jakes sum-of-sinusoids 모델 + 나카가미 감마 샘플러
+// fading.js - channel 생성: Clarke/Jakes sum-of-sinusoids 모델 + 나카가미 감마 샘플러
 // (전역 변수 방식, type="module" 사용 안 함)
 //
-// 근거: build-fading-channel-sim-instructions.md "채널 생성 (fading.js) — 시간축 포락선"
+// 근거: build-fading-channel-sim-instructions.md "channel 생성 (fading.js) — 시간축 포락선"
 //
 // 설계 요약
 // ---------
@@ -9,21 +9,21 @@
 //   생성한다. 라이시안은 X(t)에 LOS 성분 sqrt(2K)를 더한다(σ=1 고정 시 K=A²/2σ²=λ/2 정의를 그대로
 //   보존하는 값 — 2026-07-19 리뷰에서 발견된 sqrt(2K/(K+1)) 버그를 수정함, review-fading-channel-sim.md
 //   참고). 전체 평균전력이 정확히 1이 되도록 해석적으로 알려진 기댓값 E[Xraw²+Yraw²] = 2K + 2 로 나누어
-//   정규화한다.
+//   normalization한다.
 // - 나카가미-m: Clarke 모델이 물리적으로 자연스럽지 않으므로, 감마분포 직접 샘플링(Marsaglia-Tsang)을
-//   기반으로 한다. 다만 매 프레임 독립적으로 새 감마 표본을 뽑으면 시간축이 백색잡음처럼 보여
-//   "페이딩 애니메이션" 느낌이 나지 않는다. 그렇다고 감마 표본들을 지수이동평균(EMA)으로 직접 평균내면
-//   평균은 유지되지만 분산이 줄어들어 누적 히스토그램이 이론 PDF보다 좁아지는 문제가 생긴다
+//   기반으로 한다. 다만 매 프레임 독립적으로 새 감마 표본을 뽑으면 시간축이 white noise처럼 보여
+//   "fading 애니메이션" 느낌이 나지 않는다. 그렇다고 감마 표본들을 지수이동평균(EMA)으로 직접 평균내면
+//   평균은 유지되지만 variance가 줄어들어 누적 히스토그램이 이론 PDF보다 좁아지는 문제가 생긴다
 //   ("PDF와 아웃티지 정합성이 더 중요"라는 지침 요구와 충돌).
 //   그래서 이 구현은 다음 방식을 쓴다:
 //     1) Clarke 모델과 동일한 sum-of-sinusoids로 세 번째 독립 저역통과 가우시안 프로세스 Z(t)를 만든다
-//        (평균 0, 분산 1, fD로 상관시간 조절 — Rayleigh/Rician의 X,Y와 동일한 메커니즘).
+//        (평균 0, variance 1, fD로 상관시간 조절 — Rayleigh/Rician의 X,Y와 동일한 메커니즘).
 //     2) 표준정규 CDF Φ(Z(t))로 Z(t)를 균일분포 U(t)∈(0,1)로 변환한다(오차함수 근사 사용).
-//     3) U(t)를 나카가미 정규화 CDF의 역함수(이분탐색, theory.js의 gammainc 이용)에 통과시켜
-//        정규화 SNR 표본을 얻는다.
+//     3) U(t)를 나카가미 normalization CDF의 역함수(이분탐색, theory.js의 gammainc 이용)에 통과시켜
+//        normalization SNR 표본을 얻는다.
 //   확률적분변환(inverse-CDF / PIT)이므로 한계분포(marginal)는 항상 정확히 Nakagami(m)이고
 //   (theory.js의 근사 정확도 한도 내에서), 시간 상관은 Z(t)의 코히어런스 시간(1/fD)을 그대로 물려받아
-//   "완만/빠른 페이딩"이 시각적으로 자연스럽게 재현된다.
+//   "완만/빠른 fading"이 시각적으로 자연스럽게 재현된다.
 
 var Fading = (function () {
   'use strict';
@@ -104,7 +104,7 @@ var Fading = (function () {
     }
   }
 
-  // ---- 채널 생성기 (모델별 상태 보유) ----
+  // ---- channel 생성기 (모델별 상태 보유) ----
   function createGenerator(model) {
     var bankX = makeBank(N_OSC);
     var bankY = makeBank(N_OSC);
@@ -113,12 +113,12 @@ var Fading = (function () {
     function normConstRician(K) {
       // 노운센트럴 카이제곱의 K-factor 정의(K=λ/2, λ=A²/σ²)를 σ=1 기준으로 보존하려면
       // A = sqrt(2K)이어야 한다(기존 mu=sqrt(2K/(K+1))는 실질 K_eff=K/(K+1)을 만들어
-      // K를 아무리 키워도 1에 수렴할 뿐인 버그였음 — review-fading-channel-sim.md 참고).
-      // E[(Xc+A)^2 + Yc^2] = A^2 + 2 = 2K + 2로 정규화하면 결과의 실질 K-factor가 정확히 K가 된다.
+      // K를 아무리 키워도 1에 convergence할 뿐인 버그였음 — review-fading-channel-sim.md 참고).
+      // E[(Xc+A)^2 + Yc^2] = A^2 + 2 = 2K + 2로 normalization하면 결과의 실질 K-factor가 정확히 K가 된다.
       return 2 * K + 2;
     }
 
-    // t: 경과 시간(초), fD: 도플러 확산(Hz), K_lin: 라이시안 K(선형), m: 나카가미 m
+    // t: 경과 시간(초), fD: Doppler 확산(Hz), K_lin: 라이시안 K(선형), m: 나카가미 m
     function sample(t, fD, K_lin, m) {
       if (model === 'rayleigh') {
         var Xc = evalBankCos(bankX, fD, t);
@@ -134,7 +134,7 @@ var Fading = (function () {
         return (Xr * Xr + Yr * Yr) / normR;
       }
       if (model === 'nakagami') {
-        var Z = evalBankCos(bankZ, fD, t); // 평균0 분산1 저역통과 가우시안
+        var Z = evalBankCos(bankZ, fD, t); // 평균0 variance1 저역통과 가우시안
         var u = normalCDF(Z);
         return Theory.nakagamiInverseCDF(u, m);
       }

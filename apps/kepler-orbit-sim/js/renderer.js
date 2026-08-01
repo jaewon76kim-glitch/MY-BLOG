@@ -1,4 +1,4 @@
-// renderer.js - 궤도 평면 canvas 2D 렌더링 (전역 변수 방식)
+// renderer.js - orbit 평면 canvas 2D 렌더링 (전역 변수 방식)
 
 var KeplerRenderer = (function () {
   'use strict';
@@ -21,14 +21,14 @@ var KeplerRenderer = (function () {
     canvas.height = H;
   }
 
-  // 캔버스에 궤도 전체(원지점까지)가 여백을 두고 들어오도록 스케일(px/m) 계산
+  // 캔버스에 orbit 전체(원지점까지)가 여백을 두고 들어오도록 스케일(px/m) 계산
   function computeScale(a_m, e) {
     var rApo = KeplerOrbit.rApogee(a_m, e);
     var avail = Math.min(W, H) / 2 * 0.82;
     return avail / rApo;
   }
 
-  // 궤도 평면 좌표(m) → 캔버스 픽셀 좌표 (y축 반전: 위가 +y)
+  // orbit 평면 좌표(m) → 캔버스 픽셀 좌표 (y축 반전: 위가 +y)
   function toScreen(x_m, y_m, scale, cx, cy) {
     return { x: cx + x_m * scale, y: cy - y_m * scale };
   }

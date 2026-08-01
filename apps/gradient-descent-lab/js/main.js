@@ -1,4 +1,4 @@
-// main.js - 두 캔버스(산점도, 등고선) 이벤트 바인딩 및 전체 조립.
+// main.js - 두 캔버스(산점도, contour) 이벤트 바인딩 및 전체 조립.
 // 전역 스코프에서 즉시 실행 (type="module" 미사용, CDN 미사용).
 
 (function () {
@@ -23,7 +23,7 @@
   var statMse = document.getElementById('stat-mse');
   var statStatus = document.getElementById('stat-status');
 
-  // 오프스크린 배경 캔버스 (등고선 색상 밴드 - 데이터/λ 변경 시에만 재계산)
+  // 오프스크린 배경 캔버스 (contour 색상 밴드 - 데이터/λ 변경 시에만 재계산)
   var bgCanvas = document.createElement('canvas');
   var bgCtx = bgCanvas.getContext('2d');
 
@@ -172,7 +172,7 @@
     }
   }
 
-  // ---------- 등고선 ----------
+  // ---------- contour ----------
   function rebuildContourBackground() {
     var data = DataStore.getAll();
     contourRange = Contour.computeRange(data);
@@ -221,7 +221,7 @@
       drawStar(contourCtx, olsPx[0], olsPx[1], 8, olsColor);
     }
 
-    // 릿지 닫힌 형태 해 마커 (λ에 따라 이동, λ=0이면 OLS와 정확히 겹침)
+    // ridge 닫힌 형태 해 마커 (λ에 따라 이동, λ=0이면 OLS와 정확히 겹침)
     var ridge = Regression.ridgeClosedForm(data, currentLambda);
     if (ridge) {
       var ridgePx = Contour.worldToPixel(ridge.w0, ridge.w1, contourRange, w, h);
@@ -298,7 +298,7 @@
       data: {
         datasets: [
           {
-            label: '배치 GD',
+            label: 'batch GD',
             data: [],
             borderColor: '#ff6b6b',
             borderWidth: 2,
@@ -366,7 +366,7 @@
 
   // ---------- 상태 텍스트 ----------
   function statusLabel(status) {
-    if (status === 'converged') return '수렴함';
+    if (status === 'converged') return 'convergence함';
     if (status === 'diverged') return '발산함 (η를 줄여보세요)';
     if (status === 'running') return '진행 중';
     return '대기 중';
@@ -378,7 +378,7 @@
     if (!gs) {
       statStep.textContent = '0';
       statMse.textContent = '—';
-      statStatus.textContent = '시작점을 등고선 위에서 클릭하세요';
+      statStatus.textContent = '시작점을 contour 위에서 클릭하세요';
       return;
     }
     var activeName = chkBatch.checked ? 'batch' : (chkSgd.checked ? 'sgd' : null);
@@ -394,7 +394,7 @@
     statMse.textContent = isFinite(m) ? m.toFixed(4) : '∞';
 
     var parts = [];
-    if (chkBatch.checked) parts.push('배치: ' + statusLabel(gs.batch.status));
+    if (chkBatch.checked) parts.push('batch: ' + statusLabel(gs.batch.status));
     if (chkSgd.checked) parts.push('SGD: ' + statusLabel(gs.sgd.status));
     statStatus.textContent = parts.join(' · ') || '대기 중';
   }
@@ -567,8 +567,8 @@
 
     rebuildContourBackground();
 
-    // 초기 시작점: 등고선 범위 좌상단 근처 (OLS 해로부터 떨어진 지점에서 출발해
-    // 수렴 과정을 눈으로 볼 수 있도록)
+    // 초기 시작점: contour 범위 좌상단 근처 (OLS 해로부터 떨어진 지점에서 출발해
+    // convergence 과정을 눈으로 볼 수 있도록)
     if (contourRange) {
       startPoint.w0 = contourRange.w0[0] + (contourRange.w0[1] - contourRange.w0[0]) * 0.12;
       startPoint.w1 = contourRange.w1[1] - (contourRange.w1[1] - contourRange.w1[0]) * 0.12;

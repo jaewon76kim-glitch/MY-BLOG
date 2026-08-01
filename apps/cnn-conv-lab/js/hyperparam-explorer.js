@@ -1,5 +1,5 @@
-/* hyperparam-explorer.js — 섹션 2: 스트라이드/패딩/풀링 파라미터 탐색기
- * h(커널 크기), s(스트라이드), p(패딩) 슬라이더 + n(입력 크기) 입력칸을 바탕으로
+/* hyperparam-explorer.js — 섹션 2: stride/padding/pooling parameter 탐색기
+ * h(kernel 크기), s(stride), p(padding) 슬라이더 + n(입력 크기) 입력칸을 바탕으로
  * n' = floor((n + 2p - h)/s) + 1 을 실시간 재계산하고 캔버스에 시각화한다.
  */
 
@@ -31,7 +31,7 @@ function makeExplorerImage(n) {
 }
 
 function hpMakeKernel(h) {
-  // 박스 평균 커널 (h x h, 합이 1이 되도록) — 값 스케일이 크게 벗어나지 않아 시각화에 적합
+  // 박스 평균 kernel (h x h, 합이 1이 되도록) — 값 스케일이 크게 벗어나지 않아 시각화에 적합
   var k = [];
   var w = 1 / (h * h);
   for (var i = 0; i < h; i++) {
@@ -86,7 +86,7 @@ function hpRenderInput(padded, p) {
 
   hpDrawGrid(hpInputCtx, padded, HP_CELL, function (v, i, j) {
     var isPad = (i < p || i >= padN - p || j < p || j >= padN - p);
-    if (isPad) return '#3a3a55'; // 패딩: 회색 계열로 구분
+    if (isPad) return '#3a3a55'; // padding: 회색 계열로 구분
     return 'rgb(' + v + ',' + v + ',' + v + ')';
   }, function (ctx, i, j, cell) {
     var isPad = (i < p || i >= padN - p || j < p || j >= padN - p);
@@ -141,9 +141,9 @@ function hpRenderPool(pooled) {
 function hpRenderPoolInfo(poolOutSize, nPrime) {
   var el = document.getElementById('hp-pool-info');
   if (!el) return;
-  var modeLabel = hpState.poolMode === 'max' ? '최대풀링' : '평균풀링';
+  var modeLabel = hpState.poolMode === 'max' ? 'max pooling' : 'average pooling';
   el.innerHTML = modeLabel + ' (윈도우 ' + hpState.poolSize + '×' + hpState.poolSize +
-    ', 스트라이드 ' + hpState.poolStride + '): ' + nPrime + ' → ' + poolOutSize;
+    ', stride ' + hpState.poolStride + '): ' + nPrime + ' → ' + poolOutSize;
 }
 
 function hpRenderAll() {

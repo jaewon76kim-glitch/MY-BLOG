@@ -72,7 +72,7 @@ var DopplerCharts = (function () {
     };
   }
 
-  // 0선 플러그인 (도플러 차트용)
+  // 0선 플러그인 (Doppler 차트용)
   var zeroLinePlugin = {
     id: 'dopplerZeroLine',
     afterDraw: function (chart) {
@@ -108,7 +108,7 @@ var DopplerCharts = (function () {
     }
     var margin = maxKhz * 1.15;
     if (margin < 5) margin = 5;
-    var opts = baseOptions('도플러 천이 (kHz)', '#ff6b6b', -margin, margin);
+    var opts = baseOptions('Doppler 천이 (kHz)', '#ff6b6b', -margin, margin);
     opts.options.showZeroLine = true;
 
     dopplerChart = new Chart(canvasEl, opts);

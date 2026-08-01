@@ -1,7 +1,7 @@
 // theory.js - 이론 PDF/아웃티지/특수함수 (전역 변수 방식, type="module" 사용 안 함)
 //
 // 근거: spec-fading-sim.md, 위성통신_소스.tex 316~450줄 요약
-//   - 모든 수식은 정규화 SNR x = γ/γ̄ 기준 (γ̄ = 1로 두고 계산). 실제 dB 표시는 main.js에서
+//   - 모든 수식은 normalization SNR x = γ/γ̄ 기준 (γ̄ = 1로 두고 계산). 실제 dB 표시는 main.js에서
 //     γ̄_dB + 10*log10(x)로 환산한다.
 //   - 레일리: f(x) = exp(-x)                                    (K=0인 라이시안과 정확히 일치해야 함)
 //   - 라이시안: f(x) = (K+1)*exp(-K)*exp(-(K+1)x)*I0(2*sqrt(K(K+1)x))
@@ -74,12 +74,12 @@ var Theory = (function () {
   }
 
   // ========================================================================
-  // 정규화 하위 불완전감마함수 P(a, x) = γ(a,x)/Γ(a)
+  // normalization 하위 불완전감마함수 P(a, x) = γ(a,x)/Γ(a)
   // Numerical Recipes 패턴: x < a+1이면 급수전개, 아니면 연분수(상보 Q(a,x)=1-P) 사용
   // ========================================================================
 
   function gammaIncSeries(a, x) {
-    // P(a,x)를 급수로 직접 계산 (x < a+1일 때 수렴이 빠름)
+    // P(a,x)를 급수로 직접 계산 (x < a+1일 때 convergence가 빠름)
     if (x <= 0) return 0;
     var ap = a;
     var sum = 1 / a;
@@ -119,7 +119,7 @@ var Theory = (function () {
     return Math.log(gammaFn(z));
   }
 
-  // 정규화 하위 불완전감마함수 P(a,x), a>0, x>=0. 항상 [0,1] 범위로 클램프.
+  // normalization 하위 불완전감마함수 P(a,x), a>0, x>=0. 항상 [0,1] 범위로 클램프.
   function gammainc(a, x) {
     if (x < 0 || a <= 0) return 0;
     if (x === 0) return 0;
@@ -182,7 +182,7 @@ var Theory = (function () {
 
   // m>=1일 때만 실수 K가 존재(라이시안 m은 항상 >=1). 이분탐색으로 역변환.
   function kFromM(m) {
-    if (m <= 1) return null; // m<1은 라이시안으로 표현 불가(레일리보다 심한 페이딩)
+    if (m <= 1) return null; // m<1은 라이시안으로 표현 불가(레일리보다 심한 fading)
     var lo = 0, hi = 1000;
     for (var i = 0; i < 80; i++) {
       var mid = (lo + hi) / 2;
@@ -193,7 +193,7 @@ var Theory = (function () {
   }
 
   // ========================================================================
-  // 이론 PDF (정규화 SNR x = γ/γ̄ 기준, γ̄=1)
+  // 이론 PDF (normalization SNR x = γ/γ̄ 기준, γ̄=1)
   // ========================================================================
 
   function rayleighPDF(x) {
@@ -241,7 +241,7 @@ var Theory = (function () {
     return 1 - marcumQ1(a, b);
   }
 
-  // 나카가미 정규화 x 표본 생성용: 역CDF(분위함수) - 이분탐색으로 P(m, m*x)=u를 만족하는 x를 찾는다.
+  // 나카가미 normalization x 표본 생성용: 역CDF(분위함수) - 이분탐색으로 P(m, m*x)=u를 만족하는 x를 찾는다.
   function nakagamiInverseCDF(u, m) {
     if (u <= 0) return 0;
     if (u >= 1) u = 1 - 1e-12;

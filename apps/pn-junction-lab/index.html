@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PN 접합 다이오드 실험실</title>
+  <title>PN junction 다이오드 실험실</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="app-header">
-  <h1>PN 접합 다이오드 실험실</h1>
-  <p>억셉터/도너 농도, 온도, 인가전압을 슬라이더로 조절하면 실리콘 PN 접합의 내장전위·에너지밴드 휨·공핍층
+  <h1>PN junction 다이오드 실험실</h1>
+  <p>억셉터/도너 농도, 온도, 인가전압을 슬라이더로 조절하면 실리콘 PN junction의 내장전위·에너지밴드 휨·depletion region
     폭과 전기장·전위 분포·쇼클리 다이오드 I-V 곡선이 닫힌 형태 공식으로 실시간 재계산됩니다. 도핑이
-    비대칭일수록 공핍층이 저농도 쪽으로 넓게 형성되고, 도핑이 낮을수록 포화전류가 커진다는 직관을
+    비대칭일수록 depletion region이 저농도 쪽으로 넓게 형성되고, 도핑이 낮을수록 포화전류가 커진다는 직관을
     직접 확인해 보세요.</p>
 </header>
 
@@ -23,7 +23,7 @@
 
 <div class="control-panel" id="control-panel">
   <div class="control-panel-head">
-    <div class="control-panel-title">접합 형성 컨트롤 패널</div>
+    <div class="control-panel-title">junction 형성 컨트롤 패널</div>
     <button id="panel-toggle-btn" class="ctrl-btn panel-toggle-btn" aria-expanded="true">패널 접기</button>
   </div>
   <div class="control-panel-body" id="control-panel-body">
@@ -51,7 +51,7 @@
     </div>
     <div class="control-summary" id="control-summary">
       <div class="summary-card">
-        <div class="result-label">진성 캐리어 농도 n_i(T)</div>
+        <div class="result-label">진성 carrier 농도 n_i(T)</div>
         <div id="summary-ni" class="result-value summary-ni-color">-</div>
       </div>
       <div class="summary-card">
@@ -72,15 +72,15 @@
   <section id="section-1" class="section">
     <div class="section-head">
       <h2>1. 에너지밴드 다이어그램</h2>
-      <p class="section-desc">접합 전(같은 실리콘이므로 진공 기준 E_c/E_v/E_i는 두 영역에서 동일하고
-        E_F 위치만 다름)과 접합 후(단일 E_F로 정렬되며 밴드가 e(V_bi-V)만큼 휘어짐)를 비교합니다.
-        공핍층 안의 곡선은 실제 전위 분포 φ(x)를 그대로 사용해 그렸습니다.</p>
+      <p class="section-desc">junction 전(같은 실리콘이므로 진공 기준 E_c/E_v/E_i는 두 영역에서 동일하고
+        E_F 위치만 다름)과 junction 후(단일 E_F로 정렬되며 밴드가 e(V_bi-V)만큼 휘어짐)를 비교합니다.
+        depletion region 안의 곡선은 실제 전위 분포 φ(x)를 그대로 사용해 그렸습니다.</p>
     </div>
 
     <div class="control-bar bd-toggle-bar">
       <div class="control-group btn-group">
-        <button id="bd-before-btn" class="ctrl-btn">접합 전 (분리된 두 반도체)</button>
-        <button id="bd-after-btn" class="ctrl-btn primary">접합 후 (밴드 정렬)</button>
+        <button id="bd-before-btn" class="ctrl-btn">junction 전 (분리된 두 반도체)</button>
+        <button id="bd-after-btn" class="ctrl-btn primary">junction 후 (밴드 정렬)</button>
       </div>
     </div>
 
@@ -93,12 +93,12 @@
     </div>
   </section>
 
-  <!-- ===================== 섹션 2: 공핍층 프로파일 ===================== -->
+  <!-- ===================== 섹션 2: depletion region 프로파일 ===================== -->
   <section id="section-2" class="section">
     <div class="section-head">
-      <h2>2. 공핍층 프로파일</h2>
-      <p class="section-desc">계단접합 근사로 전하밀도 ρ(x), 전기장 E(x)(삼각형), 전위 φ(x)(포물선 2개를
-        이어붙인 곡선)를 세로로 나란히 그립니다. 도핑이 비대칭일수록 공핍층이 저농도 쪽으로 훨씬 넓게
+      <h2>2. depletion region 프로파일</h2>
+      <p class="section-desc">step junction 근사로 전하밀도 ρ(x), 전기장 E(x)(삼각형), 전위 φ(x)(포물선 2개를
+        이어붙인 곡선)를 세로로 나란히 그립니다. 도핑이 비대칭일수록 depletion region이 저농도 쪽으로 훨씬 넓게
         형성됩니다(전기적 중성 조건 N_A x_p = N_D x_n).</p>
     </div>
 
@@ -119,8 +119,8 @@
       </div>
 
       <div class="panel dp-numbers">
-        <div class="panel-title">공핍층 요약</div>
-        <div class="dp-num-row"><span class="dp-num-label">공핍층 폭 W</span><span id="dp-w-val" class="dp-num-value">-</span></div>
+        <div class="panel-title">depletion region 요약</div>
+        <div class="dp-num-row"><span class="dp-num-label">depletion region 폭 W</span><span id="dp-w-val" class="dp-num-value">-</span></div>
         <div class="dp-num-row"><span class="dp-num-label">x_p (p측 공핍폭)</span><span id="dp-xp-val" class="dp-num-value">-</span></div>
         <div class="dp-num-row"><span class="dp-num-label">x_n (n측 공핍폭)</span><span id="dp-xn-val" class="dp-num-value">-</span></div>
         <div class="dp-num-row"><span class="dp-num-label">최대 전기장 E_max</span><span id="dp-emax-val" class="dp-num-value">-</span></div>
@@ -183,8 +183,8 @@
 </main>
 
 <footer class="app-footer">
-  <p>PN 접합 다이오드 실험실 — 반복 최적화 없이 닫힌 형태 공식(질량작용법칙, 내장전위, 공핍층 폭,
-    쇼클리 다이오드 방정식)만으로 실리콘 PN 접합의 정전기학과 I-V 특성을 계산합니다.</p>
+  <p>PN junction 다이오드 실험실 — iteration 최적화 없이 닫힌 형태 공식(질량작용법칙, 내장전위, depletion region 폭,
+    쇼클리 다이오드 방정식)만으로 실리콘 PN junction의 정전기학과 I-V 특성을 계산합니다.</p>
 </footer>
 
 <script src="js/vendor/chart.umd.min.js"></script>

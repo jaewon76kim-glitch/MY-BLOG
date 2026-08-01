@@ -1,13 +1,13 @@
 /* band-diagram.js — 섹션 1: 에너지밴드 다이어그램
- * 접합 전(같은 실리콘이므로 진공 기준 E_c/E_v/E_i가 두 영역에서 동일, E_F 위치만 다름)과
- * 접합 후(단일 E_F로 정렬되며 밴드가 e(V_bi-V)만큼 휘어짐)를 캔버스에 그린다.
- * 공핍층 내부의 밴드 휨 곡선은 semiconductor-math.js의 potentialAt()을 그대로 재사용해
+ * junction 전(같은 실리콘이므로 진공 기준 E_c/E_v/E_i가 두 영역에서 동일, E_F 위치만 다름)과
+ * junction 후(단일 E_F로 정렬되며 밴드가 e(V_bi-V)만큼 휘어짐)를 캔버스에 그린다.
+ * depletion region 내부의 밴드 휨 곡선은 semiconductor-math.js의 potentialAt()을 그대로 재사용해
  * 실제 전위 분포와 일치시킨다.
  */
 
 var BD_COLORS = {
   ec: '#4fc3f7',   // 전도대 E_c
-  ev: '#ff6b6b',   // 가전자대 E_v
+  ev: '#ff6b6b',   // 가electron대 E_v
   ei: '#a0a0c0',   // 진성준위 E_i (점선)
   ef: '#ffd43b',   // 페르미준위 E_F (굵은 점선)
   pRegion: 'rgba(255, 107, 107, 0.08)',
@@ -22,7 +22,7 @@ function bdBuildLegend() {
   if (!el) return;
   var items = [
     { color: BD_COLORS.ec, label: 'E_c (전도대 하단)' },
-    { color: BD_COLORS.ev, label: 'E_v (가전자대 상단)' },
+    { color: BD_COLORS.ev, label: 'E_v (가electron대 상단)' },
     { color: BD_COLORS.ei, label: 'E_i (진성준위)' },
     { color: BD_COLORS.ef, label: 'E_F (페르미준위)' }
   ];
@@ -131,7 +131,7 @@ function bdRender(calc) {
 
     var bendEl = document.getElementById('bd-bending-text');
     if (bendEl) {
-      bendEl.innerHTML = '접합 전: 같은 실리콘이므로 진공 기준 E_c/E_v/E_i는 두 영역에서 동일합니다. ' +
+      bendEl.innerHTML = 'junction 전: 같은 실리콘이므로 진공 기준 E_c/E_v/E_i는 두 영역에서 동일합니다. ' +
         'E_F만 다릅니다 — p형은 E_i에서 <strong>' + efP.toFixed(4) + ' eV</strong> 아래, n형은 E_i에서 ' +
         '<strong>' + efN.toFixed(4) + ' eV</strong> 위. 접촉하면 이 차이(≈V_bi)만큼 밴드가 휩니다.';
     }
@@ -139,7 +139,7 @@ function bdRender(calc) {
     return;
   }
 
-  // ===== 접합 후 =====
+  // ===== junction 후 =====
   var offset = calc.vbi - V; // e(V_bi - V) : p벌크 -> n벌크로의 전체 밴드 강하량
   var EcN = EcP - offset, EvN = EvP - offset, EiN = EiP - offset;
   var EFnBulk = EFnLocal - offset;
@@ -148,7 +148,7 @@ function bdRender(calc) {
   var range2 = bdMinMaxPadded(vals2);
   function y2(e) { return bdEnergyToY(e, range2.min, range2.max, top, bottom); }
 
-  // x축(픽셀) 배분: p벌크 | 공핍층(고정폭 시각화, xp:xn 비율 반영) | n벌크
+  // x축(픽셀) 배분: p벌크 | depletion region(고정폭 시각화, xp:xn 비율 반영) | n벌크
   var bulkFrac = 0.28;
   var depW = right - left;
   var pBulkEnd = left + depW * bulkFrac;
@@ -163,7 +163,7 @@ function bdRender(calc) {
   ctx.fillStyle = BD_COLORS.nRegion;
   ctx.fillRect(junctionX, top, right - junctionX, bottom - top);
 
-  // Ec, Ev 곡선: 벌크는 평평, 공핍층은 실제 potentialAt()으로 휘어짐
+  // Ec, Ev 곡선: 벌크는 평평, depletion region은 실제 potentialAt()으로 휘어짐
   function bendCurve(EbulkP, EbulkN) {
     var pts = [];
     pts.push({ x: left, y: y2(EbulkP) });
@@ -192,24 +192,24 @@ function bdRender(calc) {
     bdDrawDashedLine(ctx, junctionX, y2(EFp), junctionX, y2(EFnBulk), BD_COLORS.ef, 1.5, [2, 3]);
   }
 
-  // 접합 경계선
+  // junction 경계선
   bdDrawDashedLine(ctx, junctionX, top, junctionX, bottom, '#555577', 1, [3, 3]);
 
-  // 밴드 휨 화살표 (p측 벌크 E_c 대비 n측 벌크 E_c, 접합 위치에 세로로 표시)
+  // 밴드 휨 화살표 (p측 벌크 E_c 대비 n측 벌크 E_c, junction 위치에 세로로 표시)
   bdDrawBendArrow(ctx, junctionX, y2(EcP), y2(EcN), offset);
 
   ctx.fillStyle = '#a0a0c0';
   ctx.font = '11px "Segoe UI", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('p형 벌크', (left + pBulkEnd) / 2, bottom + 18);
-  ctx.fillText('공핍층', junctionX, bottom + 18);
+  ctx.fillText('depletion region', junctionX, bottom + 18);
   ctx.fillText('n형 벌크', (nBulkStart + right) / 2, bottom + 18);
 
   bdDrawYAxisLabel(ctx, top, bottom);
 
   var bendEl2 = document.getElementById('bd-bending-text');
   if (bendEl2) {
-    bendEl2.innerHTML = '접합 후 밴드 휨량 e(V_bi - V) = e(' + calc.vbi.toFixed(4) + ' - ' + V.toFixed(4) +
+    bendEl2.innerHTML = 'junction 후 밴드 휨량 e(V_bi - V) = e(' + calc.vbi.toFixed(4) + ' - ' + V.toFixed(4) +
       ') = <strong>' + offset.toFixed(4) + ' eV</strong> (V_bi=' + calc.vbi.toFixed(4) + 'V, V=' + V.toFixed(4) + 'V)';
   }
 }
@@ -249,7 +249,7 @@ function bdDrawYAxisLabel(ctx, top, bottom) {
   ctx.textAlign = 'center';
   ctx.translate(14, (top + bottom) / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('전자 에너지 (eV)', 0, 0);
+  ctx.fillText('electron 에너지 (eV)', 0, 0);
   ctx.restore();
 }
 

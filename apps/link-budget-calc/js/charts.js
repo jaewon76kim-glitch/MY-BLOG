@@ -1,5 +1,5 @@
 // charts.js - Chart.js 래퍼 모듈 (전역 변수 방식, type="module" 사용 안 함)
-// 워터폴 막대(링크버짓 누적), 강우감쇠 곡선, 아웃티지 확률 곡선을 그린다.
+// 워터폴 막대(link budget 누적), rain attenuation 곡선, 아웃티지 확률 곡선을 그린다.
 
 var LBCharts = (function () {
   'use strict';
@@ -117,7 +117,7 @@ var LBCharts = (function () {
     return built.final;
   }
 
-  // ---------- 강우감쇠 곡선 (A_0.01 vs R_0.01) ----------
+  // ---------- rain attenuation 곡선 (A_0.01 vs R_0.01) ----------
   function initRainCurve(canvasEl) {
     if (rainChart) {
       rainChart.destroy();
@@ -128,7 +128,7 @@ var LBCharts = (function () {
       data: {
         datasets: [
           {
-            label: '강우감쇠 곡선',
+            label: 'rain attenuation 곡선',
             data: [],
             borderColor: '#4fc3f7',
             borderWidth: 2,

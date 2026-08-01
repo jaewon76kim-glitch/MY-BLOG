@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PSK/QAM 성상도 & BER 시뮬레이터</title>
+  <title>PSK/QAM constellation & BER 시뮬레이터</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="app-header">
-  <h1>PSK/QAM 성상도 & BER 시뮬레이터</h1>
-  <p>변조방식과 Eb/N0을 조절하면 AWGN 잡음이 낀 수신 성상도를 몬테카를로로 실시간 시뮬레이션하고, 실측 SER/BER을 이론값·BER-vs-Eb/N0 곡선과 비교합니다</p>
+  <h1>PSK/QAM constellation & BER 시뮬레이터</h1>
+  <p>modulation 방식과 Eb/N0을 조절하면 AWGN noise가 낀 수신 constellation를 몬테카를로로 실시간 시뮬레이션하고, 실측 SER/BER을 이론값·BER-vs-Eb/N0 곡선과 비교합니다</p>
 </header>
 
 <div class="main-layout">
@@ -18,7 +18,7 @@
   <aside class="input-panel">
 
     <div class="param-group">
-      <span class="param-label">변조방식</span>
+      <span class="param-label">modulation 방식</span>
       <div class="preset-row">
         <button class="preset-btn" data-mod="BPSK">BPSK</button>
         <button class="preset-btn active" data-mod="QPSK">QPSK</button>
@@ -52,13 +52,13 @@
 
     <div class="param-group">
       <div class="hint-box">
-        <strong>apps/link-budget-calc</strong>에서 계산한 Eb/N0 값을 여기 슬라이더에 입력해 실제 복조 성능을 확인해보세요.
+        <strong>apps/link-budget-calc</strong>에서 계산한 Eb/N0 값을 여기 슬라이더에 입력해 실제 demodulation 성능을 확인해보세요.
       </div>
     </div>
 
     <div class="param-group">
       <div class="hint-box">
-        위성링크(특히 GEO)는 왕복시간이 240ms를 넘어 적응변조 피드백이 느립니다. 그래서 지상 셀룰러보다 낮은 차수의 변조(QPSK, 8PSK)와 강력한 FEC를 함께 써서 SNR 여유를 두는 설계가 전통적으로 선호됩니다.
+        위성링크(특히 GEO)는 왕복시간이 240ms를 넘어 adaptive modulation 피드백이 느립니다. 그래서 지상 셀룰러보다 낮은 차수의 modulation(QPSK, 8PSK)와 강력한 FEC를 함께 써서 SNR 여유를 두는 설계가 전통적으로 선호됩니다.
       </div>
     </div>
 
@@ -67,11 +67,11 @@
   <!-- 출력 패널 -->
   <div class="output-panel">
 
-    <!-- 성상도 + 요약카드 -->
+    <!-- constellation + 요약카드 -->
     <div class="result-grid">
       <div class="chart-wrap">
         <div class="chart-title">
-          <span id="const-title">QPSK</span> 성상도 — 이상적 성상점(◆) · 수신점(반투명) · 오판정 강조 · 판정경계
+          <span id="const-title">QPSK</span> constellation — 이상적 성상점(◆) · 수신점(반투명) · 오판정 강조 · 판정경계
         </div>
         <div class="chart-container">
           <canvas id="chart-constellation"></canvas>
@@ -109,7 +109,7 @@
     <!-- BER vs Eb/N0 곡선 -->
     <div class="chart-wrap">
       <div class="chart-title">
-        <span>BER vs Eb/N0 곡선</span> — 5개 변조방식 이론곡선(로그 y축) + 현재 동작점(●)
+        <span>BER vs Eb/N0 곡선</span> — 5개 modulation 방식 이론곡선(로그 y축) + 현재 동작점(●)
       </div>
       <div class="chart-container ber-chart-container">
         <canvas id="chart-ber-curve"></canvas>

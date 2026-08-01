@@ -1,16 +1,16 @@
-/* conv-demo.js — 섹션 1: 합성곱 슬라이딩 데모
- * 토이 이미지 상태 관리 + 커널 슬라이딩 애니메이션 + 특징맵 렌더링(canvas)
+/* conv-demo.js — 섹션 1: convolution 슬라이딩 데모
+ * 토이 이미지 상태 관리 + kernel 슬라이딩 애니메이션 + feature map 렌더링(canvas)
  * 전역 변수 사용 (모듈 시스템 없음), main.js에서 initConvDemo() 호출로 초기화.
  */
 
 var IMG_SIZE = 10;      // 토이 이미지 n x n
-var KERNEL_SIZE = 3;    // 커널 크기 (섹션 1은 3x3 고정)
+var KERNEL_SIZE = 3;    // kernel 크기 (섹션 1은 3x3 고정)
 
 var convDemoState = {
   image: [],              // n x n, 0~255
   kernelKey: 'edge',      // 현재 선택된 프리셋 키
-  customKernel: null,     // 사용자가 입력한 커스텀 커널 (3x3)
-  pos: { row: 0, col: 0 }, // 현재 슬라이딩 위치 (커널 좌상단)
+  customKernel: null,     // 사용자가 입력한 커스텀 kernel (3x3)
+  pos: { row: 0, col: 0 }, // 현재 슬라이딩 위치 (kernel 좌상단)
   playing: false,
   speedMs: 350,
   lastStepTime: 0,
@@ -64,7 +64,7 @@ function renderImageGrid() {
       imgCtx.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
       imgCtx.fillRect(j * CELL, i * CELL, CELL, CELL);
 
-      // 커널이 현재 덮고 있는 칸이면 강조 테두리
+      // kernel이 현재 덮고 있는 칸이면 강조 테두리
       var inWindow = (i >= pos.row && i < pos.row + KERNEL_SIZE &&
                        j >= pos.col && j < pos.col + KERNEL_SIZE);
       imgCtx.strokeStyle = inWindow ? '#4fc3f7' : 'rgba(42,42,74,0.6)';
@@ -87,7 +87,7 @@ function renderFeatureMap() {
   var dims = convDemoOutputDims();
   var full = convolve2D(convDemoState.image, kernel);
 
-  // 정규화(0~255)해서 시각화 (계산식 표시에는 raw 값을 별도로 씀)
+  // normalization(0~255)해서 시각화 (계산식 표시에는 raw 값을 별도로 씀)
   var flat = [];
   for (var i = 0; i < full.length; i++) flat = flat.concat(full[i]);
   var minV = Math.min.apply(null, flat);
@@ -182,7 +182,7 @@ function advanceStep() {
     pos.col = 0;
     pos.row++;
     if (pos.row >= dims.h) {
-      pos.row = 0; // 처음으로 되돌아가 반복
+      pos.row = 0; // 처음으로 되돌아가 iteration
     }
   }
   renderConvDemoAll();

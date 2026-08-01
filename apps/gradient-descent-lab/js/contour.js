@@ -1,4 +1,4 @@
-// contour.js - MSE(+릿지) 등고선 계산 및 canvas 렌더링.
+// contour.js - MSE(+ridge) contour 계산 및 canvas 렌더링.
 // 전역 객체 Contour 로 노출 (type="module" 미사용).
 //
 // 배경(색상 밴드 + 밴드 경계선)은 데이터/λ가 바뀔 때만 오프스크린 캔버스에
@@ -6,8 +6,8 @@
 // 경로/마커만 덧그려 성능을 확보한다.
 //
 // 색상: 단일 색조(사이트 accent #4fc3f7 계열) 시퀀셜 램프를 사용해
-// "골짜기(낮은 손실)"는 어둡게, "벽(높은 손실)"은 밝게 표현한다
-// (손실 지형에서 내려가야 할 방향이 어두운 쪽이라는 직관과 일치).
+// "골짜기(낮은 loss)"는 어둡게, "벽(높은 loss)"은 밝게 표현한다
+// (loss 지형에서 내려가야 할 방향이 어두운 쪽이라는 직관과 일치).
 
 var Contour = (function () {
 
@@ -43,8 +43,8 @@ var Contour = (function () {
     return 'rgb(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ')';
   }
 
-  // 데이터와 OLS 해를 기반으로 등고선 패널이 보여줄 (w0,w1) 범위를 정한다.
-  // 원점(0,0)을 항상 포함시켜 릿지가 원점 쪽으로 최저점을 당기는 것을 볼 수 있게 한다.
+  // 데이터와 OLS 해를 기반으로 contour 패널이 보여줄 (w0,w1) 범위를 정한다.
+  // 원점(0,0)을 항상 포함시켜 ridge가 원점 쪽으로 최저점을 당기는 것을 볼 수 있게 한다.
   function computeRange(data) {
     var ols = Regression.olsClosedForm(data);
     if (!ols || !isFinite(ols.w0) || !isFinite(ols.w1)) {
@@ -96,8 +96,8 @@ var Contour = (function () {
 
   function bandIndex(v, min, max) {
     var span = Math.max(1e-9, max - min);
-    // sqrt 압축: 손실이 최솟값에서 멀어질수록 시각적으로 밴드 간격이 좁아지는
-    // 이차함수(포물면) 형태를 완만하게 펴서 등고선 링이 고르게 보이게 한다.
+    // sqrt 압축: loss가 최솟값에서 멀어질수록 시각적으로 밴드 간격이 좁아지는
+    // 이차함수(포물면) 형태를 완만하게 펴서 contour 링이 고르게 보이게 한다.
     var t = Math.sqrt((v - min) / span);
     var idx = Math.floor(t * NUM_BANDS);
     if (idx >= NUM_BANDS) idx = NUM_BANDS - 1;
@@ -144,7 +144,7 @@ var Contour = (function () {
       }
     }
 
-    // 밴드 경계선(등고선) 그리기: 인접 셀 간 밴드가 다르면 경계에 선을 긋는다
+    // 밴드 경계선(contour) 그리기: 인접 셀 간 밴드가 다르면 경계에 선을 긋는다
     ctx.strokeStyle = contourLineColor;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -236,7 +236,7 @@ var Contour = (function () {
     ctx.save();
     ctx.translate(12, PADDING.top + plotH / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText('w₁ (기울기)', 0, 0);
+    ctx.fillText('w₁ (gradient)', 0, 0);
     ctx.restore();
   }
 

@@ -4,14 +4,14 @@
 
 var E_G = 1.12;              // 실리콘 띠간격, eV
 var N_C_300 = 2.8e19;        // 전도띠 유효상태밀도 @300K, cm^-3
-var N_V_300 = 1.04e19;       // 가전자띠 유효상태밀도 @300K, cm^-3
+var N_V_300 = 1.04e19;       // 가electron띠 유효상태밀도 @300K, cm^-3
 var EPS_SI = 1.036e-12;      // 실리콘 유전율 ε = ε_r*ε0, F/cm (ε_r=11.7)
-var Q = 1.602e-19;           // 전자전하, C
+var Q = 1.602e-19;           // electron charge, C
 var K_B_EV = 8.617e-5;       // 볼츠만 상수, eV/K
-var MU_N = 1350;             // 전자 이동도 @300K, cm^2/(V·s)
-var MU_P = 480;              // 정공 이동도 @300K, cm^2/(V·s)
-var TAU_N = 1e-6;            // 전자 소수캐리어 수명, s
-var TAU_P = 1e-6;            // 정공 소수캐리어 수명, s
+var MU_N = 1350;             // electron 이동도 @300K, cm^2/(V·s)
+var MU_P = 480;              // hole 이동도 @300K, cm^2/(V·s)
+var TAU_N = 1e-6;            // electron minority carrier 수명, s
+var TAU_P = 1e-6;            // hole minority carrier 수명, s
 
 // 슬라이더 범위 상수 (UI 전역에서 재사용)
 var DOPING_MIN = 1e14;       // cm^-3

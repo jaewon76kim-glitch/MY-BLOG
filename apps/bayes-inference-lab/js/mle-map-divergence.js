@@ -1,14 +1,14 @@
 /* mle-map-divergence.js — 섹션 5: MLE ↔ MAP 갈림길 토글
- * 숫자게임(4번 기능) 결과를 재사용해 사전확률 on/off에 따라 사후확률 순위가
- * 어떻게 달라지는지, N이 커질수록 사전확률 항의 영향력이 우도 항에 압도되어
- * MAP가 MLE로 수렴하는 과정을 보여준다.
+ * 숫자게임(4번 기능) 결과를 재사용해 prior on/off에 따라 posterior 순위가
+ * 어떻게 달라지는지, N이 커질수록 prior 항의 영향력이 likelihood 항에 압도되어
+ * MAP가 MLE로 convergence하는 과정을 보여준다.
  *
  * 데모 가설:
  *   h_two   = "2의 거듭제곱" (|h|=6, 1 제외) — 자연스러운 가설
  *   h_prime = "32를 제외한 2의 거듭제곱" (|h|=5) — 조작적이고 부자연스러운 가설
  *   h_even  = "짝수 전체" (|h|=50) — 항상 소극적인 참고용 가설
- * D={16,8,2,64}(N=4)에서 우도만 보면 h_prime이 h_two보다 높지만(|h| 작음),
- * h_two에 더 높은 사전확률을 주면 사후확률(우도×사전)은 h_two가 역전한다.
+ * D={16,8,2,64}(N=4)에서 likelihood만 보면 h_prime이 h_two보다 높지만(|h| 작음),
+ * h_two에 더 높은 prior를 주면 posterior(likelihood×사전)은 h_two가 역전한다.
  * 여기 표시하는 막대는 -log p(D|h)와 -log p(h)의 "놀라움(surprisal)"이므로
  * 막대 합이 작을수록 더 유력한 가설이다.
  */
@@ -33,8 +33,8 @@ function mmCompute() {
     var logPriorMAP = Math.log(mmState.priors[h.id]);
     var surpriseD = -logD;               // -log p(D|h), N에 비례해 커짐
     var surprisePrior = -logPriorMAP;    // -log p(h), N과 무관한 상수
-    var totalMLE = surpriseD;                       // 사전 균등(무정보) 가정 = 우도만
-    var totalMAP = surpriseD + surprisePrior;        // 사전확률 반영
+    var totalMLE = surpriseD;                       // 사전 균등(무정보) 가정 = likelihood만
+    var totalMAP = surpriseD + surprisePrior;        // prior 반영
     return {
       id: h.id, label: h.label, size: h.size,
       surpriseD: surpriseD, surprisePrior: surprisePrior,
@@ -55,12 +55,12 @@ function mmRenderSummary(results) {
   var mleWinner = mmWinner(results, 'totalMLE');
   var mapWinner = mmWinner(results, 'totalMAP');
   el.innerHTML =
-    'N=' + mmState.N + '일 때 — <strong>우도만(MLE) 기준 승자: ' + mleWinner.label + '</strong>, ' +
-    '<strong>사전확률 반영(MAP) 기준 승자: ' + mapWinner.label + '</strong>' +
+    'N=' + mmState.N + '일 때 — <strong>likelihood만(MLE) 기준 승자: ' + mleWinner.label + '</strong>, ' +
+    '<strong>prior 반영(MAP) 기준 승자: ' + mapWinner.label + '</strong>' +
     (mleWinner.id !== mapWinner.id
-      ? ' → 우도와 사전확률이 서로 다른 가설을 지지합니다 (갈림길).'
+      ? ' → likelihood와 prior가 서로 다른 가설을 지지합니다 (갈림길).'
       : ' → 이 N에서는 두 기준이 같은 가설을 지지합니다' +
-        (mleWinner.id === 'hprime' ? ' (N이 커져 사전확률의 영향력이 우도에 압도된 상태 — MAP가 MLE로 수렴).' : '.'));
+        (mleWinner.id === 'hprime' ? ' (N이 커져 prior의 영향력이 likelihood에 압도된 상태 — MAP가 MLE로 convergence).' : '.'));
 }
 
 function mmRenderChart(results) {
@@ -73,7 +73,7 @@ function mmRenderChart(results) {
     labels: labels,
     datasets: [
       {
-        label: '-log p(D|h)  (우도 항, N에 비례)',
+        label: '-log p(D|h)  (likelihood 항, N에 비례)',
         data: likelihoodData,
         backgroundColor: '#4fc3f7',
         stack: 's'

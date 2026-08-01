@@ -1,5 +1,5 @@
 /* semiconductor-math.js — 공용 순수 계산 함수 (모든 섹션에서 재사용)
- * 반복 최적화 없이 닫힌 형태 공식으로만 계산한다.
+ * iteration 최적화 없이 닫힌 형태 공식으로만 계산한다.
  */
 
 // --- 온도 스케일링 유효상태밀도: N_c(T) = N_C_300 * (T/300)^1.5 ---
@@ -10,7 +10,7 @@ function Nv(T) {
   return N_V_300 * Math.pow(T / 300, 1.5);
 }
 
-// --- 진성 캐리어 농도 n_i(T) = sqrt(N_c(T) N_v(T)) exp(-E_g / 2 k_B T) ---
+// --- 진성 carrier 농도 n_i(T) = sqrt(N_c(T) N_v(T)) exp(-E_g / 2 k_B T) ---
 function nI(T) {
   return Math.sqrt(Nc(T) * Nv(T)) * Math.exp(-E_G / (2 * K_B_EV * T));
 }
@@ -29,7 +29,7 @@ function Dp(T) {
   return K_B_EV * T * MU_P;
 }
 
-// --- 소수캐리어 확산길이 L = sqrt(D * tau) ---
+// --- minority carrier diffusion길이 L = sqrt(D * tau) ---
 function Ln(T) {
   return Math.sqrt(Dn(T) * TAU_N);
 }
@@ -37,8 +37,8 @@ function Lp(T) {
   return Math.sqrt(Dp(T) * TAU_P);
 }
 
-// --- 공핍층 폭: W = sqrt( (2 eps (V_bi - V) / q) * (1/N_A + 1/N_D) ) ---
-// Vbi - V가 음수(강한 순방향)가 되면 물리적으로 공핍층이 사라지므로 0으로 클램프한다.
+// --- depletion region 폭: W = sqrt( (2 eps (V_bi - V) / q) * (1/N_A + 1/N_D) ) ---
+// Vbi - V가 음수(강한 순방향)가 되면 물리적으로 depletion region이 사라지므로 0으로 클램프한다.
 function depletionWidth(Vbi_, V, NA, ND) {
   var diff = Vbi_ - V;
   if (diff <= 0) return 0;
@@ -81,7 +81,7 @@ function potentialAt(x, NA, ND, xp, xn) {
   }
 }
 
-// --- 평형 소수캐리어 농도 (질량작용법칙 np = n_i^2) ---
+// --- 평형 minority carrier 농도 (질량작용법칙 np = n_i^2) ---
 function pN0(ND, T) {
   var ni = nI(T);
   return (ni * ni) / ND;
@@ -104,7 +104,7 @@ function diodeCurrent(I0, V, T) {
   return I0 * (Math.exp(V / (K_B_EV * T)) - 1);
 }
 
-// --- 한 파라미터 세트로부터 모든 파생값을 한번에 계산(각 섹션에서 공용으로 사용) ---
+// --- 한 parameter 세트로부터 모든 파생값을 한번에 계산(각 섹션에서 공용으로 사용) ---
 function computeJunction(NA, ND, T, V, A) {
   var ni = nI(T);
   var vbi = vBi(NA, ND, T);

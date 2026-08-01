@@ -1,15 +1,15 @@
-// regression.js - MSE(w0,w1), ∇MSE, 정규방정식(OLS) 닫힌 형태 해, 릿지 닫힌 형태 해 등 순수 계산 함수.
+// regression.js - MSE(w0,w1), ∇MSE, 정규방정식(OLS) 닫힌 형태 해, ridge 닫힌 형태 해 등 순수 계산 함수.
 // 전역 객체 Regression 으로 노출 (type="module" 미사용). 외부 선형대수 라이브러리 사용하지 않음.
 //
 // 모델: ŷ_i = w0 + w1*x_i  (단순선형회귀, n개 데이터 점)
 // MSE(w0,w1) = (1/n) * Σ (w0 + w1*x_i - y_i)^2
 //
-// 릿지(정규화) 목적함수는 이 구현에서 "MSE 기준"으로 스케일을 통일한다:
+// ridge(normalization) 목적함수는 이 구현에서 "MSE 기준"으로 스케일을 통일한다:
 //   J(w) = MSE(w) + (λ/n) * (w0^2 + w1^2)
 // 이 J(w)의 그라디언트는 ∇MSE(w) + (2λ/n)*w 이며, ∂J/∂w = 0 을 풀면
 // (XᵀX + λI) w = Xᵀy 와 정확히 동일한 정지점을 준다 (n으로 양변을 나눈 것뿐이므로).
-// 따라서 λ=0일 때 GD 궤적과 닫힌 형태 해가 항상 같은 최솟값(OLS)로 수렴하고,
-// λ>0일 때도 GD가 수렴하는 지점과 ridgeClosedForm()의 결과가 일치한다.
+// 따라서 λ=0일 때 GD 궤적과 닫힌 형태 해가 항상 같은 최솟값(OLS)로 convergence하고,
+// λ>0일 때도 GD가 convergence하는 지점과 ridgeClosedForm()의 결과가 일치한다.
 
 var Regression = (function () {
 
@@ -25,7 +25,7 @@ var Regression = (function () {
     return { n: n, Sx: Sx, Sy: Sy, Sxx: Sxx, Sxy: Sxy };
   }
 
-  // MSE(w0, w1) - 순수 MSE (정규화 항 없음)
+  // MSE(w0, w1) - 순수 MSE (normalization 항 없음)
   function mse(data, w0, w1) {
     var n = data.length;
     if (n === 0) return 0;
@@ -37,8 +37,8 @@ var Regression = (function () {
     return s / n;
   }
 
-  // 정규화된 목적함수 J(w) = MSE(w) + (λ/n)*(w0^2+w1^2). λ=0이면 mse()와 동일.
-  // 등고선 렌더링과 릿지 시각화(최저점 이동)에 사용.
+  // normalization된 목적함수 J(w) = MSE(w) + (λ/n)*(w0^2+w1^2). λ=0이면 mse()와 동일.
+  // contour 렌더링과 ridge 시각화(최저점 이동)에 사용.
   function regObjective(data, w0, w1, lambda) {
     var n = data.length;
     var m = mse(data, w0, w1);
@@ -46,7 +46,7 @@ var Regression = (function () {
     return m + (lambda / n) * (w0 * w0 + w1 * w1);
   }
 
-  // ∇MSE + 릿지 항 (배치, 전체 n개 데이터 사용)
+  // ∇MSE + ridge 항 (배치, 전체 n개 데이터 사용)
   // 반환: [g0, g1]
   function gradMSE(data, w0, w1, lambda) {
     var n = data.length;
@@ -67,7 +67,7 @@ var Regression = (function () {
   }
 
   // 단일 데이터 점 i에 대한 mse_i(w) = (w0+w1*x_i - y_i)^2 의 그라디언트 (SGD용 근사).
-  // 릿지 항은 전체 n 기준 스케일(2λ/n * w)을 그대로 유지해 배치와 동일한 정지점으로 향하게 한다.
+  // ridge 항은 전체 n 기준 스케일(2λ/n * w)을 그대로 유지해 batch과 동일한 정지점으로 향하게 한다.
   function gradMSESingle(data, index, w0, w1, lambda) {
     var n = data.length;
     if (n === 0) return [0, 0];
@@ -98,7 +98,7 @@ var Regression = (function () {
     return { w0: w0, w1: w1 };
   }
 
-  // 닫힌 형태 릿지 해: w_ridge = (XᵀX + λI)⁻¹ Xᵀy
+  // 닫힌 형태 ridge 해: w_ridge = (XᵀX + λI)⁻¹ Xᵀy
   // λ=0이면 olsClosedForm()과 정확히 일치.
   function ridgeClosedForm(data, lambda) {
     if (data.length < 1) return null;

@@ -2,7 +2,7 @@
 
 var NAV_SECTIONS = [
   { id: 'section-1', label: '1. 에너지밴드' },
-  { id: 'section-2', label: '2. 공핍층 프로파일' },
+  { id: 'section-2', label: '2. depletion region 프로파일' },
   { id: 'section-3', label: '3. I-V 곡선' },
   { id: 'section-4', label: '4. 도핑 프리셋' }
 ];

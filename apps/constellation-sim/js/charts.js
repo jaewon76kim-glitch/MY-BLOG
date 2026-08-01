@@ -1,5 +1,5 @@
 // charts.js - Chart.js 래퍼 모듈 (전역 변수 방식, type="module" 사용 안 함)
-// 성상도 산점도(판정 경계 포함) + BER-vs-Eb/N0 로그스케일 곡선을 그린다.
+// constellation 산점도(판정 경계 포함) + BER-vs-Eb/N0 로그스케일 곡선을 그린다.
 // (apps/link-budget-calc/js/charts.js의 구조/색상 톤을 계승)
 
 var ConstellationCharts = (function () {
@@ -23,7 +23,7 @@ var ConstellationCharts = (function () {
     '64QAM': '#da77f2'
   };
 
-  // 판정경계 플러그인이 참조하는 "현재 그려진 성상도" 상태
+  // 판정경계 플러그인이 참조하는 "현재 그려진 constellation" 상태
   var boundaryState = { modKey: 'QPSK', constellation: [] };
 
   function commonScaleText(text) {
@@ -110,7 +110,7 @@ var ConstellationCharts = (function () {
     return out;
   }
 
-  // ---------- 성상도 산점도 ----------
+  // ---------- constellation 산점도 ----------
   function initConstellationChart(canvasEl) {
     if (constellationChart) {
       constellationChart.destroy();
@@ -283,7 +283,7 @@ var ConstellationCharts = (function () {
       }
     });
 
-    // 5개 변조방식의 이론 BER 곡선은 정적이므로 초기화 시 한 번만 계산해 채운다.
+    // 5개 modulation 방식의 이론 BER 곡선은 정적이므로 초기화 시 한 번만 계산해 채운다.
     Modulation.MOD_ORDER.forEach(function (key, idx) {
       var curve = [];
       for (var db = -5; db <= 20; db += 0.5) {

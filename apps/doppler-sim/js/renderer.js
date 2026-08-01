@@ -21,7 +21,7 @@ var DopplerRenderer = (function () {
     canvas.height = H;
   }
 
-  // 앙각 → 캔버스 Y 좌표 변환 (El_rad >= 0)
+  // elevation angle → 캔버스 Y 좌표 변환 (El_rad >= 0)
   // El=0 → 지평선 (H * 0.72)
   // El=90° → 천정 (H * 0.08)
   function elToY(El_rad) {

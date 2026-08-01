@@ -6,7 +6,7 @@ var DopplerSim = (function () {
   var MU = 3.986e14;     // 지구 중력 상수 m^3/s^2
 
   // 슬랜트 레인지 계산 (km)
-  // El: 앙각 (radians), 음수 허용 (지평선 아래)
+  // El: elevation angle (radians), 음수 허용 (지평선 아래)
   function slantRange(h_km, El_rad) {
     var Re = R_E;
     var hh = h_km;
@@ -16,10 +16,10 @@ var DopplerSim = (function () {
     var inner = Math.pow(Re + hh, 2) - Math.pow(Re * cosEl, 2);
     if (inner < 0) inner = 0;
     var R = Math.sqrt(inner) - Re * sinEl;
-    return Math.max(R, hh); // 최소 고도만큼은 보장
+    return Math.max(R, hh); // 최소 altitude만큼은 보장
   }
 
-  // 위성 궤도 속도 (m/s)
+  // 위성 orbit 속도 (m/s)
   function orbitalVelocity(h_km) {
     var r = (R_E + h_km) * 1000; // m
     return Math.sqrt(MU / r);
@@ -46,7 +46,7 @@ var DopplerSim = (function () {
     totalTimeSec: 0
   };
 
-  // 현재 t에서 앙각 계산 (radians)
+  // 현재 t에서 elevation angle 계산 (radians)
   // t in [0,1]: 0=진입(지평선), 0.5=천정, 1=이탈(지평선)
   // El(t) = El_max * sin(π * t)
   function elevationAt(t) {
@@ -80,7 +80,7 @@ var DopplerSim = (function () {
     }
     state.prevR = R_m;
 
-    // 도플러 천이 (Hz)
+    // Doppler 천이 (Hz)
     // f_d = -f_carrier * (dR/dt) / C
     // dR/dt 양수 → 거리 증가 → 멀어짐 → 적색편이 → f_d 음수
     // dR/dt 음수 → 거리 감소 → 접근 → 청색편이 → f_d 양수
@@ -89,7 +89,7 @@ var DopplerSim = (function () {
     // RTT (ms)
     var RTT = 2 * R_km * 1000 / C * 1000;
 
-    // 앙각 0 이상이면 가시
+    // elevation angle 0 이상이면 가시
     var visible = El_rad >= 0;
 
     return {
@@ -138,7 +138,7 @@ var DopplerSim = (function () {
     state.speedMul = val;
   }
 
-  // 최대 도플러 추정 (kHz) — 차트 Y축 범위용
+  // 최대 Doppler 추정 (kHz) — 차트 Y축 범위용
   // sin(π*t) 모델에서 피크 |dR/dt| = π * Re * v / (2*(Re+h))
   // (El_max에 무관하게 동일 — passtime 공식과 상쇄됨)
   function maxDoppler_kHz() {

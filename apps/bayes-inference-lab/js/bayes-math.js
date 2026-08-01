@@ -1,11 +1,11 @@
 /* bayes-math.js
- * 베이즈 추론 실험실 — 순수 계산 함수 모음 (전역 변수, 모듈 시스템 미사용)
+ * Bayes 추론 실험실 — 순수 계산 함수 모음 (전역 변수, 모듈 시스템 미사용)
  * 다른 js 파일(base-rate-calculator.js, contingency-table.js, generative-classifier.js,
  * number-game.js, mle-map-divergence.js)에서 그대로 재사용한다.
- * 모든 함수는 반복 최적화 없이 닫힌 형태 공식으로 즉시 계산된다.
+ * 모든 함수는 iteration 최적화 없이 닫힌 형태 공식으로 즉시 계산된다.
  */
 
-/* ---------- 1) 기저율 오류 — 베이즈 정리 계산기 (섹션 1) ---------- */
+/* ---------- 1) 기저율 오류 — Bayes' theorem 계산기 (섹션 1) ---------- */
 
 /**
  * 전체 확률의 법칙: p(양성) = p(양성|암)*p(암) + p(양성|암 아님)*(1-p(암))
@@ -15,7 +15,7 @@ function totalProbabilityPositive(sensitivity, falsePositiveRate, priorCancer) {
 }
 
 /**
- * 베이즈 정리: p(암|양성) = p(양성|암)*p(암) / p(양성)
+ * Bayes' theorem: p(암|양성) = p(양성|암)*p(암) / p(양성)
  * 반환: { pPositive, pCancerGivenPositive, numerator }
  */
 function bayesCancerGivenPositive(sensitivity, falsePositiveRate, priorCancer) {
@@ -85,7 +85,7 @@ function generativeClassifierPosteriors(classes) {
   return { results: results, evidence: evidence, mapIndex: mapIndex };
 }
 
-/* ---------- 4) 숫자게임 — 강한 표집 가정 우도 (섹션 4, 5) ---------- */
+/* ---------- 4) 숫자게임 — 강한 표집 가정 likelihood (섹션 4, 5) ---------- */
 
 /**
  * 강한 표집 가정: p(D|h) = (1/|h|)^N, D가 h와 모순되면 0.
@@ -97,7 +97,7 @@ function hypothesisLikelihood(hypothesisSize, N, consistent) {
 }
 
 /**
- * 로그 우도: log p(D|h) = N * log(1/|h|) = -N*log(|h|)
+ * 로그 likelihood: log p(D|h) = N * log(1/|h|) = -N*log(|h|)
  * 모순되면 -Infinity.
  */
 function logHypothesisLikelihood(hypothesisSize, N, consistent) {

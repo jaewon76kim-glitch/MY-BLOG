@@ -1,7 +1,7 @@
-// rain.js - ITU-R P.618 강우감쇠 + ITU-R P.838 k,alpha 계수 lookup
+// rain.js - ITU-R P.618 rain attenuation + ITU-R P.838 k,alpha 계수 lookup
 // (전역 변수 방식, type="module" 사용 안 함)
 //
-// 근거: 위성통신_소스.tex \section{대기와 강우감쇠: ITU-R 모델} (859절)
+// 근거: 위성통신_소스.tex \section{대기와 rain attenuation: ITU-R 모델} (859절)
 //   gamma_R = k * R^alpha [dB/km]           (P.838 회귀계수)
 //   L_S = (h_R - h_S) / sin(theta)          (슬랜트 경로장)
 //   L_G = L_S * cos(theta)                  (수평투영 경로장)
@@ -11,9 +11,9 @@
 var RainModel = (function () {
   'use strict';
 
-  // ITU-R P.838-3 근사 계수표 (수평/수직 편파). 출처: ITU-R P.838-3 권고안에서
+  // ITU-R P.838-3 근사 계수표 (수평/수직 polarization). 출처: ITU-R P.838-3 권고안에서
   // 흔히 쓰이는 근사 계수표. 임의로 만들지 않고 build 지침에 명시된 표 값을 그대로 사용.
-  // 원형 편파는 H/V 평균으로 단순화(k=(kH+kV)/2, alpha=(alphaH+alphaV)/2).
+  // 원형 polarization은 H/V 평균으로 단순화(k=(kH+kV)/2, alpha=(alphaH+alphaV)/2).
   var P838_TABLE = [
     { f: 1,  kH: 0.0000387, aH: 0.912, kV: 0.0000352, aV: 0.880 },
     { f: 2,  kH: 0.000154,  aH: 0.963, kV: 0.000138,  aV: 0.923 },
@@ -55,7 +55,7 @@ var RainModel = (function () {
     return P838_TABLE[n - 1][key]; // 안전망
   }
 
-  // 원형 편파용 k, alpha (H/V 평균)
+  // 원형 polarization용 k, alpha (H/V 평균)
   function kAlpha(fc_GHz) {
     var kH = interpLogLog(fc_GHz, 'kH');
     var aH = interpLogLog(fc_GHz, 'aH');
@@ -77,7 +77,7 @@ var RainModel = (function () {
   // 슬랜트 경로장 L_S = (h_R - h_S) / sin(theta) [km]
   function slantPathLength_km(hR_km, hS_km, elevation_deg) {
     var diff = hR_km - hS_km;
-    if (diff <= 0) return 0; // 지상국이 강우고도보다 높으면 강우경로 없음
+    if (diff <= 0) return 0; // 지상국이 rain height보다 높으면 강우경로 없음
     var elRad = elevation_deg * Math.PI / 180;
     var sinEl = Math.sin(elRad);
     if (sinEl <= 0) return 0;
@@ -96,7 +96,7 @@ var RainModel = (function () {
     return 1 / denom;
   }
 
-  // 종합: 강우감쇠 A_0.01 계산
+  // 종합: rain attenuation A_0.01 계산
   // 반환: { gammaR, LS, LG, r, LE, A001, k, alpha }
   function rainAttenuation(params) {
     var fc_GHz = params.fc_GHz;

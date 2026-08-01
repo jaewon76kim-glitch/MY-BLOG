@@ -1,6 +1,6 @@
-/* depletion-profile.js — 섹션 2: 공핍층 프로파일 ρ(x)/E(x)/φ(x)
- * 세 그래프 모두 같은 x축(공핍층 경계 -x_p ~ x_n)을 공유하며, semiconductor-math.js의
- * fieldAt()/potentialAt()을 그대로 사용해 계단접합 근사의 전기장·전위 분포를 그린다.
+/* depletion-profile.js — 섹션 2: depletion region 프로파일 ρ(x)/E(x)/φ(x)
+ * 세 그래프 모두 같은 x축(depletion region 경계 -x_p ~ x_n)을 공유하며, semiconductor-math.js의
+ * fieldAt()/potentialAt()을 그대로 사용해 step junction 근사의 전기장·전위 분포를 그린다.
  */
 
 var DP_COLORS = {
@@ -47,7 +47,7 @@ function dpDrawFrame(ctx, layout, xMin, xMax, yMin, yMax, xTicks, yLabel) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // x=0 (야금학적 접합) 기준선
+  // x=0 (야금학적 junction) 기준선
   var x0 = dpMapX(0, xMin, xMax, left, right);
   ctx.strokeStyle = 'rgba(160,160,192,0.35)';
   ctx.beginPath();

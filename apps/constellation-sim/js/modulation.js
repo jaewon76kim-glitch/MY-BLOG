@@ -1,7 +1,7 @@
 // modulation.js - 성상점 좌표 생성 + 이론 SER/BER 공식 + 최근접 판정
 // (전역 변수 방식, type="module" 사용 안 함 — apps/link-budget-calc 관례 계승)
 //
-// 근거: 위성통신_소스.tex, \section{디지털 변조 성능: AWGN 위의 PSK와 QAM} (509절)
+// 근거: 위성통신_소스.tex, \section{디지털 modulation 성능: AWGN 위의 PSK와 QAM} (509절)
 //   - Q함수 정의 (517절)
 //   - BPSK 오류확률 Pb = Q(sqrt(2Eb/N0)) (530절)
 //   - M-PSK 신호점 s_m = sqrt(Es)*e^{j2pi m/M} (541절)
@@ -13,7 +13,7 @@
 var Modulation = (function () {
   'use strict';
 
-  // ---- 변조방식 정의 ----
+  // ---- modulation 방식 정의 ----
   // bitsPerSymbol = log2(M). tex 정의대로 Es = Eb * log2(M) (BPSK: Es=Eb, QPSK: Es=2Eb 등)
   var MODS = {
     BPSK:   { M: 2,  type: 'psk', bitsPerSymbol: 1 },
@@ -39,10 +39,10 @@ var Modulation = (function () {
     return d * poly;
   }
 
-  // ---- 이상적 성상점 좌표 생성 (평균 심볼에너지 Es=1로 정규화) ----
-  // Es/N0 비율만으로 잡음 표준편차를 정할 수 있도록, 모든 변조방식의 성상점을
-  // 평균 심볼에너지 1이 되도록 정규화한다. SER/BER 공식은 Es/N0 비율에만 의존하므로
-  // 이 정규화는 결과에 영향을 주지 않는다.
+  // ---- 이상적 성상점 좌표 생성 (평균 심볼에너지 Es=1로 normalization) ----
+  // Es/N0 비율만으로 noise 표준편차를 정할 수 있도록, 모든 modulation 방식의 성상점을
+  // 평균 심볼에너지 1이 되도록 normalization한다. SER/BER 공식은 Es/N0 비율에만 의존하므로
+  // 이 normalization은 결과에 영향을 주지 않는다.
   function getConstellation(modKey) {
     var cfg = MODS[modKey];
     if (cfg.type === 'psk') {
@@ -63,7 +63,7 @@ var Modulation = (function () {
 
   // tex 564절: M-QAM(M=2^k, k 짝수)은 I/Q축 각각에 독립적인 sqrt(M)-PAM을 싣는 정사각형 그리드.
   // 레벨: ±d, ±3d, ..., ±(sqrt(M)-1)d. 평균 심볼에너지 Es=1이 되도록
-  // d = sqrt(3 / (2*(M-1)))로 정규화(표준 사각 QAM 평균에너지 공식 Es_avg = (2/3)(M-1)d^2의 역산).
+  // d = sqrt(3 / (2*(M-1)))로 normalization(표준 사각 QAM 평균에너지 공식 Es_avg = (2/3)(M-1)d^2의 역산).
   function qamPoints(M) {
     var L = Math.round(Math.sqrt(M));
     var d = Math.sqrt(3 / (2 * (M - 1)));

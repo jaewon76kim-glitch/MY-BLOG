@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>위성 링크버짓 계산기</title>
+  <title>위성 link budget 계산기</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="app-header">
-  <h1>위성 링크버짓 계산기</h1>
-  <p>송신 EIRP·수신 G/T·경로손실·강우감쇠를 슬라이더로 조정하며 Eₛ/N₀, 링크마진, 아웃티지 확률을 실시간으로 계산합니다</p>
+  <h1>위성 link budget 계산기</h1>
+  <p>송신 EIRP·수신 G/T·path loss·rain attenuation를 슬라이더로 조정하며 Eₛ/N₀, 링크마진, 아웃티지 확률을 실시간으로 계산합니다</p>
 </header>
 
 <div class="main-layout">
@@ -51,22 +51,22 @@
     </div>
 
     <div class="param-group">
-      <span class="param-label" id="label-tant">안테나 잡음온도 T_ant (게이트웨이)</span>
+      <span class="param-label" id="label-tant">안테나 noise temperature T_ant (게이트웨이)</span>
       <span class="param-value" id="val-tant">50 K</span>
       <input type="range" id="slider-tant" min="20" max="290" step="5" value="50">
     </div>
 
     <div class="param-group">
-      <span class="param-label" id="label-f">수신기 잡음지수 F (게이트웨이)</span>
+      <span class="param-label" id="label-f">수신기 noise figure F (게이트웨이)</span>
       <span class="param-value" id="val-f">1.5 dB</span>
       <input type="range" id="slider-f" min="0.5" max="5" step="0.1" value="1.5">
     </div>
 
     <hr class="divider">
 
-    <!-- 궤도 -->
+    <!-- orbit -->
     <div class="param-group">
-      <span class="param-label">궤도 고도 h</span>
+      <span class="param-label">orbit altitude h</span>
       <span class="param-value" id="val-orbit">GEO · 35786 km</span>
       <div class="preset-row">
         <button class="preset-btn" data-orbit="550">LEO<br>550</button>
@@ -76,7 +76,7 @@
     </div>
 
     <div class="param-group">
-      <span class="param-label">앙각 θ</span>
+      <span class="param-label">elevation angle θ</span>
       <span class="param-value" id="val-elevation">40°</span>
       <input type="range" id="slider-elevation" min="5" max="90" step="1" value="40">
     </div>
@@ -112,20 +112,20 @@
     </div>
 
     <div class="param-group">
-      <span class="param-label">강우고도 h_R</span>
+      <span class="param-label">rain height h_R</span>
       <span class="param-value" id="val-hr">3.5 km</span>
       <input type="range" id="slider-hr" min="2" max="5" step="0.1" value="3.5">
     </div>
 
     <div class="param-group">
-      <span class="param-label">지상국 해발고도 h_S</span>
+      <span class="param-label">지상국 altitude h_S</span>
       <span class="param-value" id="val-hs">0.0 km</span>
       <input type="range" id="slider-hs" min="0" max="2" step="0.05" value="0">
     </div>
 
     <hr class="divider">
 
-    <!-- 변조/심볼률 -->
+    <!-- modulation/심볼률 -->
     <div class="param-group">
       <span class="param-label">심볼률 R_s</span>
       <span class="param-value" id="val-rs">10.0 Msps</span>
@@ -133,7 +133,7 @@
     </div>
 
     <div class="param-group">
-      <span class="param-label">변조방식 (요구 Eₛ/N₀ 자동입력)</span>
+      <span class="param-label">modulation 방식 (요구 Eₛ/N₀ 자동입력)</span>
       <span class="param-value" id="val-modulation">QPSK · 6.5 dB</span>
       <div class="preset-row">
         <button class="preset-btn" data-mod="BPSK" data-esn0="4.5">BPSK</button>
@@ -197,7 +197,7 @@
     <!-- 보조 지표 -->
     <div class="aux-card">
       <span class="aux-item">수신감도 S_rx: <strong id="aux-srx">—</strong></span>
-      <span class="aux-item">최대허용 경로손실 L_p,max: <strong id="aux-lpmax">—</strong></span>
+      <span class="aux-item">최대허용 path loss L_p,max: <strong id="aux-lpmax">—</strong></span>
       <span class="aux-item">슬랜트거리: <strong id="aux-range">—</strong></span>
     </div>
 
@@ -222,7 +222,7 @@
     <!-- 워터폴 차트 -->
     <div class="chart-wrap waterfall-wrap">
       <div class="chart-title">
-        <span>링크버짓 워터폴</span> — EIRP → +G/T → −L_p → −A_rain → +1/k_B → −R_s → −L_rf
+        <span>link budget 워터폴</span> — EIRP → +G/T → −L_p → −A_rain → +1/k_B → −R_s → −L_rf
       </div>
       <div class="chart-container waterfall-container">
         <canvas id="chart-waterfall"></canvas>
@@ -233,7 +233,7 @@
     <div class="charts-grid">
       <div class="chart-wrap">
         <div class="chart-title">
-          <span class="rain-title">강우감쇠 곡선</span> — 현재 주파수·앙각 기준 A₀.₀₁(R) 스윕
+          <span class="rain-title">rain attenuation 곡선</span> — 현재 주파수·elevation angle 기준 A₀.₀₁(R) 스윕
         </div>
         <div class="chart-container">
           <canvas id="chart-rain"></canvas>
@@ -270,15 +270,15 @@
       pt: '송신전력 Pₜ (위성)',
       gt: '송신 안테나 이득 G_T (위성)',
       gr: '수신 안테나 이득 G_R (게이트웨이)',
-      tant: '안테나 잡음온도 T_ant (게이트웨이)',
-      f: '수신기 잡음지수 F (게이트웨이)'
+      tant: '안테나 noise temperature T_ant (게이트웨이)',
+      f: '수신기 noise figure F (게이트웨이)'
     },
     uplink: {
       pt: '송신전력 Pₜ (게이트웨이)',
       gt: '송신 안테나 이득 G_T (게이트웨이)',
       gr: '수신 안테나 이득 G_R (위성)',
-      tant: '안테나 잡음온도 T_ant (위성)',
-      f: '수신기 잡음지수 F (위성)'
+      tant: '안테나 noise temperature T_ant (위성)',
+      f: '수신기 noise figure F (위성)'
     }
   };
 
@@ -420,7 +420,7 @@
   }
 
   function bindPresets() {
-    // 궤도 프리셋
+    // orbit 프리셋
     document.querySelectorAll('[data-orbit]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var h = parseInt(this.getAttribute('data-orbit'));
@@ -456,7 +456,7 @@
       });
     });
 
-    // 변조방식 프리셋
+    // modulation 방식 프리셋
     document.querySelectorAll('[data-mod]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var mod = this.getAttribute('data-mod');
@@ -548,7 +548,7 @@
     var d_km = LinkBudget.slantRange_km(state.h_km, state.elevation);
     var lfs = LinkBudget.freeSpaceLoss_dB(d_km, state.fc_GHz);
 
-    // 강우감쇠
+    // rain attenuation
     var rain = RainModel.rainAttenuation({
       fc_GHz: state.fc_GHz,
       elevation_deg: state.elevation,
@@ -566,7 +566,7 @@
     // 아웃티지 확률
     var outage = LinkBudget.outageProbability(margin, state.sigma_s);
 
-    // 보조 지표: 수신감도, 최대허용 경로손실
+    // 보조 지표: 수신감도, 최대허용 path loss
     var srxDbw = LinkBudget.sensitivity_dBW(state.EsN0min, rsDb, tsys);
     var srxDbm = srxDbw + 30;
     var lpMax = LinkBudget.maxAllowablePathLoss_dB(eirp, state.GR, srxDbw);
@@ -602,7 +602,7 @@
       { label: '−L_rf (Eₛ/N₀)', delta: -state.Lrf }
     ]);
 
-    // ---- 강우감쇠 곡선 ----
+    // ---- rain attenuation 곡선 ----
     var rainCurve = [];
     for (var r = 0; r <= 150; r += 3) {
       var a = RainModel.rainAttenuation({
