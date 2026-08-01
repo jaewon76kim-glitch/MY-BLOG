@@ -2,10 +2,12 @@
 
 const $ = (sel) => document.querySelector(sel);
 
-// 스택도에 세로로 쌓을 순서 (위 → 아래). 실제 프로토콜 스택 그대로.
-const STACK_ORDER = ['nas', 'rrc', 'sdap', 'pdcp', 'rlc', 'mac', 'phy'];
-// 옆 기둥 — 스택의 한 layer가 아니라 스택 전체를 가로지르는 것들
-const PILLAR_ORDER = ['uecap', 'rf', 'sec', 'ims', 'sms', 'lcs', 'te', 't-com', 't-pct', 't-rrm', 't-rct'];
+// 스택도에 세로로 쌓을 순서 (위 → 아래).
+// 위 4개는 NAS를 전송수단으로 쓰거나(SMS·LCS·Security) NAS의 등록 대상을
+// 정하는(PLMN Selection) 상위 기능이라 NAS 위에 놓는다. 그 아래가 스택 본체.
+const STACK_ORDER = ['sms', 'lcs', 'sec', 'plmn', 'nas', 'rrc', 'sdap', 'pdcp', 'rlc', 'mac', 'phy'];
+// 옆 기둥 — 스택의 한 layer가 아니라 스택 전체를 가로지르거나 그 바깥에 있는 것들
+const PILLAR_ORDER = ['uecap', 'rf', 'ims', 'te', 't-com', 't-pct', 't-rrm', 't-rct'];
 
 let ntnOnly = false;
 let query = '';
@@ -29,19 +31,28 @@ function passes(spec) {
 
 /* ── Level 0 ─────────────────────────────────────────── */
 function renderOverview() {
-  // RAT 공통(s === 'Common') NAS 문서 — LTE/NR 어느 칸에도 속하지 않으므로
-  // 별도 행으로 뺀다. 스택 맨 아래가 아니라 NAS 바로 밑에 붙인다(참조 방향이 그렇다).
-  const base = specsOf('nas').filter((s) => s.s === 'Common');
-  const baseRow = `
-    <button class="layer base-row" data-mod="nas" aria-label="Common NAS base 열기">
-      <span class="layer-name">Common NAS base<small>LTE·NR이 함께 참조</small></span>
-      <span class="layer-cell common">${base.map((s) => s.id).join(' · ')}</span>
+  // LTE/NR 칸이 나뉘지 않는 RAT 공통 문서는 한 칸으로 편다.
+  //   wide  = 그 layer가 통째로 RAT 공통 (예: SMS, PLMN Selection)
+  //   base  = LTE/NR이 있는 layer에 공통 문서가 딸린 경우 (예: NAS의 24.007/24.008)
+  const wideRow = (mid, mod, list, indent) => `
+    <button class="layer ${indent ? 'base-row' : 'wide-row'}" data-mod="${mid}"
+            aria-label="${indent ? (mod.commonLabel || mod.name + ' 공통') : mod.name} 열기">
+      <span class="layer-name">${indent ? (mod.commonLabel || 'Common') : mod.name}<small>${
+        indent ? (mod.commonDesc || 'LTE·NR 공통') : mod.desc
+      }</small></span>
+      <span class="layer-cell common">${list.map((s) => s.id).join(' · ')}</span>
     </button>`;
 
   const stack = STACK_ORDER.map((mid) => {
     const mod = moduleById(mid);
-    const lte = specsOf(mid).filter((s) => s.s === 'LTE');
-    const nr = specsOf(mid).filter((s) => s.s === 'NR');
+    const list = specsOf(mid);
+    const lte = list.filter((s) => s.s === 'LTE');
+    const nr = list.filter((s) => s.s === 'NR');
+    const common = list.filter((s) => s.s === 'Common');
+
+    // RAT 구분이 아예 없는 layer는 LTE/NR 칸을 나누지 않는다
+    if (!lte.length && !nr.length) return wideRow(mid, mod, common, false);
+
     return `
       <button class="layer" data-mod="${mid}" aria-label="${mod.name} 모듈 열기">
         <span class="layer-name">${mod.name}<small>${mod.desc}</small></span>
@@ -51,7 +62,7 @@ function renderOverview() {
         <span class="layer-cell ${nr.length ? 'nr' : 'none'}">${
           nr.length ? nr.map((s) => s.id).join(' · ') : '해당 없음'
         }</span>
-      </button>` + (mid === 'nas' ? baseRow : '');
+      </button>` + (common.length ? wideRow(mid, mod, common, true) : '');
   }).join('');
 
   const pillars = PILLAR_ORDER.map((mid) => {
@@ -75,8 +86,9 @@ function renderOverview() {
       ${stack}
     </div>
     <div class="pillars">
-      <h2>UE Capability · RF · Security · Services · AT · Test</h2>
-      <p class="pillar-note">스택의 한 layer에 속하지 않고, 스택 전체를 가로지르거나 그 바깥에 있는 문서들입니다.</p>
+      <h2>UE Capability · RF · IMS · AT · Test</h2>
+      <p class="pillar-note">스택의 한 layer에 속하지 않고, 스택 전체를 가로지르거나 그 바깥에 있는 문서들입니다.
+        IMS는 NAS가 아니라 <strong>user plane(PDU session 위의 IP)</strong>을 타므로 여기 둡니다.</p>
       <div class="pillar-grid">${pillars}</div>
     </div>
     <div class="legend">

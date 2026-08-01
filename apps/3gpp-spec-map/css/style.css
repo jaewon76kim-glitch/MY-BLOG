@@ -112,17 +112,19 @@ body {
 .layer:hover .layer-name { filter: brightness(0.97); }
 .layer:hover .layer-name { background: var(--bg-hover); }
 
-/* NAS 바로 밑에 붙는 공통 기반 행 — 대등한 layer가 아니라 NAS가
-   IE를 끌어오는 토대라는 뜻으로 한 칸 들여 쓴다. */
-.base-row {
+/* LTE/NR로 갈리지 않는 RAT 공통 문서 행 — 칸을 나누지 않고 한 칸으로 편다.
+   .wide-row = layer 자체가 통째로 공통 (대등한 layer이므로 들여쓰지 않는다)
+   .base-row = LTE/NR이 있는 layer에 딸린 공통 문서 (↳로 종속 관계를 표시) */
+.wide-row, .base-row {
   grid-template-columns: 120px 1fr;
 }
+.wide-row .layer-cell.common,
+.base-row .layer-cell.common { background: var(--common-soft); border-color: var(--common); }
 .base-row .layer-name { position: relative; padding-left: 24px; }
 .base-row .layer-name::before {
   content: '↳'; position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
   font-weight: 400; color: var(--text-muted);
 }
-.base-row .layer-cell.common { background: var(--common-soft); border-color: var(--common); }
 
 .pillars { margin-top: 20px; }
 .pillars h2, .stack-title { font-size: 1rem; margin: 0 0 10px; color: var(--text-muted); }
@@ -199,7 +201,7 @@ body {
 
 @media (max-width: 640px) {
   .stack-head, .layer { grid-template-columns: 88px 1fr 1fr; }
-  .base-row { grid-template-columns: 88px 1fr; }
+  .wide-row, .base-row { grid-template-columns: 88px 1fr; }
   .base-row .layer-name { padding-left: 18px; }
   .base-row .layer-name::before { left: 5px; }
   .layer-cell { font-size: 0.74rem; padding: 8px; }
