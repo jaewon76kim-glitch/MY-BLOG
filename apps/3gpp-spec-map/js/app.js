@@ -15,7 +15,21 @@ let ntnOnly = false;
 let query = '';
 
 const moduleById = (id) => MODULES.find((m) => m.id === id);
-const specsOf = (mid) => SPECS.filter((s) => s.m === mid);
+
+/* 스펙 번호 오름차순 비교. '38.101-1' → [38, 101, 1], '38.108' → [38, 108, 0].
+   문자열 비교로는 38.101-1이 38.108보다 뒤로 가므로 마디를 숫자로 쪼갠다. */
+const specNo = (id) => {
+  const [series, rest] = id.split('.');
+  const [main, part] = rest.split('-');
+  return [Number(series), Number(main), Number(part || 0)];
+};
+const bySpecNo = (x, y) => {
+  const a = specNo(x.id), b = specNo(y.id);
+  return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+};
+
+// filter()가 새 배열을 주므로 sort()가 SPECS 원본을 건드리지 않는다
+const specsOf = (mid) => SPECS.filter((s) => s.m === mid).sort(bySpecNo);
 
 /* 현재 필터를 통과하는가 */
 function passes(spec) {
@@ -149,7 +163,10 @@ function renderModule(mid) {
 
 /* ── 검색 결과 (모듈 무관 전역) ──────────────────────── */
 function renderSearch() {
-  const list = SPECS.filter(passes);
+  // 검색 결과는 모듈 묶음을 유지하되(지도 순서 그대로), 그 안에서 번호순
+  const order = [...STACK_ORDER, ...TEST_ORDER, ...STUDY_ORDER];
+  const list = SPECS.filter(passes)
+    .sort((x, y) => order.indexOf(x.m) - order.indexOf(y.m) || bySpecNo(x, y));
   $('#view').innerHTML = `
     <div class="detail-head">
       <button class="back" data-back>← 전체 지도</button>
