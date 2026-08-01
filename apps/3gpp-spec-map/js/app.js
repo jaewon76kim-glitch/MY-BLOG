@@ -5,7 +5,7 @@ const $ = (sel) => document.querySelector(sel);
 // 스택도에 세로로 쌓을 순서 (위 → 아래). 실제 프로토콜 스택 그대로.
 const STACK_ORDER = ['nas', 'rrc', 'sdap', 'pdcp', 'rlc', 'mac', 'phy'];
 // 옆 기둥 — 스택의 한 layer가 아니라 스택 전체를 가로지르는 것들
-const PILLAR_ORDER = ['uecap', 'rf', 'sec', 'ims', 't-com', 't-pct', 't-rrm', 't-rct'];
+const PILLAR_ORDER = ['uecap', 'rf', 'sec', 'ims', 'sms', 'lcs', 't-com', 't-pct', 't-rrm', 't-rct'];
 
 let ntnOnly = false;
 let query = '';
