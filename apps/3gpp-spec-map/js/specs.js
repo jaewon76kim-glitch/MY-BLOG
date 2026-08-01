@@ -12,7 +12,9 @@
  */
 
 const MODULES = [
-  { id: 'phy',    name: 'PHY',               desc: 'Physical layer — channels, coding, procedures, measurements' },
+  { id: 'phy-proc', name: 'PHY Procedures',  desc: 'Random access, power control, resource allocation, CSI — how the channels are actually driven',
+    asymNote: 'LTE는 control·data 절차가 <code>36.213</code> 한 문서에 있는데, NR은 <code>38.213</code>(control) / <code>38.214</code>(data)로 갈립니다. LTE 코드를 NR로 옮길 때 자주 헷갈리는 지점입니다.' },
+  { id: 'phy',    name: 'PHY',               desc: 'Physical channels, modulation, channel coding and measurements' },
   { id: 'mac',    name: 'MAC',               desc: 'Scheduling, HARQ, random access' },
   { id: 'sdap',   name: 'SDAP',              desc: 'QoS flow → DRB mapping — NR only, no LTE counterpart' },
   { id: 'pdcp',   name: 'PDCP',              desc: 'Header compression, ciphering & integrity, reordering, duplication' },
@@ -33,7 +35,8 @@ const MODULES = [
   { id: 'ntn-tr', name: 'NTN Study (TR)',    desc: 'NTN study items — channel model, candidate solutions, IoT NTN background' },
   { id: 't-com',  name: 'Test — Common',     desc: 'Common test environment and configuration', test: true },
   { id: 't-pct',  name: 'Test — PCT',        desc: 'Protocol conformance test', test: true },
-  { id: 't-rrm',  name: 'Test — RRM',        desc: 'Radio resource management conformance test', test: true },
+  { id: 't-rrm',  name: 'Test — RRM',        desc: 'Radio resource management conformance test', test: true,
+    asymNote: 'RRM conformance test는 LTE가 <code>36.521-3</code>(521 시리즈 <em>안</em>)인데 NR은 <code>38.533</code>(521 시리즈 <em>밖</em>)입니다. 번호만 보면 놓치기 쉬운 비대칭입니다.' },
   { id: 't-rct',  name: 'Test — RCT',        desc: 'RF conformance test', test: true }
 ];
 
@@ -53,17 +56,6 @@ const SPECS = [
     title: 'NR; Multiplexing and channel coding',
     short: 'Multiplexing and channel coding',
     when: 'DCI/UCI 필드 구성과 bit width, Polar·LDPC coding 절차를 볼 때. DCI format parsing의 근거.' },
-  { id: '38.213', m: 'phy', s: 'NR', peer: '36.213', rel: 'Rel-15~', ntn: 'clause',
-    kw: 'RACH PRACH random access power control PUCCH beam TA timing advance K_offset 랜덤액세스 전력제어 타이밍',
-    ntnNote: '<b>Timing pre-compensation (시간축)</b> — N<sub>TA,adjUE</sub> 기반 양방향 propagation delay 보상, <code>cellSpecificKoffset</code> / K<sub>UE,offset</sub> 적용. <b>Frequency (Doppler) pre-compensation은 여기가 아니라 38.300 §16.14.2.2</b>',
-    title: 'NR; Physical layer procedures for control',
-    short: 'PHY procedures for control',
-    when: '★ Random access 절차, power control, PUCCH resource 결정, beam management를 볼 때. NTN timing 보정(TA·K_offset)도 여기 — 단 Doppler는 38.300.' },
-  { id: '38.214', m: 'phy', s: 'NR', peer: '36.213', rel: 'Rel-15~',
-    kw: 'PDSCH PUSCH MCS TBS CSI resource allocation 자원할당',
-    title: 'NR; Physical layer procedures for data',
-    short: 'PHY procedures for data',
-    when: 'PDSCH/PUSCH resource allocation, MCS·TBS 계산, CSI reporting 절차.' },
   { id: '38.215', m: 'phy', s: 'NR', peer: '36.214', rel: 'Rel-15~',
     kw: 'RSRP RSRQ SINR measurement 측정',
     title: 'NR; Physical layer measurements',
@@ -83,15 +75,28 @@ const SPECS = [
     title: 'E-UTRA; Multiplexing and channel coding',
     short: 'LTE multiplexing and channel coding',
     when: 'LTE DCI format과 Turbo coding. NB-IoT coding 포함.' },
-  { id: '36.213', m: 'phy', s: 'LTE', peer: '38.213', rel: 'Rel-8~',
-    title: 'E-UTRA; Physical layer procedures',
-    short: 'LTE PHY procedures',
-    when: 'LTE는 control/data 절차가 한 문서에 있다(NR은 38.213/38.214로 분리). 이 차이가 자주 헷갈린다.' },
   { id: '36.214', m: 'phy', s: 'LTE', peer: '38.215', rel: 'Rel-8~',
     kw: 'RSRP RSRQ measurement 측정',
     title: 'E-UTRA; Physical layer; Measurements',
     short: 'LTE PHY measurements',
     when: 'LTE RSRP/RSRQ 정의.' },
+
+  /* ── PHY Procedures ────────────────────────────────── */
+  { id: '38.213', m: 'phy-proc', s: 'NR', peer: '36.213', rel: 'Rel-15~', ntn: 'clause',
+    kw: 'RACH PRACH random access power control PUCCH beam TA timing advance K_offset 랜덤액세스 전력제어 타이밍',
+    ntnNote: '<b>Timing pre-compensation (시간축)</b> — N<sub>TA,adjUE</sub> 기반 양방향 propagation delay 보상, <code>cellSpecificKoffset</code> / K<sub>UE,offset</sub> 적용. <b>Frequency (Doppler) pre-compensation은 여기가 아니라 38.300 §16.14.2.2</b>',
+    title: 'NR; Physical layer procedures for control',
+    short: 'PHY procedures for control',
+    when: '★ Random access 절차, power control, PUCCH resource 결정, beam management를 볼 때. NTN timing 보정(TA·K_offset)도 여기 — 단 Doppler는 38.300.' },
+  { id: '38.214', m: 'phy-proc', s: 'NR', peer: '36.213', rel: 'Rel-15~',
+    kw: 'PDSCH PUSCH MCS TBS CSI resource allocation 자원할당',
+    title: 'NR; Physical layer procedures for data',
+    short: 'PHY procedures for data',
+    when: 'PDSCH/PUSCH resource allocation, MCS·TBS 계산, CSI reporting 절차.' },
+  { id: '36.213', m: 'phy-proc', s: 'LTE', peer: '38.213', rel: 'Rel-8~',
+    title: 'E-UTRA; Physical layer procedures',
+    short: 'LTE PHY procedures',
+    when: 'LTE는 control/data 절차가 한 문서에 있다(NR은 38.213/38.214로 분리). 이 차이가 자주 헷갈린다.' },
 
   /* ── MAC ───────────────────────────────────────────── */
   { id: '38.321', m: 'mac', s: 'NR', peer: '36.321', rel: 'Rel-15~', ntn: 'clause',
@@ -475,13 +480,13 @@ const SPECS = [
     when: 'LTE TTCN 구현.' },
 
   /* ── Test — RRM ────────────────────────────────────── */
-  { id: '38.533', m: 't-rrm', s: 'NR', peer: '36.521-3', rel: 'Rel-15~', asym: true,
+  { id: '38.533', m: 't-rrm', s: 'NR', peer: '36.521-3', rel: 'Rel-15~',
     kw: 'RRM conformance measurement mobility 측정 이동성',
     title: 'NR; User Equipment (UE) conformance specification; Radio Resource Management (RRM)',
     short: 'NR RRM conformance test',
     when: '★ Measurement·mobility 성능 test. <b>주의: NR은 RRM이 521 시리즈 밖으로 나와 별도 번호(38.533)를 쓴다.</b> LTE(36.521-3)와 체계가 다르다.',
     xref: '요구사항 본문은 38.133' },
-  { id: '36.521-3', m: 't-rrm', s: 'LTE', peer: '38.533', rel: 'Rel-8~', asym: true,
+  { id: '36.521-3', m: 't-rrm', s: 'LTE', peer: '38.533', rel: 'Rel-8~',
     kw: 'RRM conformance measurement mobility 측정 이동성',
     title: 'E-UTRA; UE conformance specification; Radio transmission and reception; Part 3: Radio Resource Management (RRM) conformance testing',
     short: 'LTE RRM conformance test',
