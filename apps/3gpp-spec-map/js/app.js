@@ -6,6 +6,8 @@ const $ = (sel) => document.querySelector(sel);
 // 위 4개는 NAS를 전송수단으로 쓰거나(SMS·LCS·Security) NAS의 등록 대상을
 // 정하는(PLMN Selection) 상위 기능이라 NAS 위에 놓는다. 그 아래가 스택 본체.
 const STACK_ORDER = ['te', 'ims', 'sms', 'lcs', 'sec', 'plmn', 'nas', 'uecap', 'rrc', 'rrm', 'sdap', 'pdcp', 'rlc', 'mac', 'phy-proc', 'phy', 'rf'];
+// 총론·아키텍처 — 스택과 같은 위→아래 순서라 이 구획만 봐도 큰 그림이 잡힌다
+const OVERVIEW_ORDER = ['ov-lcs', 'ov-sec', 'ov-nas', 'ov-ran', 'ov-phy'];
 // 스택을 검증하는 시험 규격
 const TEST_ORDER = ['t-com', 't-pct', 't-rrm', 't-rct'];
 // 규격이 아니라 연구 문서 — 설계 배경 추적용
@@ -91,7 +93,13 @@ function renderOverview() {
       <strong>단말(UE) 프로토콜 개발자 기준</strong>으로 골랐습니다.
       Layer를 눌러 상세로 들어가면 각 스펙을 <strong>언제 펼치게 되는지</strong>를 함께 적어두었습니다.
     </p>
+    <h2 class="stack-title">Overview · Architecture (Stage 2)</h2>
+    <p class="section-note">개별 layer가 아니라 <strong>구조 전체를 서술하는</strong> 문서입니다.
+      아래 스택과 같은 위→아래 순서로 놓았으니, 이 구획만 훑어도 큰 그림이 잡힙니다.</p>
+    ${section(OVERVIEW_ORDER)}
+
     <h2 class="stack-title">Protocol Stack</h2>
+    <p class="section-note">실제 메시지·절차를 규정하는 문서입니다.</p>
     ${section(STACK_ORDER)}
 
     <h2 class="stack-title">Conformance Test</h2>
@@ -164,7 +172,7 @@ function renderModule(mid) {
 /* ── 검색 결과 (모듈 무관 전역) ──────────────────────── */
 function renderSearch() {
   // 검색 결과는 모듈 묶음을 유지하되(지도 순서 그대로), 그 안에서 번호순
-  const order = [...STACK_ORDER, ...TEST_ORDER, ...STUDY_ORDER];
+  const order = [...OVERVIEW_ORDER, ...STACK_ORDER, ...TEST_ORDER, ...STUDY_ORDER];
   const list = SPECS.filter(passes)
     .sort((x, y) => order.indexOf(x.m) - order.indexOf(y.m) || bySpecNo(x, y));
   $('#view').innerHTML = `
