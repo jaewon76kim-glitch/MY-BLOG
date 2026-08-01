@@ -6,8 +6,10 @@ const $ = (sel) => document.querySelector(sel);
 // 위 4개는 NAS를 전송수단으로 쓰거나(SMS·LCS·Security) NAS의 등록 대상을
 // 정하는(PLMN Selection) 상위 기능이라 NAS 위에 놓는다. 그 아래가 스택 본체.
 const STACK_ORDER = ['te', 'ims', 'sms', 'lcs', 'sec', 'plmn', 'nas', 'rrc', 'rrm', 'sdap', 'pdcp', 'rlc', 'mac', 'phy', 'rf'];
-// 옆 기둥 — 스택의 한 layer가 아니라 스택 전체를 가로지르거나 그 바깥에 있는 것들
-const PILLAR_ORDER = ['ntn-tr', 't-com', 't-pct', 't-rrm', 't-rct'];
+// 스택을 검증하는 시험 규격
+const TEST_ORDER = ['t-com', 't-pct', 't-rrm', 't-rct'];
+// 규격이 아니라 연구 문서 — 설계 배경 추적용
+const STUDY_ORDER = ['ntn-tr'];
 
 let ntnOnly = false;
 let query = '';
@@ -30,66 +32,63 @@ function passes(spec) {
 }
 
 /* ── Level 0 ─────────────────────────────────────────── */
+
+// LTE/NR 칸이 나뉘지 않는 RAT 공통 문서는 한 칸으로 편다.
+//   wide = 그 행이 통째로 RAT 공통 (예: SMS, PLMN Selection)
+//   base = LTE/NR이 있는 행에 공통 문서가 딸린 경우 (예: NAS의 24.007/24.008)
+const wideRow = (mid, mod, list, indent) => `
+  <button class="layer ${indent ? 'base-row' : 'wide-row'}" data-mod="${mid}"
+          aria-label="${indent ? (mod.commonLabel || mod.name + ' 공통') : mod.name} 열기">
+    <span class="layer-name">${indent ? (mod.commonLabel || 'Common') : mod.name}<small>${
+      indent ? (mod.commonDesc || 'LTE·NR 공통') : mod.desc
+    }</small></span>
+    <span class="layer-cell common">${list.map((s) => s.id).join(' · ')}</span>
+  </button>`;
+
+/* 한 모듈을 LTE/NR 2칸 행으로 그린다. 스택·시험·연구 세 구획이 같은 형식을 쓴다. */
+function moduleRow(mid) {
+  const mod = moduleById(mid);
+  const list = specsOf(mid);
+  const lte = list.filter((s) => s.s === 'LTE');
+  const nr = list.filter((s) => s.s === 'NR');
+  const common = list.filter((s) => s.s === 'Common');
+
+  // RAT 구분이 아예 없으면 칸을 나누지 않는다
+  if (!lte.length && !nr.length) return wideRow(mid, mod, common, false);
+
+  return `
+    <button class="layer" data-mod="${mid}" aria-label="${mod.name} 모듈 열기">
+      <span class="layer-name">${mod.name}<small>${mod.desc}</small></span>
+      <span class="layer-cell ${lte.length ? 'lte' : 'none'}">${
+        lte.length ? lte.map((s) => s.id).join(' · ') : '해당 없음'
+      }</span>
+      <span class="layer-cell ${nr.length ? 'nr' : 'none'}">${
+        nr.length ? nr.map((s) => s.id).join(' · ') : '해당 없음'
+      }</span>
+    </button>` + (common.length ? wideRow(mid, mod, common, true) : '');
+}
+
+const HEAD = '<div class="stack-head"><span></span><span>LTE / EPS</span><span>NR / 5GS</span></div>';
+const section = (order) => `<div class="stack">${HEAD}${order.map(moduleRow).join('')}</div>`;
+
 function renderOverview() {
-  // LTE/NR 칸이 나뉘지 않는 RAT 공통 문서는 한 칸으로 편다.
-  //   wide  = 그 layer가 통째로 RAT 공통 (예: SMS, PLMN Selection)
-  //   base  = LTE/NR이 있는 layer에 공통 문서가 딸린 경우 (예: NAS의 24.007/24.008)
-  const wideRow = (mid, mod, list, indent) => `
-    <button class="layer ${indent ? 'base-row' : 'wide-row'}" data-mod="${mid}"
-            aria-label="${indent ? (mod.commonLabel || mod.name + ' 공통') : mod.name} 열기">
-      <span class="layer-name">${indent ? (mod.commonLabel || 'Common') : mod.name}<small>${
-        indent ? (mod.commonDesc || 'LTE·NR 공통') : mod.desc
-      }</small></span>
-      <span class="layer-cell common">${list.map((s) => s.id).join(' · ')}</span>
-    </button>`;
-
-  const stack = STACK_ORDER.map((mid) => {
-    const mod = moduleById(mid);
-    const list = specsOf(mid);
-    const lte = list.filter((s) => s.s === 'LTE');
-    const nr = list.filter((s) => s.s === 'NR');
-    const common = list.filter((s) => s.s === 'Common');
-
-    // RAT 구분이 아예 없는 layer는 LTE/NR 칸을 나누지 않는다
-    if (!lte.length && !nr.length) return wideRow(mid, mod, common, false);
-
-    return `
-      <button class="layer" data-mod="${mid}" aria-label="${mod.name} 모듈 열기">
-        <span class="layer-name">${mod.name}<small>${mod.desc}</small></span>
-        <span class="layer-cell ${lte.length ? 'lte' : 'none'}">${
-          lte.length ? lte.map((s) => s.id).join(' · ') : '해당 없음'
-        }</span>
-        <span class="layer-cell ${nr.length ? 'nr' : 'none'}">${
-          nr.length ? nr.map((s) => s.id).join(' · ') : '해당 없음'
-        }</span>
-      </button>` + (common.length ? wideRow(mid, mod, common, true) : '');
-  }).join('');
-
-  const pillars = PILLAR_ORDER.map((mid) => {
-    const mod = moduleById(mid);
-    return `
-      <button class="pillar" data-mod="${mid}">
-        <span class="count">${specsOf(mid).length}</span>
-        <strong>${mod.name}</strong>
-        <small>${mod.desc}</small>
-      </button>`;
-  }).join('');
-
   $('#view').innerHTML = `
     <p class="note">
       <strong>단말(UE) 프로토콜 개발자 기준</strong>으로 골랐습니다.
       Layer를 눌러 상세로 들어가면 각 스펙을 <strong>언제 펼치게 되는지</strong>를 함께 적어두었습니다.
     </p>
     <h2 class="stack-title">Protocol Stack</h2>
-    <div class="stack">
-      <div class="stack-head"><span></span><span>LTE / EPS</span><span>NR / 5GS</span></div>
-      ${stack}
-    </div>
-    <div class="pillars">
-      <h2>NTN Study · Test</h2>
-      <p class="pillar-note">스택의 한 layer에 속하지 않고, 스택 전체를 가로지르거나 그 바깥에 있는 문서들입니다.</p>
-      <div class="pillar-grid">${pillars}</div>
-    </div>
+    ${section(STACK_ORDER)}
+
+    <h2 class="stack-title">Conformance Test</h2>
+    <p class="section-note">위 스택을 검증하는 시험 규격입니다.
+      PCT·RRM·RCT 셋 다 공통 시험환경(38.508-1 / 36.508)을 참조합니다.</p>
+    ${section(TEST_ORDER)}
+
+    <h2 class="stack-title">Study Item (TR)</h2>
+    <p class="section-note">규격이 아니라 연구 문서입니다.
+      현재 설계가 <strong>왜 이렇게 나왔는지</strong> 배경을 추적할 때 봅니다.</p>
+    ${section(STUDY_ORDER)}
     <div class="legend">
       <span><b style="color:var(--ntn)">■</b> NTN only</span>
       <span><b style="color:var(--ntn-soft)">■</b> NTN clause</span>
