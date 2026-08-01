@@ -119,6 +119,7 @@ body {
 
 .pillars { margin-top: 20px; }
 .pillars h2, .stack-title { font-size: 1rem; margin: 0 0 10px; color: var(--text-muted); }
+.pillar-note { font-size: 0.85rem; color: var(--text-muted); margin: -4px 0 10px; }
 .pillar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
 .pillar {
   padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);

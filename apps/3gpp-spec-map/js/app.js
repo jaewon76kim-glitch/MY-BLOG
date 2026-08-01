@@ -2,10 +2,10 @@
 
 const $ = (sel) => document.querySelector(sel);
 
-// 스택도에 세로로 쌓을 순서 (위 → 아래)
-const STACK_ORDER = ['nas', 'rrc', 'uecap', 'l2', 'mac', 'phy'];
-// 옆 기둥
-const PILLAR_ORDER = ['rf', 'sec', 'ims', 't-com', 't-pct', 't-rrm', 't-rct'];
+// 스택도에 세로로 쌓을 순서 (위 → 아래). 실제 프로토콜 스택 그대로.
+const STACK_ORDER = ['nas', 'rrc', 'sdap', 'pdcp', 'rlc', 'mac', 'phy'];
+// 옆 기둥 — 스택의 한 layer가 아니라 스택 전체를 가로지르는 것들
+const PILLAR_ORDER = ['uecap', 'rf', 'sec', 'ims', 't-com', 't-pct', 't-rrm', 't-rct'];
 
 let ntnOnly = false;
 let query = '';
@@ -75,7 +75,8 @@ function renderOverview() {
       ${baseRow}
     </div>
     <div class="pillars">
-      <h2>RF · Security · Services · Test</h2>
+      <h2>UE Capability · RF · Security · Services · Test</h2>
+      <p class="pillar-note">스택의 한 layer에 속하지 않고, 스택 전체를 가로지르거나 그 바깥에 있는 문서들입니다.</p>
       <div class="pillar-grid">${pillars}</div>
     </div>
     <div class="legend">
