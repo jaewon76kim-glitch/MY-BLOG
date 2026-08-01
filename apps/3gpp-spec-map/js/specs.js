@@ -28,7 +28,7 @@ const MODULES = [
   { id: 'sms',    name: 'SMS · CBS',         desc: 'Short message transport and encoding, CBS/ETWS/CMAS — carried over NAS' },
   { id: 'lcs',    name: 'LCS · Positioning', desc: 'UE positioning — LPP carried over NAS, plus stage-2 procedures' },
   { id: 'plmn',   name: 'PLMN Selection',    desc: 'PLMN selection and reselection — steers what NAS registers to' },
-  { id: 'te',     name: 'AT · TE–MT',        desc: 'AT command set and TE–MT interface — outside the protocol stack' },
+  { id: 'te',     name: 'AT · TE–MT',        desc: 'AT command set and TE–MT interface — the host-facing boundary above the whole stack' },
   { id: 'ntn-tr', name: 'NTN Study (TR)',    desc: 'NTN study items — channel model, candidate solutions, IoT NTN background' },
   { id: 't-com',  name: 'Test — Common',     desc: 'Common test environment and configuration', test: true },
   { id: 't-pct',  name: 'Test — PCT',        desc: 'Protocol conformance test', test: true },
@@ -363,12 +363,12 @@ const SPECS = [
     short: 'Cell Broadcast (CBS · ETWS · CMAS)',
     when: '재난문자의 본문 — CBS 메시지 구조와 ETWS/CMAS(PWS) 동작. 점대점 SMS와 완전히 다른 경로(broadcast)라는 점이 핵심.' },
 
-  /* ── AT · TE–MT (스택 밖, modem 외부 인터페이스) ───── */
+  /* ── AT · TE–MT (스택 최상단, host↔modem 경계) ────── */
   { id: '27.007', m: 'te', s: 'Common', rel: 'Rel-99~',
     kw: 'AT command CFUN COPS CGDCONT CEREG C5GREG modem 모뎀 제어',
     title: 'AT command set for User Equipment (UE)',
     short: 'AT command set',
-    when: '★ Modem을 외부에서 제어하는 AT command의 본문 — <code>+CFUN</code>, <code>+COPS</code>, <code>+CGDCONT</code>, <code>+CEREG</code>/<code>+C5GREG</code> 등. 단말 <b>내부</b> 프로토콜이 아니라 TE(host)↔MT(modem) 경계의 규격이라 스택 어디에도 안 들어가지만, 실무에서 펼치는 빈도는 매우 높다.' },
+    when: '★ Modem을 외부에서 제어하는 AT command의 본문 — <code>+CFUN</code>, <code>+COPS</code>, <code>+CGDCONT</code>, <code>+CEREG</code>/<code>+C5GREG</code> 등. 단말 <b>내부</b> 프로토콜이 아니라 TE(host)↔MT(modem) 경계의 규격이라, 모든 layer보다 위인 스택 최상단에 놓았다. 실무에서 펼치는 빈도는 매우 높다.' },
   { id: '27.005', m: 'te', s: 'Common', rel: 'Rel-99~',
     kw: 'AT command SMS CMGS CMGL CMGR CNMI PDU mode text mode 문자',
     title: 'Use of Data Terminal Equipment - Data Circuit terminating Equipment (DTE-DCE) interface for Short Message Service (SMS) and Cell Broadcast Service (CBS)',
