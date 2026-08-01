@@ -5,7 +5,7 @@ const $ = (sel) => document.querySelector(sel);
 // 스택도에 세로로 쌓을 순서 (위 → 아래). 실제 프로토콜 스택 그대로.
 const STACK_ORDER = ['nas', 'rrc', 'sdap', 'pdcp', 'rlc', 'mac', 'phy'];
 // 옆 기둥 — 스택의 한 layer가 아니라 스택 전체를 가로지르는 것들
-const PILLAR_ORDER = ['uecap', 'rf', 'sec', 'ims', 'sms', 'lcs', 't-com', 't-pct', 't-rrm', 't-rct'];
+const PILLAR_ORDER = ['uecap', 'rf', 'sec', 'ims', 'sms', 'lcs', 'te', 't-com', 't-pct', 't-rrm', 't-rct'];
 
 let ntnOnly = false;
 let query = '';
@@ -29,12 +29,12 @@ function passes(spec) {
 
 /* ── Level 0 ─────────────────────────────────────────── */
 function renderOverview() {
-  // 24.007 / 24.008 — 24.301·24.501이 IE 정의를 끌어오는 NAS의 공통 기반.
-  // 스택 맨 아래가 아니라 NAS 바로 밑에 붙인다(참조 방향이 그렇다).
-  const base = SPECS.filter((s) => s.base);
+  // RAT 공통(s === 'Common') NAS 문서 — LTE/NR 어느 칸에도 속하지 않으므로
+  // 별도 행으로 뺀다. 스택 맨 아래가 아니라 NAS 바로 밑에 붙인다(참조 방향이 그렇다).
+  const base = specsOf('nas').filter((s) => s.s === 'Common');
   const baseRow = `
     <button class="layer base-row" data-mod="nas" aria-label="Common NAS base 열기">
-      <span class="layer-name">Common NAS base<small>24.301·24.501이 IE를 참조</small></span>
+      <span class="layer-name">Common NAS base<small>LTE·NR이 함께 참조</small></span>
       <span class="layer-cell common">${base.map((s) => s.id).join(' · ')}</span>
     </button>`;
 
@@ -75,7 +75,7 @@ function renderOverview() {
       ${stack}
     </div>
     <div class="pillars">
-      <h2>UE Capability · RF · Security · Services · Test</h2>
+      <h2>UE Capability · RF · Security · Services · AT · Test</h2>
       <p class="pillar-note">스택의 한 layer에 속하지 않고, 스택 전체를 가로지르거나 그 바깥에 있는 문서들입니다.</p>
       <div class="pillar-grid">${pillars}</div>
     </div>
