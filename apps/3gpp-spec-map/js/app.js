@@ -117,7 +117,42 @@ function renderOverview() {
       <span><b style="color:var(--ntn-soft)">■</b> NTN clause</span>
       <span>★ 자주 펼치는 문서</span>
       <span>TR = Study item (Technical Report)</span>
+      <span>카드의 <b>ETSI PDF ↗</b> = 로그인 없이 PDF로 내려받기</span>
     </div>`;
+}
+
+/* ── 원문 내려받기 링크 ──────────────────────────────
+   3GPP 사이트(dynareport)는 docx를 주므로 Office 없이는 불편하다.
+   ETSI deliver는 같은 문서를 PDF로 두고 있어 그쪽으로 보낸다.
+
+   ETSI 번호 = '1' + 3GPP 번호(점 제거). 다중 파트는 2자리로 붙인다.
+     38.300  → 138300      (범위 138300_138399)
+     38.101-1→ 13810101    (범위 138100_138199 — 범위는 파트 뗀 6자리 기준)
+   버전 폴더가 그대로 나열되는 디렉터리를 걸어, 특정 버전을 박지 않아도
+   항상 최신 목록에서 원하는 판을 고를 수 있게 한다. */
+function etsiUrl(id) {
+  const [head, part] = id.split('-');
+  const base = '1' + head.replace('.', '');
+  const num = base + (part ? String(part).padStart(2, '0') : '');
+  const start = Math.floor(Number(base) / 100) * 100;
+  return `https://www.etsi.org/deliver/etsi_ts/${start}_${start + 99}/${num}/`;
+}
+
+/* TR은 ETSI가 발행하지 않아(38.811·38.821·38.822·36.763 모두 404)
+   PDF가 없다. 이 넷만 종전대로 3GPP 공식 페이지에 둔다. */
+function specLink(s) {
+  if (s.tr) {
+    return {
+      href: `https://www.3gpp.org/dynareport/${s.id.replace('.', '')}.htm`,
+      label: '3GPP 공식 ↗',
+      title: 'ETSI가 발행하지 않는 TR이라 PDF가 없습니다 — 3GPP 공식 페이지'
+    };
+  }
+  return {
+    href: etsiUrl(s.id),
+    label: 'ETSI PDF ↗',
+    title: '버전 폴더 목록이 열립니다 — 원하는 버전으로 들어가면 PDF (로그인 불필요)'
+  };
 }
 
 /* ── Level 1 ─────────────────────────────────────────── */
@@ -147,8 +182,8 @@ function card(s) {
       <p class="card-when">${s.when}</p>
       <p class="peer">
         ${s.peer ? `Peer: <a data-goto="${s.peer}">${s.peer}</a> · ` : ''}
-        <a class="ext" href="https://www.3gpp.org/dynareport/${s.id.replace('.', '')}.htm"
-           target="_blank" rel="noopener">3GPP 공식 ↗</a>
+        <a class="ext" href="${specLink(s).href}" title="${specLink(s).title}"
+           target="_blank" rel="noopener">${specLink(s).label}</a>
       </p>
       ${s.xref ? `<div class="card-xref">↔ ${s.xref}</div>` : ''}
       ${s.ntnNote ? `<div class="card-ntn"><b>NTN</b> — ${s.ntnNote}</div>` : ''}
