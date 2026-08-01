@@ -22,7 +22,7 @@ const MODULES = [
   { id: 'nas',    name: 'NAS · Core',        desc: 'Registration, session and mobility management — dialogue with the core network',
     commonLabel: 'Common NAS base', commonDesc: '24.301·24.501이 IE를 참조' },
   { id: 'sec',    name: 'Security · USIM',   desc: 'Authentication & key derivation, UICC/USIM interface' },
-  { id: 'rf',     name: 'RF · Performance',  desc: 'Tx/Rx requirements, bands, performance' },
+  { id: 'rf',     name: 'RF · Performance',  desc: 'Tx/Rx requirements, bands and performance — the analog boundary beneath PHY' },
   { id: 'ims',    name: 'IMS · Services',    desc: 'VoLTE/VoNR call control and media — rides the user plane, not NAS' },
   { id: 'sms',    name: 'SMS · CBS',         desc: 'Short message transport and encoding, CBS/ETWS/CMAS — carried over NAS' },
   { id: 'lcs',    name: 'LCS · Positioning', desc: 'UE positioning — LPP carried over NAS, plus stage-2 procedures' },
