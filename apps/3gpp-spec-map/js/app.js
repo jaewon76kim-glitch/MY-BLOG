@@ -5,7 +5,7 @@ const $ = (sel) => document.querySelector(sel);
 // 스택도에 세로로 쌓을 순서 (위 → 아래).
 // 위 4개는 NAS를 전송수단으로 쓰거나(SMS·LCS·Security) NAS의 등록 대상을
 // 정하는(PLMN Selection) 상위 기능이라 NAS 위에 놓는다. 그 아래가 스택 본체.
-const STACK_ORDER = ['te', 'ims', 'sms', 'lcs', 'sec', 'plmn', 'nas', 'rrc', 'rrm', 'sdap', 'pdcp', 'rlc', 'mac', 'phy', 'rf'];
+const STACK_ORDER = ['te', 'ims', 'sms', 'lcs', 'sec', 'plmn', 'nas', 'uecap', 'rrc', 'rrm', 'sdap', 'pdcp', 'rlc', 'mac', 'phy', 'rf'];
 // 스택을 검증하는 시험 규격
 const TEST_ORDER = ['t-com', 't-pct', 't-rrm', 't-rct'];
 // 규격이 아니라 연구 문서 — 설계 배경 추적용
