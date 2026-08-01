@@ -3,7 +3,13 @@
     "slug": "working-with-claude-orchestrator-setup",
     "title": "Claude로 작업하기 — 오케스트레이터, 메모리, MCP로 여러 프로젝트를 엮은 구조",
     "date": "2026-07-30",
-    "tags": ["Claude Code", "오케스트레이터", "메모리", "MCP", "원격접속"],
+    "tags": [
+      "Claude Code",
+      "오케스트레이터",
+      "메모리",
+      "MCP",
+      "원격접속"
+    ],
     "category": "기타",
     "description": "Windows의 Claude Cowork(교재 작업)와 WSL의 Claude Code(이 블로그)를 따로 쓰다가 생긴 문제를, 오케스트레이터·메모리·스킬·MCP 네 가지 장치로 엮은 구조를 정리했다. 핸드폰으로 원격 작업지시를 내리는 설정도 함께 담았다.",
     "wordCount": 1227
@@ -12,7 +18,13 @@
     "slug": "on-device-ai-chip-map-2026",
     "title": "온디바이스 AI 지도 — 스마트폰·PC·자동차의 NPU 전쟁, 그리고 진학 전공 가이드",
     "date": "2026-07-29",
-    "tags": ["온디바이스AI", "NPU", "반도체", "산업분석", "진학지도"],
+    "tags": [
+      "온디바이스AI",
+      "NPU",
+      "반도체",
+      "산업분석",
+      "진학지도"
+    ],
     "category": "반도체와_AI산업",
     "description": "지난 \"AI 생태계 지도\"에서 다루지 않겠다고 선을 그었던 축 — 스마트폰·PC·자동차에서 직접 돌아가는 온디바이스 AI를 다룬다. 퀄컴·미디어텍·애플·삼성·인텔·AMD·엔비디아·ARM이 각각 어디서 돈을 버는지, NPU와 통신 모뎀의 관계, 그리고 이 분야로 가려면 어떤 전공이 필요한지 정리했다.",
     "wordCount": 2086
@@ -21,7 +33,12 @@
     "slug": "ai-ecosystem-map-2026",
     "title": "AI 생태계 지도 — 데이터센터부터 파운드리, HBM, AI 모델 기업까지",
     "date": "2026-07-26",
-    "tags": ["AI산업", "반도체", "빅테크", "산업분석"],
+    "tags": [
+      "AI산업",
+      "반도체",
+      "빅테크",
+      "산업분석"
+    ],
     "category": "반도체와_AI산업",
     "description": "엔비디아·TSMC·SK하이닉스부터 OpenAI·Anthropic·구글까지, AI를 둘러싼 기업들의 수익구조와 협력·경쟁 관계를 단계별로 정리하고 한국 기업의 위치를 짚어본다.",
     "wordCount": 3372
@@ -30,7 +47,12 @@
     "slug": "googlenet-inception-module-1x1-bottleneck",
     "title": "GoogLeNet 뜯어보기 — 1×1 병목, 인셉션 모듈, 전역평균풀링",
     "date": "2026-07-24",
-    "tags": ["CNN", "GoogLeNet", "인셉션모듈", "딥러닝"],
+    "tags": [
+      "CNN",
+      "GoogLeNet",
+      "인셉션모듈",
+      "딥러닝"
+    ],
     "category": "머신러닝과_인공지능",
     "description": "GoogLeNet이 1×1 합성곱으로 연산량 병목을 없애는 계산 과정, naive 인셉션 모듈의 문제와 개선된 구조, 완전연결층을 대체하는 전역평균풀링의 파라미터 절감까지 자세히 정리했다.",
     "wordCount": 997
@@ -39,7 +61,12 @@
     "slug": "ml-deep-learning-perceptron-to-llm",
     "title": "퍼셉트론에서 LLM까지 — 딥러닝 핵심 알고리즘이 푸는 문제들",
     "date": "2026-07-24",
-    "tags": ["딥러닝", "CNN", "트랜스포머", "LLM"],
+    "tags": [
+      "딥러닝",
+      "CNN",
+      "트랜스포머",
+      "LLM"
+    ],
     "category": "머신러닝과_인공지능",
     "description": "개인 교재 \"머신러닝과 인공지능의 역사\" 7~11부를 따라, 퍼셉트론·역전파·CNN·RNN/LSTM·어텐션/트랜스포머·LLM이 각각 어떤 문제를 풀기 위해 등장했는지 키워드와 핵심 수식으로 정리했다.",
     "wordCount": 740
@@ -48,90 +75,44 @@
     "slug": "ml-classical-algorithms-bayes-to-svm",
     "title": "베이즈 정리에서 SVM까지 — 고전 머신러닝 핵심 알고리즘이 푸는 문제들",
     "date": "2026-07-24",
-    "tags": ["머신러닝", "베이즈학습", "회귀", "SVM"],
+    "tags": [
+      "머신러닝",
+      "베이즈학습",
+      "회귀",
+      "SVM"
+    ],
     "category": "머신러닝과_인공지능",
     "description": "개인 교재 \"머신러닝과 인공지능의 역사\" 1~6부를 따라, 베이즈 정리·MLE/MAP·회귀·분류·군집화·SVM이 각각 어떤 문제를 풀기 위해 등장했는지 키워드와 핵심 수식으로 정리했다.",
     "wordCount": 897
   },
   {
-    "slug": "satellite-link-budget-eirp-gt",
-    "title": "위성 링크버짓은 왜 EIRP와 G/T 두 숫자로 요약될까",
-    "date": "2026-07-19",
-    "tags": ["위성통신", "링크버짓", "EIRP", "G/T"],
-    "category": "위성통신",
-    "description": "위성링크버짓의 송신측·수신측 성능이 왜 각각 EIRP(곱)와 G/T(비율) 하나의 숫자로 요약되는지, 그리고 상향·하향 링크의 비대칭이 왜 위성통신 시스템 설계 전체를 관통하는 제약이 되는지 정리했다.",
-    "wordCount": 754
-  },
-  {
     "slug": "remote-control-claude-code-with-tailscale",
     "title": "핸드폰에서 PC WSL의 Claude Code를 원격으로 조종하는 법 — Tailscale, SSH, tmux",
     "date": "2026-07-19",
-    "tags": ["원격접속", "Tailscale", "SSH", "tmux", "WSL", "Claude Code"],
+    "tags": [
+      "원격접속",
+      "Tailscale",
+      "SSH",
+      "tmux",
+      "WSL",
+      "Claude Code"
+    ],
     "category": "기타",
     "description": "핸드폰 SSH 앱으로 PC(WSL)의 Claude Code 세션에 접속해 이어서 작업하는 원격 환경을 구축한 과정. Tailscale·SSH·Termius·tmux가 각각 어떤 역할을 하는지, 그리고 WSL 인스턴스가 유휴 상태로 꺼지는 함정을 어떻게 피했는지 정리했다.",
     "wordCount": 1059
   },
   {
-    "slug": "ntn-handover",
-    "title": "위성이 움직이면, 핸드오버는 왜 이렇게 잦아질까 — NTN 핸드오버의 종류와 RACH-less 절차",
-    "date": "2026-07-19",
-    "tags": ["위성통신", "3GPP", "NTN", "핸드오버", "표준"],
-    "category": "위성통신",
-    "description": "지상에서는 단말이 움직여 핸드오버가 생기지만 NTN에서는 위성이 움직여 핸드오버가 생긴다. 빔간·위성간·피더링크·NTN-TN 핸드오버의 차이와, DAPS 대신 RACH-less 방식을 택한 이유, 조건부 핸드오버가 시간·위치 기반 트리거로 확장된 이유를 정리했다.",
-    "wordCount": 847
-  },
-  {
-    "slug": "ntn-sib19",
-    "title": "SIB19는 왜 필요했을까 — 움직이는 셀을 시스템정보에 담는 법",
-    "date": "2026-07-19",
-    "tags": ["위성통신", "3GPP", "NTN", "SIB19", "표준"],
-    "category": "위성통신",
-    "description": "지상 NR의 SIB1/SIB18은 셀이 정지해 있다는 전제 위에 설계돼 있다. NTN이 이 전제를 깨면서 Rel-17에서 왜 SIB19라는 새 시스템정보가 필요했는지, NTN-Config의 각 필드가 어떤 물리적 근거로 존재하는지 정리했다.",
-    "wordCount": 505
-  },
-  {
-    "slug": "ntn-doppler-precompensation",
-    "title": "3GPP NTN은 왜 단말이 스스로 도플러를 보정하게 했을까",
-    "date": "2026-07-18",
-    "tags": ["위성통신", "3GPP", "NTN", "표준"],
-    "category": "위성통신",
-    "description": "Rel-17 NTN 표준에서 단말이 GNSS와 위성 궤도력만으로 스스로 타이밍·도플러를 미리 보정하는 개루프(open-loop) 방식이 왜 가능한지, 지상 이동통신의 폐루프 방식과 무엇이 다른지 정리했다.",
-    "wordCount": 563
-  },
-  {
     "slug": "doppler-sim-devlog",
     "title": "위성 통과 도플러·RTT 시뮬레이터를 만들며",
     "date": "2026-07-18",
-    "tags": ["위성통신", "Canvas", "시뮬레이션", "웹개발"],
+    "tags": [
+      "위성통신",
+      "Canvas",
+      "시뮬레이션",
+      "웹개발"
+    ],
     "category": "위성통신",
     "description": "LEO/MEO/GEO 위성 통과 시 도플러 천이와 왕복 전파지연(RTT)을 실시간으로 시각화하는 웹앱을 만들면서 겪은 물리 계산과 구현 과정을 정리했다.",
     "wordCount": 441
-  },
-  {
-    "slug": "today-i-learned",
-    "title": "오늘 배운 것",
-    "date": "2026-07-17",
-    "tags": ["HTML", "CSS", "JavaScript", "웹개발"],
-    "category": "기타",
-    "description": "클로드 코드로 블로그를 만들면서 HTML, CSS, JavaScript가 각각 어떤 역할을 하는지 몸으로 배웠다.",
-    "wordCount": 380
-  },
-  {
-    "slug": "hello-world",
-    "title": "안녕하세요, My Blog입니다",
-    "date": "2026-07-17",
-    "tags": ["소개", "블로그"],
-    "category": "기타",
-    "description": "순수 HTML, CSS, JavaScript로만 만든 정적 블로그를 소개합니다.",
-    "wordCount": 280
-  },
-  {
-    "slug": "markdown-guide",
-    "title": "마크다운 작성 가이드",
-    "date": "2026-07-10",
-    "tags": ["마크다운", "가이드", "작성법"],
-    "category": "기타",
-    "description": "이 블로그에서 마크다운을 어떻게 작성하는지, 어떻게 렌더링되는지 확인하는 레퍼런스 포스트입니다.",
-    "wordCount": 236
   }
 ]
