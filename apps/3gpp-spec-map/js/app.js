@@ -19,7 +19,7 @@ function passes(spec) {
   if (!query) return true;
   const q = query.toLowerCase();
   const hay = [
-    spec.id, spec.ko, spec.title, spec.when,
+    spec.id, spec.short, spec.title, spec.when,
     spec.ntnNote, spec.xref, spec.kw, spec.rel
   ].filter(Boolean).join(' ').toLowerCase()
    // 태그를 제거해 <b>·<code> 안의 글자도 검색되게 한다
@@ -48,8 +48,8 @@ function renderOverview() {
   // NAS 공통 기반 (24.007 / 24.008)
   const base = SPECS.filter((s) => s.base);
   const baseRow = `
-    <button class="layer base-row" data-mod="nas" aria-label="NAS 공통 기반 열기">
-      <span class="layer-name">공통 L3 기반<small>24.301·24.501이 참조</small></span>
+    <button class="layer base-row" data-mod="nas" aria-label="Common L3 base 열기">
+      <span class="layer-name">Common L3 base<small>24.301·24.501이 참조</small></span>
       <span class="layer-cell common">${base.map((s) => s.id).join(' · ')}</span>
     </button>`;
 
@@ -66,23 +66,23 @@ function renderOverview() {
   $('#view').innerHTML = `
     <p class="note">
       <strong>단말(UE) 프로토콜 개발자 기준</strong>으로 골랐습니다.
-      계층을 눌러 상세로 들어가면 각 스펙을 <strong>언제 펼치게 되는지</strong>를 함께 적어두었습니다.
+      Layer를 눌러 상세로 들어가면 각 스펙을 <strong>언제 펼치게 되는지</strong>를 함께 적어두었습니다.
     </p>
-    <h2 class="stack-title">프로토콜 스택</h2>
+    <h2 class="stack-title">Protocol Stack</h2>
     <div class="stack">
       <div class="stack-head"><span></span><span>LTE / EPS</span><span>NR / 5GS</span></div>
       ${stack}
       ${baseRow}
     </div>
     <div class="pillars">
-      <h2>RF · 보안 · 서비스 · 시험</h2>
+      <h2>RF · Security · Services · Test</h2>
       <div class="pillar-grid">${pillars}</div>
     </div>
     <div class="legend">
-      <span><b style="color:var(--ntn)">■</b> NTN 전용</span>
-      <span><b style="color:var(--ntn-soft)">■</b> NTN 조항 포함</span>
+      <span><b style="color:var(--ntn)">■</b> NTN only</span>
+      <span><b style="color:var(--ntn-soft)">■</b> NTN clause</span>
       <span>★ 자주 펼치는 문서</span>
-      <span>TR = 연구 문서</span>
+      <span>TR = Study item (Technical Report)</span>
     </div>`;
 }
 
@@ -91,11 +91,11 @@ function badges(s) {
   const out = [];
   if (s.s === 'NR') out.push('<span class="badge nr">NR</span>');
   else if (s.s === 'LTE') out.push('<span class="badge lte">LTE</span>');
-  else out.push('<span class="badge common">공통</span>');
-  if (s.ntn === 'only') out.push('<span class="badge ntn">NTN 전용</span>');
-  else if (s.ntn === 'clause') out.push('<span class="badge ntn-c">NTN 조항</span>');
+  else out.push('<span class="badge common">Common</span>');
+  if (s.ntn === 'only') out.push('<span class="badge ntn">NTN only</span>');
+  else if (s.ntn === 'clause') out.push('<span class="badge ntn-c">NTN clause</span>');
   if (s.tr) out.push('<span class="badge tr">TR</span>');
-  if (s.side === 'net') out.push('<span class="badge net">망 측</span>');
+  if (s.side === 'net') out.push('<span class="badge net">Network side</span>');
   out.push(`<span class="badge rel">${s.rel}</span>`);
   return `<span class="badges">${out.join('')}</span>`;
 }
@@ -106,13 +106,13 @@ function card(s) {
     <article class="card${cls}" id="spec-${s.id.replace(/\./g, '_')}">
       <div class="card-top">
         <span class="spec-id">${s.tr ? 'TR ' : 'TS '}${s.id}</span>
-        <span class="card-ko">${s.ko}</span>
+        <span class="card-short">${s.short}</span>
         ${badges(s)}
       </div>
       <p class="card-title">${s.title}</p>
       <p class="card-when">${s.when}</p>
       <p class="peer">
-        ${s.peer ? `대응: <a data-goto="${s.peer}">${s.peer}</a> · ` : ''}
+        ${s.peer ? `Peer: <a data-goto="${s.peer}">${s.peer}</a> · ` : ''}
         <a class="ext" href="https://www.3gpp.org/dynareport/${s.id.replace('.', '')}.htm"
            target="_blank" rel="noopener">3GPP 공식 ↗</a>
       </p>
@@ -131,7 +131,7 @@ function renderModule(mid) {
       <h2>${mod.name}</h2>
     </div>
     <p class="detail-desc">${mod.desc}</p>
-    ${asym ? `<p class="note"><strong>번호 체계 주의</strong> — RRM 적합성시험은 LTE가
+    ${asym ? `<p class="note"><strong>번호 체계 주의</strong> — RRM conformance test는 LTE가
       <code>36.521-3</code>(521 시리즈 <em>안</em>)인데 NR은 <code>38.533</code>(521 시리즈 <em>밖</em>)입니다.
       번호만 보면 놓치기 쉬운 비대칭입니다.</p>` : ''}
     <div class="cards">

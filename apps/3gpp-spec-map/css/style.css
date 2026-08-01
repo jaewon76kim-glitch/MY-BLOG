@@ -150,7 +150,7 @@ body {
 .card.ntn-clause { border-left: 4px solid var(--ntn-soft); }
 .card-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
 .spec-id { font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: var(--accent); }
-.card-ko { font-weight: 600; font-size: 0.95rem; }
+.card-short { font-weight: 600; font-size: 0.95rem; }
 .card-title { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 8px; line-height: 1.45; }
 .card-when { font-size: 0.88rem; margin: 0 0 8px; }
 .card-when strong { color: var(--text); }
