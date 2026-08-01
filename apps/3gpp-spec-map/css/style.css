@@ -112,8 +112,15 @@ body {
 .layer:hover .layer-name { filter: brightness(0.97); }
 .layer:hover .layer-name { background: var(--bg-hover); }
 
+/* NAS 바로 밑에 붙는 공통 기반 행 — 대등한 layer가 아니라 NAS가
+   IE를 끌어오는 토대라는 뜻으로 한 칸 들여 쓴다. */
 .base-row {
   grid-template-columns: 120px 1fr;
+}
+.base-row .layer-name { position: relative; padding-left: 24px; }
+.base-row .layer-name::before {
+  content: '↳'; position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  font-weight: 400; color: var(--text-muted);
 }
 .base-row .layer-cell.common { background: var(--common-soft); border-color: var(--common); }
 
@@ -193,6 +200,8 @@ body {
 @media (max-width: 640px) {
   .stack-head, .layer { grid-template-columns: 88px 1fr 1fr; }
   .base-row { grid-template-columns: 88px 1fr; }
+  .base-row .layer-name { padding-left: 18px; }
+  .base-row .layer-name::before { left: 5px; }
   .layer-cell { font-size: 0.74rem; padding: 8px; }
   .layer-name { font-size: 0.8rem; padding: 8px; }
   .app-header h1 { font-size: 1.25rem; }

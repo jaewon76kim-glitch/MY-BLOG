@@ -29,6 +29,15 @@ function passes(spec) {
 
 /* ── Level 0 ─────────────────────────────────────────── */
 function renderOverview() {
+  // 24.007 / 24.008 — 24.301·24.501이 IE 정의를 끌어오는 NAS의 공통 기반.
+  // 스택 맨 아래가 아니라 NAS 바로 밑에 붙인다(참조 방향이 그렇다).
+  const base = SPECS.filter((s) => s.base);
+  const baseRow = `
+    <button class="layer base-row" data-mod="nas" aria-label="Common NAS base 열기">
+      <span class="layer-name">Common NAS base<small>24.301·24.501이 IE를 참조</small></span>
+      <span class="layer-cell common">${base.map((s) => s.id).join(' · ')}</span>
+    </button>`;
+
   const stack = STACK_ORDER.map((mid) => {
     const mod = moduleById(mid);
     const lte = specsOf(mid).filter((s) => s.s === 'LTE');
@@ -42,16 +51,8 @@ function renderOverview() {
         <span class="layer-cell ${nr.length ? 'nr' : 'none'}">${
           nr.length ? nr.map((s) => s.id).join(' · ') : '해당 없음'
         }</span>
-      </button>`;
+      </button>` + (mid === 'nas' ? baseRow : '');
   }).join('');
-
-  // NAS 공통 기반 (24.007 / 24.008)
-  const base = SPECS.filter((s) => s.base);
-  const baseRow = `
-    <button class="layer base-row" data-mod="nas" aria-label="Common L3 base 열기">
-      <span class="layer-name">Common L3 base<small>24.301·24.501이 참조</small></span>
-      <span class="layer-cell common">${base.map((s) => s.id).join(' · ')}</span>
-    </button>`;
 
   const pillars = PILLAR_ORDER.map((mid) => {
     const mod = moduleById(mid);
@@ -72,7 +73,6 @@ function renderOverview() {
     <div class="stack">
       <div class="stack-head"><span></span><span>LTE / EPS</span><span>NR / 5GS</span></div>
       ${stack}
-      ${baseRow}
     </div>
     <div class="pillars">
       <h2>UE Capability · RF · Security · Services · Test</h2>
