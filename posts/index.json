@@ -100,19 +100,5 @@
     "category": "기타",
     "description": "핸드폰 SSH 앱으로 PC(WSL)의 Claude Code 세션에 접속해 이어서 작업하는 원격 환경을 구축한 과정. Tailscale·SSH·Termius·tmux가 각각 어떤 역할을 하는지, 그리고 WSL 인스턴스가 유휴 상태로 꺼지는 함정을 어떻게 피했는지 정리했다.",
     "wordCount": 1059
-  },
-  {
-    "slug": "doppler-sim-devlog",
-    "title": "위성 통과 도플러·RTT 시뮬레이터를 만들며",
-    "date": "2026-07-18",
-    "tags": [
-      "위성통신",
-      "Canvas",
-      "시뮬레이션",
-      "웹개발"
-    ],
-    "category": "위성통신",
-    "description": "LEO/MEO/GEO 위성 통과 시 도플러 천이와 왕복 전파지연(RTT)을 실시간으로 시각화하는 웹앱을 만들면서 겪은 물리 계산과 구현 과정을 정리했다.",
-    "wordCount": 441
   }
 ]
