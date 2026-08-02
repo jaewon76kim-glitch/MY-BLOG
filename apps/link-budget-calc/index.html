@@ -144,14 +144,16 @@
     </div>
 
     <div class="param-group">
-      <span class="param-label">modulation 방식 (요구 Eₛ/N₀ 자동입력)</span>
-      <span class="param-value" id="val-modulation">QPSK · 6.5 dB</span>
-      <div class="preset-row">
-        <button class="preset-btn" data-mod="BPSK" data-esn0="4.5">BPSK</button>
-        <button class="preset-btn active" data-mod="QPSK" data-esn0="6.5">QPSK</button>
-        <button class="preset-btn" data-mod="8PSK" data-esn0="10.0">8PSK</button>
-        <button class="preset-btn" data-mod="16QAM" data-esn0="13.0">16QAM</button>
-      </div>
+      <span class="param-label">CQI index <span style="font-weight:400;opacity:.7">(TS 38.214 CQI table 1)</span></span>
+      <span class="param-value" id="val-modulation">CQI 4 · QPSK · 0.602</span>
+      <input type="range" id="slider-cqi" min="1" max="15" step="1" value="4">
+      <p class="preset-note" id="cqi-note"></p>
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">구현 마진 M_impl</span>
+      <span class="param-value" id="val-impl">2.0 dB</span>
+      <input type="range" id="slider-impl" min="0" max="6" step="0.1" value="2">
     </div>
 
     <div class="param-group">
@@ -325,6 +327,29 @@
     };
   }
 
+  // ---- CQI 사다리 (3GPP TS 38.214 §5.2.2.1, CQI table 1) ----
+  // 규정된 것은 "CQI index → 변조차수·부호율·스펙트럼효율"과 그 목표 BLER(≤ 10%)까지다.
+  // 3GPP는 CQI별 요구 SNR을 규정하지 않는다 — 채널·수신기 구현에 달린 값이기 때문이다.
+  // 그래서 요구 Es/N0는 아래처럼 유도하고, 그 사실을 화면에 명시한다.
+  //     (Es/N0)_req = 10log10(2^SE − 1) + M_impl
+  // 앞항은 스펙트럼효율 SE를 내기 위한 Shannon 하한, M_impl은 부호화·구현 손실을 담는 마진.
+  var CQI = [
+    null,
+    { mod: 'QPSK',  R: 0.0762, SE: 0.1523 }, { mod: 'QPSK',  R: 0.1172, SE: 0.2344 },
+    { mod: 'QPSK',  R: 0.1885, SE: 0.3770 }, { mod: 'QPSK',  R: 0.3008, SE: 0.6016 },
+    { mod: 'QPSK',  R: 0.4385, SE: 0.8770 }, { mod: 'QPSK',  R: 0.5879, SE: 1.1758 },
+    { mod: '16QAM', R: 0.3691, SE: 1.4766 }, { mod: '16QAM', R: 0.4785, SE: 1.9141 },
+    { mod: '16QAM', R: 0.6016, SE: 2.4063 }, { mod: '64QAM', R: 0.4551, SE: 2.7305 },
+    { mod: '64QAM', R: 0.5537, SE: 3.3223 }, { mod: '64QAM', R: 0.6504, SE: 3.9023 },
+    { mod: '64QAM', R: 0.7539, SE: 4.5234 }, { mod: '64QAM', R: 0.8525, SE: 5.1152 },
+    { mod: '64QAM', R: 0.9258, SE: 5.5547 }
+  ];
+
+  function requiredEsN0_dB(cqi, implMargin_dB) {
+    var se = CQI[cqi].SE;
+    return 10 * Math.log10(Math.pow(2, se) - 1) + implMargin_dB;
+  }
+
   // ---- 상태 ----
   var state = {
     direction: 'downlink',
@@ -342,7 +367,9 @@
     hR: 3.5,
     hS: 0,
     Rs: 10,
-    EsN0min: 6.5,
+    cqi: 4,
+    implMargin: 2.0,
+    EsN0min: 0,
     modulation: 'QPSK',
     Lrf: 1.0,
     sigma_s: 6.0
@@ -364,7 +391,8 @@
     'val-hr', 'slider-hr',
     'val-hs', 'slider-hs',
     'val-rs', 'slider-rs',
-    'val-modulation',
+    'val-modulation', 'slider-cqi', 'cqi-note',
+    'val-impl', 'slider-impl',
     'val-lrf', 'slider-lrf',
     'val-lpol', 'slider-lpol',
     'term-note', 'sub-downlink', 'sub-uplink',
@@ -387,6 +415,7 @@
     LBCharts.initRainCurve(el['chart-rain']);
     LBCharts.initOutageCurve(el['chart-outage']);
 
+    applyCqi();
     applyTerminal();   // 라벨·슬라이더·계산을 한 번에 초기화한다
 
     window.addEventListener('resize', function () {
@@ -511,18 +540,32 @@
       });
     });
 
-    // modulation 방식 프리셋
-    document.querySelectorAll('[data-mod]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var mod = this.getAttribute('data-mod');
-        var esn0 = parseFloat(this.getAttribute('data-esn0'));
-        state.modulation = mod;
-        state.EsN0min = esn0;
-        el['val-modulation'].textContent = mod + ' · ' + esn0.toFixed(1) + ' dB';
-        setActive('[data-mod]', this);
-        recompute();
-      });
+    el['slider-cqi'].addEventListener('input', function () {
+      state.cqi = parseInt(this.value, 10);
+      applyCqi();
+      recompute();
     });
+    el['slider-impl'].addEventListener('input', function () {
+      state.implMargin = parseFloat(this.value);
+      el['val-impl'].textContent = state.implMargin.toFixed(1) + ' dB';
+      applyCqi();
+      recompute();
+    });
+  }
+
+  // CQI가 정하는 것은 변조·부호율·효율까지이고, 요구 Es/N0는 거기서 유도한다.
+  function applyCqi() {
+    var c = CQI[state.cqi];
+    state.modulation = c.mod;
+    state.EsN0min = requiredEsN0_dB(state.cqi, state.implMargin);
+    el['val-modulation'].textContent =
+      'CQI ' + state.cqi + ' · ' + c.mod + ' · ' + c.SE.toFixed(4) + ' bit/s/Hz';
+    el['cqi-note'].innerHTML =
+      '부호율 R = ' + c.R.toFixed(4) + ' · 요구 Eₛ/N₀ = <b>' + state.EsN0min.toFixed(1) + ' dB</b><br>' +
+      'CQI 표의 목표는 <b>BLER ≤ 10%</b>입니다(TS 38.214 §5.2.2.1). ' +
+      '3GPP는 CQI별 요구 SNR을 규정하지 않으므로, 위 값은 ' +
+      '<code>10log₁₀(2^SE − 1) + M_impl</code>로 유도한 것입니다 — 규격값이 아닙니다. ' +
+      'BLER 1%를 쓰시려면 구현 마진을 0.5~1 dB 올려 잡으십시오.';
   }
 
   function bindDirectionToggle() {
