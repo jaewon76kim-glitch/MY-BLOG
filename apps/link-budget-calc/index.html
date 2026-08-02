@@ -21,9 +21,20 @@
     <div class="param-group">
       <span class="param-label">링크 방향</span>
       <div class="preset-row">
-        <button class="preset-btn wide active" id="btn-downlink" data-dir="downlink">다운링크<br><span class="preset-sub">위성→게이트웨이</span></button>
-        <button class="preset-btn wide" id="btn-uplink" data-dir="uplink">업링크<br><span class="preset-sub">게이트웨이→위성</span></button>
+        <button class="preset-btn wide active" id="btn-downlink" data-dir="downlink">다운링크<br><span class="preset-sub" id="sub-downlink">위성→게이트웨이</span></button>
+        <button class="preset-btn wide" id="btn-uplink" data-dir="uplink">업링크<br><span class="preset-sub" id="sub-uplink">게이트웨이→위성</span></button>
       </div>
+    </div>
+
+    <!-- 지상 측 단말 종류 (TR 38.811 Table 4.4-1) -->
+    <div class="param-group">
+      <span class="param-label">지상 측 단말</span>
+      <div class="preset-row">
+        <button class="preset-btn active" data-term="gateway">게이트웨이<br><span class="preset-sub">피더링크</span></button>
+        <button class="preset-btn" data-term="vsat">VSAT<br><span class="preset-sub">Ka · 서비스링크</span></button>
+        <button class="preset-btn" data-term="handheld">Handheld<br><span class="preset-sub">S · class 3</span></button>
+      </div>
+      <p class="preset-note" id="term-note">임의의 지상국. 아래 값을 직접 조절합니다.</p>
     </div>
 
     <hr class="divider">
@@ -59,7 +70,7 @@
     <div class="param-group">
       <span class="param-label" id="label-f">수신기 noise figure F (게이트웨이)</span>
       <span class="param-value" id="val-f">1.5 dB</span>
-      <input type="range" id="slider-f" min="0.5" max="5" step="0.1" value="1.5">
+      <input type="range" id="slider-f" min="0.5" max="12" step="0.1" value="1.5">
     </div>
 
     <hr class="divider">
@@ -147,6 +158,12 @@
       <span class="param-label">급전선 손실 L_rf</span>
       <span class="param-value" id="val-lrf">1.0 dB</span>
       <input type="range" id="slider-lrf" min="0" max="3" step="0.1" value="1">
+    </div>
+
+    <div class="param-group">
+      <span class="param-label">편파 불일치 손실 L_pol</span>
+      <span class="param-value" id="val-lpol">0.0 dB</span>
+      <input type="range" id="slider-lpol" min="0" max="6" step="0.5" value="0">
     </div>
 
     <hr class="divider">
@@ -265,26 +282,54 @@
   var DOWNLINK_DEFAULTS = { Pt: 15, GT: 30, GR: 40, Tant: 50, F: 1.5 };
   var UPLINK_DEFAULTS = { Pt: 40, GT: 55, GR: 20, Tant: 290, F: 3.0 };
 
-  var LABELS = {
-    downlink: {
-      pt: '송신전력 Pₜ (위성)',
-      gt: '송신 안테나 이득 G_T (위성)',
-      gr: '수신 안테나 이득 G_R (게이트웨이)',
-      tant: '안테나 noise temperature T_ant (게이트웨이)',
-      f: '수신기 noise figure F (게이트웨이)'
+  // 위성 쪽 기본값 — 지상 단말을 바꿔도 위성 측은 이 값을 유지한다.
+  //   다운링크: 위성이 송신(Pt, GT) · 업링크: 위성이 수신(GR, Tant, F)
+  var SAT = { tx: { Pt: 15, GT: 30 }, rx: { GR: 20, Tant: 290, F: 3.0 } };
+
+  // 지상 측 단말 — VSAT과 handheld는 3GPP TR 38.811 Table 4.4-1의 최소 RF 특성.
+  //   VSAT     : 2 W(33 dBm), 60cm 개구 원편파, Tx 43.2 / Rx 39.7 dBi, NF 1.2 dB → G/T 18.5 dB/K
+  //   handheld : 200 mW(23 dBm), 무지향성 선편파, Tx·Rx 0 dBi, NF 9 dB → G/T -33.6 dB/K
+  //   Tant는 표에 없으므로 표의 G/T를 재현하는 값을 역산해 넣었다(VSAT 40 K, handheld 290 K).
+  //   handheld의 L_pol 3 dB는 같은 표 NOTE 2 — 선편파 단말 대 원편파 위성 안테나의 불일치.
+  var TERMINALS = {
+    gateway: {
+      name: '게이트웨이',
+      tx: { Pt: 40, GT: 55 }, rx: { GR: 40, Tant: 50, F: 1.5 },
+      Lpol: 0, fcDL: 12, fcUL: 14,
+      note: '임의의 지상국. 아래 값을 직접 조절합니다.'
     },
-    uplink: {
-      pt: '송신전력 Pₜ (게이트웨이)',
-      gt: '송신 안테나 이득 G_T (게이트웨이)',
-      gr: '수신 안테나 이득 G_R (위성)',
-      tant: '안테나 noise temperature T_ant (위성)',
-      f: '수신기 noise figure F (위성)'
+    vsat: {
+      name: 'VSAT',
+      tx: { Pt: 3, GT: 43.2 }, rx: { GR: 39.7, Tant: 40, F: 1.2 },
+      Lpol: 0, fcDL: 20, fcUL: 30,
+      note: 'TR 38.811 Table 4.4-1 · 2 W(33 dBm), 60 cm 개구, 원편파. G/T 18.5 dB/K, EIRP 45.75 dBW.'
+    },
+    handheld: {
+      name: 'Handheld (3GPP class 3)',
+      tx: { Pt: -7, GT: 0 }, rx: { GR: 0, Tant: 290, F: 9.0 },
+      Lpol: 3, fcDL: 2.0, fcUL: 2.0,
+      note: 'TR 38.811 Table 4.4-1 · 200 mW(23 dBm), 무지향성 선편파 0 dBi, NF 9 dB. G/T −33.6 dB/K, EIRP −7 dBW. 선편파↔원편파 불일치로 L_pol 3 dB가 자동 반영됩니다(NOTE 2).'
     }
   };
+
+  // 송·수신 주체는 링크 방향에 따라 뒤바뀐다. 지상 측 이름은 선택한 단말명을 넣는다.
+  function labelsFor(dir, groundName) {
+    var txSide = dir === 'downlink' ? '위성' : groundName;
+    var rxSide = dir === 'downlink' ? groundName : '위성';
+    return {
+      pt: '송신전력 Pₜ (' + txSide + ')',
+      gt: '송신 안테나 이득 G_T (' + txSide + ')',
+      gr: '수신 안테나 이득 G_R (' + rxSide + ')',
+      tant: '안테나 noise temperature T_ant (' + rxSide + ')',
+      f: '수신기 noise figure F (' + rxSide + ')'
+    };
+  }
 
   // ---- 상태 ----
   var state = {
     direction: 'downlink',
+    terminal: 'gateway',
+    Lpol: 0,
     Pt: 15,
     GT: 30,
     GR: 40,
@@ -321,6 +366,8 @@
     'val-rs', 'slider-rs',
     'val-modulation',
     'val-lrf', 'slider-lrf',
+    'val-lpol', 'slider-lpol',
+    'term-note', 'sub-downlink', 'sub-uplink',
     'val-sigma', 'slider-sigma',
     'sum-eirp', 'sum-gt', 'sum-lfs', 'sum-arain', 'sum-esn0', 'sum-margin', 'sum-outage',
     'aux-srx', 'aux-lpmax', 'aux-range',
@@ -340,9 +387,7 @@
     LBCharts.initRainCurve(el['chart-rain']);
     LBCharts.initOutageCurve(el['chart-outage']);
 
-    applyDirectionLabels();
-    syncSlidersFromState();
-    recompute();
+    applyTerminal();   // 라벨·슬라이더·계산을 한 번에 초기화한다
 
     window.addEventListener('resize', function () {
       // Chart.js가 responsive:true이므로 별도 처리 불필요
@@ -411,6 +456,16 @@
       state.Lrf = parseFloat(this.value);
       el['val-lrf'].textContent = state.Lrf.toFixed(1) + ' dB';
       recompute();
+    });
+    el['slider-lpol'].addEventListener('input', function () {
+      state.Lpol = parseFloat(this.value);
+      el['val-lpol'].textContent = state.Lpol.toFixed(1) + ' dB';
+      recompute();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-term]'), function (btn) {
+      btn.addEventListener('click', function () {
+        setTerminal(btn.getAttribute('data-term'));
+      });
     });
     el['slider-sigma'].addEventListener('input', function () {
       state.sigma_s = parseFloat(this.value);
@@ -481,23 +536,45 @@
 
   function setDirection(dir) {
     state.direction = dir;
-    var d = dir === 'downlink' ? DOWNLINK_DEFAULTS : UPLINK_DEFAULTS;
-    state.Pt = d.Pt;
-    state.GT = d.GT;
-    state.GR = d.GR;
-    state.Tant = d.Tant;
-    state.F = d.F;
-
     el['btn-downlink'].classList.toggle('active', dir === 'downlink');
     el['btn-uplink'].classList.toggle('active', dir === 'uplink');
+    applyTerminal();
+  }
+
+  // 지상 단말과 링크 방향에 맞춰 송·수신 양쪽 값을 채운다.
+  //   다운링크: 위성이 송신 → Pt·GT는 위성, GR·Tant·F는 지상 단말
+  //   업링크  : 지상 단말이 송신 → Pt·GT는 단말, GR·Tant·F는 위성
+  function applyTerminal() {
+    var t = TERMINALS[state.terminal];
+    var dl = state.direction === 'downlink';
+
+    var tx = dl ? SAT.tx : t.tx;
+    var rx = dl ? t.rx : SAT.rx;
+    state.Pt = tx.Pt; state.GT = tx.GT;
+    state.GR = rx.GR; state.Tant = rx.Tant; state.F = rx.F;
+    state.Lpol = t.Lpol;
+    state.fc_GHz = dl ? t.fcDL : t.fcUL;
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-term]'), function (b) {
+      b.classList.toggle('active', b.getAttribute('data-term') === state.terminal);
+    });
+    el['term-note'].textContent = t.note;
+    el['sub-downlink'].textContent = '위성→' + t.name;
+    el['sub-uplink'].textContent = t.name + '→위성';
 
     applyDirectionLabels();
     syncSlidersFromState();
     recompute();
   }
 
+  function setTerminal(key) {
+    if (!TERMINALS[key]) return;
+    state.terminal = key;
+    applyTerminal();
+  }
+
   function applyDirectionLabels() {
-    var L = LABELS[state.direction];
+    var L = labelsFor(state.direction, TERMINALS[state.terminal].name);
     el['label-pt'].textContent = L.pt;
     el['label-gt'].textContent = L.gt;
     el['label-gr'].textContent = L.gr;
@@ -516,6 +593,11 @@
     el['val-tant'].textContent = state.Tant.toFixed(0) + ' K';
     el['slider-f'].value = state.F;
     el['val-f'].textContent = state.F.toFixed(1) + ' dB';
+    el['slider-lpol'].value = state.Lpol;
+    el['val-lpol'].textContent = state.Lpol.toFixed(1) + ' dB';
+    el['slider-freq'].value = state.fc_GHz;
+    el['val-freq'].textContent = state.fc_GHz.toFixed(1) + ' GHz';
+    updateFreqPresetActive();
   }
 
   function setActive(selector, activeBtn) {
@@ -560,7 +642,8 @@
 
     // Es/N0, 링크마진
     var rsDb = LinkBudget.symbolRate_dB(state.Rs);
-    var esn0 = LinkBudget.esN0_dB(eirp, gt, lfs, arain, rsDb, state.Lrf);
+    // 편파 불일치는 급전선 손실과 같은 자리에서 빠지는 항이라 함께 넘긴다.
+    var esn0 = LinkBudget.esN0_dB(eirp, gt, lfs, arain, rsDb, state.Lrf + state.Lpol);
     var margin = LinkBudget.linkMargin_dB(esn0, state.EsN0min);
 
     // 아웃티지 확률
@@ -599,7 +682,8 @@
       { label: '−A_rain', delta: -arain },
       { label: '+1/k_B', delta: -LinkBudget.KB_DB },
       { label: '−R_s', delta: -rsDb },
-      { label: '−L_rf (Eₛ/N₀)', delta: -state.Lrf }
+      { label: '−L_rf (Eₛ/N₀)', delta: -state.Lrf },
+      { label: '−L_pol', delta: -state.Lpol }
     ]);
 
     // ---- rain attenuation 곡선 ----

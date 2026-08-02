@@ -469,3 +469,11 @@ input[type="range"]::-moz-range-thumb {
     min-width: 130px;
   }
 }
+
+/* 지상 단말 프리셋 설명줄 */
+.preset-note {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted, #666);
+}
