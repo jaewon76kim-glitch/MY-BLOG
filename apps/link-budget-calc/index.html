@@ -218,9 +218,55 @@
     </div>
 
     <div class="param-group">
-      <span class="param-label">편파 불일치 손실 L_pol</span>
+    <!-- ================= 편파(polarization) 정리 =================
+         이 앱에서 편파가 세 갈래로 얽혀 있어 한자리에 적어 둔다.
+         셋 다 "편파" 이야기지만 원인도 해법도 서로 다르다.
+
+         [1] Faraday rotation — 위성이 원편파를 쓰는 이유
+             전파가 지구 자기장 속 전리층을 지나며 편파면이 회전한다(TR 38.811 §6.8.2).
+                 ψ = 108 / f²      (ψ: 회전각[도], f: 반송주파수[GHz])
+             주파수 제곱에 반비례한다 — L 1.5GHz 48°, S 2GHz 27°, C 6GHz 3°, Ka 20GHz 0.27°.
+             S 대역의 27°는 선편파로는 감당이 안 된다. 원편파는 회전해도 원편파라
+             이 현상에 영향받지 않으므로, 위성은 원편파로 내려보낸다.
+             → 궤도와 무관하다. 38.811은 "space-borne 또는 airborne 플랫폼"이라 적고,
+               38.821의 시뮬레이션 가정도 Satellite polarization = Circular 한 줄로
+               GEO/LEO-1200/LEO-600을 가리지 않는다.
+
+         [2] RHCP / LHCP — 편파 시그널링이 존재하는 이유
+             원편파에는 우선회(RHCP)와 좌선회(LHCP) 두 종류가 있고 서로 직교한다.
+             인접 빔이 서로 다른 회전 방향을 쓰면 같은 주파수를 재사용하면서도
+             간섭을 줄일 수 있다(편파 재사용). 단말이 자기 셀의 회전 방향을 알아야
+             반대 방향 성분을 걸러낼 수 있으므로 시그널링이 필요해진다.
+             → 즉 시그널링의 목적은 Faraday 보상이 아니라 간섭 완화다.
+               38.821 §6.2.4는 "특정 시나리오에서, 특히 단말이 RHCP와 LHCP를
+               구별할 수 있을 때 유익하다"고 조건을 달았다.
+               SIB19에 ntn-PolarizationDL/UL이 따로 있는 것도 상·하향이 다른 편파를
+               쓸 수 있어야 재사용 조합이 늘기 때문이다.
+
+         [3] L_pol — 실제로 링크버짓에서 빼는 값 (아래 입력에 반영)
+             38.811 Table 4.4-1 NOTE 2는 단말을 단일 무지향성 선편파로 보고
+             방향을 가리지 않는 "3 dB 편파 불일치"를 준다.
+             38.821 §6.1.1.1은 handheld를 Tx 1 브랜치 · Rx 2 브랜치로 전제하고
+             조건을 나눈다. 이 앱은 후자를 따른다 — Rel-17 REFSENS도 Rx 2포트 기준이다.
+
+                 방향  조건                                        L_pol
+                 DL    두 Rx 브랜치 결합으로 손실을 막음             0 dB
+                 UL    편파 재사용 + 위성이 단일 원편파 수신          3 dB
+                 UL    위성이 빔당 이중편파 수신                     0 dB
+                 VSAT  원편파 안테나, 손실 없음으로 계산              0 dB
+
+             주의: 선편파 단말은 회전 방향을 알아도 3 dB를 회복하지 못한다.
+             편파가 계속 도는 신호를 한 방향 안테나로 받는 이상 절반은 놓친다.
+             [2]의 시그널링은 회전 방향을 구별할 수 있는 단말에게만 값어치가 있다.
+         ============================================================ -->
+      <span class="param-label">편파 손실 L_pol</span>
       <span class="param-value" id="val-lpol">0.0 dB</span>
       <input type="range" id="slider-lpol" min="0" max="6" step="0.5" value="0">
+      <div class="preset-row" id="polreuse-row" style="margin-top:6px">
+        <button class="preset-btn active" data-polreuse="on">편파 재사용 O<br><span class="preset-sub">위성 수신 단일 원편파</span></button>
+        <button class="preset-btn" data-polreuse="off">편파 재사용 X<br><span class="preset-sub">빔당 이중편파 수신</span></button>
+      </div>
+      <p class="preset-note" id="pol-note"></p>
     </div>
 
     <hr class="divider">
@@ -352,19 +398,19 @@
     gateway: {
       name: '게이트웨이',
       tx: { Pt: 40, GT: 55 }, rx: { GR: 40, Tant: 50, F: 1.5 },
-      Lpol: 0, fcDL: 12, fcUL: 14,
+      pol: 'none', fcDL: 12, fcUL: 14,
       note: '임의의 지상국. 아래 값을 직접 조절합니다.'
     },
     vsat: {
       name: 'VSAT',
       tx: { Pt: 3, GT: 43.2 }, rx: { GR: 39.7, Tant: 40, F: 1.2 },
-      Lpol: 0, fcDL: 20, fcUL: 30,
+      pol: 'none', fcDL: 20, fcUL: 30,
       note: 'TR 38.811 Table 4.4-1 · 2 W(33 dBm), 60 cm 개구, 원편파. G/T 18.5 dB/K, EIRP 45.75 dBW.'
     },
     handheld: {
       name: 'Handheld (3GPP class 3)',
       tx: { Pt: -7, GT: 0 }, rx: { GR: 0, Tant: 290, F: 9.0 },
-      Lpol: 3, fcDL: 2.0, fcUL: 2.0,
+      pol: 'handheld', fcDL: 2.0, fcUL: 2.0,
       note: 'TR 38.811 Table 4.4-1 · 200 mW(23 dBm), 무지향성 선편파 0 dBi, NF 9 dB. G/T −33.6 dB/K, EIRP −7 dBW. 선편파↔원편파 불일치로 L_pol 3 dB가 자동 반영됩니다(NOTE 2).'
     }
   };
@@ -514,6 +560,7 @@
     cqi: 4,
     implMargin: 2.0,
     rep: 1,
+    polReuse: true,
     sat: 'manual',
     dlCrit: 'esn0',
     band: 'n256',
@@ -546,7 +593,7 @@
     'grp-refsens', 'refsens-params', 'refsens-note', 'sat-note', 'orbit-row',
     'val-impl', 'slider-impl',
     'val-lrf', 'slider-lrf',
-    'val-lpol', 'slider-lpol',
+    'val-lpol', 'slider-lpol', 'polreuse-row', 'pol-note',
     'term-note', 'sub-downlink', 'sub-uplink',
     'val-sigma', 'slider-sigma',
     'sum-eirp', 'sum-gt', 'sum-lfs', 'sum-arain', 'sum-esn0', 'sum-margin', 'sum-outage',
@@ -632,6 +679,12 @@
       state.Rs = Math.pow(10, parseFloat(this.value));
       applySymbolRate();
       recompute();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-polreuse]'), function (btn) {
+      btn.addEventListener('click', function () {
+        state.polReuse = (btn.getAttribute('data-polreuse') === 'on');
+        applyPolarization(); syncSlidersFromState(); recompute();
+      });
     });
     el['slider-rep'].addEventListener('input', function () {
       state.rep = Math.pow(2, parseInt(this.value, 10));
@@ -755,6 +808,40 @@
     });
   }
 
+  // 편파 손실은 상수가 아니다 (TR 38.821 §6.1.1.1, handheld는 Tx 1 · Rx 2 브랜치 전제).
+  //   DL — 두 Rx 브랜치를 결합해 depolarization 손실을 막는다              → 0 dB
+  //   UL — 편파 재사용 + 위성이 단일 원편파로 수신                          → 3 dB
+  //        위성이 빔당 이중편파로 수신                                      → 0 dB
+  //   VSAT — 링크버짓은 depolarization 손실 없음으로 계산한다               → 0 dB
+  // 38.811 Table 4.4-1 NOTE 2의 "3 dB"는 단말을 단일 선편파로 볼 때의 값이라
+  // 방향을 가리지 않는다. Rx 2포트를 전제하는 38.821·Rel-17 쪽을 따른다.
+  function polLoss_dB() {
+    var t = TERMINALS[state.terminal];
+    if (t.pol !== 'handheld') return 0;
+    if (state.direction === 'downlink') return 0;
+    return state.polReuse ? 3 : 0;
+  }
+
+  function applyPolarization() {
+    state.Lpol = polLoss_dB();
+    var t = TERMINALS[state.terminal];
+    var isHH = (t.pol === 'handheld');
+    var showReuse = isHH && state.direction === 'uplink';
+    el['polreuse-row'].style.display = showReuse ? '' : 'none';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-polreuse]'), function (b) {
+      b.classList.toggle('active', (b.getAttribute('data-polreuse') === 'on') === state.polReuse);
+    });
+    el['pol-note'].innerHTML = !isHH
+      ? (state.terminal === 'vsat'
+          ? 'VSAT은 원편파 안테나라 depolarization 손실 없음으로 계산합니다 (TR 38.821 §6.1.1.1).'
+          : '지상국 구성에 따라 직접 넣으십시오.')
+      : (state.direction === 'downlink'
+          ? '<b>DL 0 dB</b> — 단말이 Rx 두 브랜치를 결합해 depolarization 손실을 막습니다 (TR 38.821 §6.1.1.1).'
+          : (state.polReuse
+              ? '<b>UL 3 dB</b> — 편파 재사용을 적용하고 위성이 단일 원편파로 수신할 때 (frequency reuse 3 등).'
+              : '<b>UL 0 dB</b> — 위성이 빔당 이중편파로 수신할 때 (frequency reuse 1·3 등).'));
+  }
+
   function repGain_dB() { return 10 * Math.log10(state.rep); }
 
   function applyRepetition() {
@@ -832,7 +919,6 @@
     var rx = dl ? t.rx : SAT.rx;
     state.Pt = tx.Pt; state.GT = tx.GT;
     state.GR = rx.GR; state.Tant = rx.Tant; state.F = rx.F;
-    state.Lpol = t.Lpol;
     state.fc_GHz = dl ? t.fcDL : t.fcUL;
 
     Array.prototype.forEach.call(document.querySelectorAll('[data-term]'), function (b) {
@@ -844,6 +930,7 @@
 
     applyDirectionLabels();
     applyRefsens();
+    applyPolarization();
     applySatellite();
     syncSlidersFromState();
     recompute();
