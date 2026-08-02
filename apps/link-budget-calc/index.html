@@ -79,7 +79,7 @@
     <div class="param-group">
       <span class="param-label">orbit altitude h</span>
       <span class="param-value" id="val-orbit">GEO · 35786 km</span>
-      <div class="preset-row">
+      <div class="preset-row" id="orbit-row">
         <button class="preset-btn" data-orbit="550">LEO<br>550</button>
         <button class="preset-btn" data-orbit="20200">MEO<br>20200</button>
         <button class="preset-btn active" data-orbit="35786">GEO<br>35786</button>
@@ -417,8 +417,11 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-sat]'), function (b) {
       b.classList.toggle('active', b.getAttribute('data-sat') === state.sat);
     });
-    if (state.sat === 'manual') {
-      el['sat-note'].textContent = '위성 측 값을 아래 슬라이더로 직접 조절합니다.';
+    var locked = (state.sat !== 'manual');
+    el['orbit-row'].style.opacity = locked ? '0.45' : '';
+    el['orbit-row'].style.pointerEvents = locked ? 'none' : '';
+    if (!locked) {
+      el['sat-note'].textContent = '위성 측 값을 아래 슬라이더로 직접 조절합니다. 고도는 위 궤도 버튼으로 고릅니다.';
       return;
     }
     var S = SATS[state.sat], p = S[satBandKey()];
@@ -443,7 +446,9 @@
       + 'DL: EIRP density <b>' + p.dens.toFixed(1) + ' dBW/MHz</b> → 대역폭 ' + state.Rs.toFixed(2)
       + ' MHz 기준 EIRP <b>' + eirp.toFixed(1) + ' dBW</b> · Tx 이득 ' + p.txG.toFixed(1) + ' dBi<br>'
       + 'UL: <b>G/T ' + p.gt.toFixed(1) + ' dB/K</b> · Rx 이득 ' + p.rxG.toFixed(1) + ' dBi '
-      + '(T_ant 290 K 고정, F를 역산해 채웁니다)';
+      + '(T_ant 290 K 고정, F를 역산해 채웁니다)<br>'
+      + '<b>고도는 이 프리셋이 정합니다</b> — 위 궤도 버튼은 잠깁니다. '
+      + '직접 고르시려면 \'직접 입력\'으로 되돌리십시오.';
   }
 
   // ---- DL 참조감도 (3GPP TS 38.101-5 §7.3.2, Table 7.3.2-1) ----
@@ -521,7 +526,7 @@
     'val-hs', 'slider-hs',
     'val-rs', 'slider-rs',
     'val-modulation', 'slider-cqi', 'cqi-note',
-    'grp-refsens', 'refsens-params', 'refsens-note', 'sat-note',
+    'grp-refsens', 'refsens-params', 'refsens-note', 'sat-note', 'orbit-row',
     'val-impl', 'slider-impl',
     'val-lrf', 'slider-lrf',
     'val-lpol', 'slider-lpol',
@@ -642,6 +647,10 @@
         var label = h === 550 ? 'LEO' : (h === 20200 ? 'MEO' : 'GEO');
         el['val-orbit'].textContent = label + ' · ' + h + ' km';
         setActive('[data-orbit]', this);
+        // 고도를 직접 고른 순간 위성 프리셋은 풀린다 — 둘이 같은 값을 다투지 않게.
+        state.sat = 'manual';
+        applySatellite();
+        syncSlidersFromState();
         recompute();
       });
     });
