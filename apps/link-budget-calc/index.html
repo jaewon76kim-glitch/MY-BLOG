@@ -163,6 +163,14 @@
     </div>
 
     <div class="param-group">
+      <span class="param-label">반복 전송 N <span style="font-weight:400;opacity:.7">(로그 눈금)</span></span>
+      <span class="param-value" id="val-rep">1회 (+0.0 dB)</span>
+      <input type="range" id="slider-rep" min="0" max="11" step="1" value="0">
+      <p class="preset-note">같은 블록을 N번 보내 결합할 때의 처리이득 <code>10log₁₀(N)</code>입니다.
+        IoT NTN이 협대역과 함께 쓰는 두 번째 수단이며, 대가는 그만큼 낮아지는 실효 데이터율입니다.</p>
+    </div>
+
+    <div class="param-group">
       <span class="param-label">CQI index <span style="font-weight:400;opacity:.7">(TS 38.214 CQI table 1)</span></span>
       <span class="param-value" id="val-modulation">CQI 4 · QPSK · 0.602</span>
       <input type="range" id="slider-cqi" min="1" max="15" step="1" value="4">
@@ -505,6 +513,7 @@
     Rs: 10,
     cqi: 4,
     implMargin: 2.0,
+    rep: 1,
     sat: 'manual',
     dlCrit: 'esn0',
     band: 'n256',
@@ -532,6 +541,7 @@
     'val-hr', 'slider-hr',
     'val-hs', 'slider-hs',
     'val-rs', 'slider-rs',
+    'val-rep', 'slider-rep',
     'val-modulation', 'slider-cqi', 'cqi-note',
     'grp-refsens', 'refsens-params', 'refsens-note', 'sat-note', 'orbit-row',
     'val-impl', 'slider-impl',
@@ -621,6 +631,11 @@
     el['slider-rs'].addEventListener('input', function () {
       state.Rs = Math.pow(10, parseFloat(this.value));
       applySymbolRate();
+      recompute();
+    });
+    el['slider-rep'].addEventListener('input', function () {
+      state.rep = Math.pow(2, parseInt(this.value, 10));
+      applyRepetition();
       recompute();
     });
     Array.prototype.forEach.call(document.querySelectorAll('[data-rs]'), function (btn) {
@@ -740,6 +755,13 @@
     });
   }
 
+  function repGain_dB() { return 10 * Math.log10(state.rep); }
+
+  function applyRepetition() {
+    el['val-rep'].textContent = state.rep + '회 (+' + repGain_dB().toFixed(1) + ' dB)';
+    el['slider-rep'].value = Math.round(Math.log2(state.rep));
+  }
+
   // DL 판정 기준 UI 갱신. REFSENS 값이 없는 조합(대역폭 미지원)은 그대로 알린다.
   function applyRefsens() {
     var dl = state.direction === 'downlink';
@@ -854,6 +876,7 @@
     el['slider-f'].value = state.F;
     el['val-f'].textContent = state.F.toFixed(1) + ' dB';
     applySymbolRate();
+    applyRepetition();
     el['slider-lpol'].value = state.Lpol;
     el['val-lpol'].textContent = state.Lpol.toFixed(1) + ' dB';
     el['slider-freq'].value = state.fc_GHz;
@@ -904,7 +927,9 @@
     // Es/N0, 링크마진
     var rsDb = LinkBudget.symbolRate_dB(state.Rs);
     // 편파 불일치는 급전선 손실과 같은 자리에서 빠지는 항이라 함께 넘긴다.
-    var esn0 = LinkBudget.esN0_dB(eirp, gt, lfs, arain, rsDb, state.Lrf + state.Lpol);
+    // 반복 결합 이득은 수신 후 처리에서 얻는 것이라 Es/N0에 그대로 더한다.
+    var esn0 = LinkBudget.esN0_dB(eirp, gt, lfs, arain, rsDb, state.Lrf + state.Lpol)
+             + repGain_dB();
     var margin = LinkBudget.linkMargin_dB(esn0, state.EsN0min);
 
     // REFSENS 모드에서는 수신전력을 규격의 참조감도와 직접 비교한다.
@@ -912,7 +937,7 @@
     var prx_dBm = eirp + state.GR - lfs - arain - state.Lrf - state.Lpol + 30;
     var refs = refsens_dBm(state.band, state.scs, state.cbw);
     var useRef = (state.direction === 'downlink' && state.dlCrit === 'refsens' && refs !== null);
-    if (useRef) margin = prx_dBm - refs;
+    if (useRef) margin = prx_dBm - refs + repGain_dB();
 
     // 아웃티지 확률
     var outage = LinkBudget.outageProbability(margin, state.sigma_s);
@@ -951,7 +976,8 @@
       { label: '+1/k_B', delta: -LinkBudget.KB_DB },
       { label: '−R_s', delta: -rsDb },
       { label: '−L_rf (Eₛ/N₀)', delta: -state.Lrf },
-      { label: '−L_pol', delta: -state.Lpol }
+      { label: '−L_pol', delta: -state.Lpol },
+      { label: '+반복 N=' + state.rep, delta: repGain_dB() }
     ]);
 
     // ---- rain attenuation 곡선 ----
