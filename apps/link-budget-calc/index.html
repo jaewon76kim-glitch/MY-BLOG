@@ -150,6 +150,34 @@
       <p class="preset-note" id="cqi-note"></p>
     </div>
 
+    <!-- DL 판정 기준 (38.101-5 REFSENS) -->
+    <div class="param-group" id="grp-refsens">
+      <span class="param-label">DL 판정 기준</span>
+      <div class="preset-row">
+        <button class="preset-btn wide active" data-dlcrit="esn0">Eₛ/N₀ 기반<br><span class="preset-sub">요구 Eₛ/N₀ 대비</span></button>
+        <button class="preset-btn wide" data-dlcrit="refsens">REFSENS<br><span class="preset-sub">TS 38.101-5 §7.3.2</span></button>
+      </div>
+      <div id="refsens-params" style="display:none">
+        <div class="preset-row" style="margin-top:8px">
+          <button class="preset-btn" data-band="n256">n256<br><span class="preset-sub">S-band</span></button>
+          <button class="preset-btn" data-band="n255">n255<br><span class="preset-sub">L-band</span></button>
+        </div>
+        <div class="preset-row" style="margin-top:6px">
+          <button class="preset-btn" data-scs="15">15 kHz</button>
+          <button class="preset-btn" data-scs="30">30 kHz</button>
+          <button class="preset-btn" data-scs="60">60 kHz</button>
+        </div>
+        <div class="preset-row" style="margin-top:6px">
+          <button class="preset-btn" data-cbw="3">3</button>
+          <button class="preset-btn" data-cbw="5">5</button>
+          <button class="preset-btn" data-cbw="10">10</button>
+          <button class="preset-btn" data-cbw="15">15</button>
+          <button class="preset-btn" data-cbw="20">20 MHz</button>
+        </div>
+      </div>
+      <p class="preset-note" id="refsens-note"></p>
+    </div>
+
     <div class="param-group">
       <span class="param-label">구현 마진 M_impl</span>
       <span class="param-value" id="val-impl">2.0 dB</span>
@@ -345,6 +373,29 @@
     { mod: '64QAM', R: 0.9258, SE: 5.5547 }
   ];
 
+  // ---- DL 참조감도 (3GPP TS 38.101-5 §7.3.2, Table 7.3.2-1) ----
+  // REFSENS는 "각 UE 안테나 포트에 인가되는 최소 평균전력으로, 그때 처리율이 기준
+  // 측정채널 최대치의 95% 이상"이 되는 값이다. QPSK 기준이고 Rx 안테나 포트 2개를 전제한다.
+  // 수신기 noise figure와 요구 SNR이 이미 이 한 숫자에 포함되어 있다 —
+  // 그래서 REFSENS 모드에서는 T_ant·F 슬라이더가 판정에 관여하지 않는다.
+  // (같은 규격 §7.3B의 시뮬레이션 전제: SNR_REFSENS = -1 dB)
+  // 여기 담은 것은 NTN handheld 대역 n255(L)·n256(S) 두 개뿐이다.
+  var REFSENS = {
+    n256: { 15: { 3: -101.7, 5: -99.5, 10: -96.3, 15: -94.5, 20: -93.3 },
+            30: { 10: -96.6, 15: -94.6, 20: -93.5 },
+            60: { 10: -97.0, 15: -94.9, 20: -93.7 } },
+    n255: { 15: { 3: -101.7, 5: -100.0, 10: -96.8, 15: -95.0, 20: -93.8 },
+            30: { 10: -97.1, 15: -95.1, 20: -94.0 },
+            60: { 10: -97.5, 15: -95.4, 20: -94.2 } }
+  };
+  var BAND_NAME = { n256: 'n256 (S-band, DL 2170~2200 MHz)', n255: 'n255 (L-band)' };
+
+  function refsens_dBm(band, scs, cbw) {
+    var b = REFSENS[band]; if (!b || !b[scs]) return null;
+    var v = b[scs][cbw];
+    return (typeof v === 'number') ? v : null;
+  }
+
   function requiredEsN0_dB(cqi, implMargin_dB) {
     var se = CQI[cqi].SE;
     return 10 * Math.log10(Math.pow(2, se) - 1) + implMargin_dB;
@@ -369,6 +420,10 @@
     Rs: 10,
     cqi: 4,
     implMargin: 2.0,
+    dlCrit: 'esn0',
+    band: 'n256',
+    scs: 15,
+    cbw: 5,
     EsN0min: 0,
     modulation: 'QPSK',
     Lrf: 1.0,
@@ -392,6 +447,7 @@
     'val-hs', 'slider-hs',
     'val-rs', 'slider-rs',
     'val-modulation', 'slider-cqi', 'cqi-note',
+    'grp-refsens', 'refsens-params', 'refsens-note',
     'val-impl', 'slider-impl',
     'val-lrf', 'slider-lrf',
     'val-lpol', 'slider-lpol',
@@ -545,12 +601,53 @@
       applyCqi();
       recompute();
     });
+    ['dlcrit','band','scs','cbw'].forEach(function (key) {
+      Array.prototype.forEach.call(document.querySelectorAll('[data-' + key + ']'), function (btn) {
+        btn.addEventListener('click', function () {
+          var v = btn.getAttribute('data-' + key);
+          if (key === 'dlcrit') state.dlCrit = v;
+          else if (key === 'band') state.band = v;
+          else if (key === 'scs') state.scs = parseInt(v, 10);
+          else state.cbw = parseInt(v, 10);
+          applyRefsens();
+          recompute();
+        });
+      });
+    });
     el['slider-impl'].addEventListener('input', function () {
       state.implMargin = parseFloat(this.value);
       el['val-impl'].textContent = state.implMargin.toFixed(1) + ' dB';
       applyCqi();
       recompute();
     });
+  }
+
+  // DL 판정 기준 UI 갱신. REFSENS 값이 없는 조합(대역폭 미지원)은 그대로 알린다.
+  function applyRefsens() {
+    var dl = state.direction === 'downlink';
+    el['grp-refsens'].style.display = dl ? '' : 'none';
+    var useRef = dl && state.dlCrit === 'refsens';
+    el['refsens-params'].style.display = useRef ? '' : 'none';
+
+    [['dlcrit', state.dlCrit], ['band', state.band],
+     ['scs', String(state.scs)], ['cbw', String(state.cbw)]].forEach(function (kv) {
+      Array.prototype.forEach.call(document.querySelectorAll('[data-' + kv[0] + ']'), function (b) {
+        b.classList.toggle('active', b.getAttribute('data-' + kv[0]) === kv[1]);
+      });
+    });
+
+    if (!useRef) {
+      el['refsens-note'].textContent =
+        dl ? '요구 Eₛ/N₀(CQI에서 유도) 대비로 마진을 봅니다.' : '업링크에는 REFSENS 기준이 적용되지 않습니다.';
+      return;
+    }
+    var r = refsens_dBm(state.band, state.scs, state.cbw);
+    el['refsens-note'].innerHTML = (r === null)
+      ? '<b>이 조합은 규격 표에 값이 없습니다.</b> 대역폭을 바꿔 보십시오.'
+      : BAND_NAME[state.band] + ' · SCS ' + state.scs + ' kHz · ' + state.cbw + ' MHz<br>'
+        + 'REFSENS = <b>' + r.toFixed(1) + ' dBm</b> (TS 38.101-5 Table 7.3.2-1, QPSK, Rx 안테나 2포트, '
+        + '처리율 ≥ 최대치의 95%).<br>수신기 noise figure와 요구 SNR이 이 값에 이미 포함돼 있어, '
+        + '이 모드에서는 <b>T_ant·F 슬라이더가 판정에 관여하지 않습니다.</b>';
   }
 
   // CQI가 정하는 것은 변조·부호율·효율까지이고, 요구 Es/N0는 거기서 유도한다.
@@ -606,6 +703,7 @@
     el['sub-uplink'].textContent = t.name + '→위성';
 
     applyDirectionLabels();
+    applyRefsens();
     syncSlidersFromState();
     recompute();
   }
@@ -688,6 +786,13 @@
     // 편파 불일치는 급전선 손실과 같은 자리에서 빠지는 항이라 함께 넘긴다.
     var esn0 = LinkBudget.esN0_dB(eirp, gt, lfs, arain, rsDb, state.Lrf + state.Lpol);
     var margin = LinkBudget.linkMargin_dB(esn0, state.EsN0min);
+
+    // REFSENS 모드에서는 수신전력을 규격의 참조감도와 직접 비교한다.
+    // 안테나 포트에 인가되는 전력이 기준이므로 G_R까지만 더하고 G/T·Rs는 쓰지 않는다.
+    var prx_dBm = eirp + state.GR - lfs - arain - state.Lrf - state.Lpol + 30;
+    var refs = refsens_dBm(state.band, state.scs, state.cbw);
+    var useRef = (state.direction === 'downlink' && state.dlCrit === 'refsens' && refs !== null);
+    if (useRef) margin = prx_dBm - refs;
 
     // 아웃티지 확률
     var outage = LinkBudget.outageProbability(margin, state.sigma_s);
