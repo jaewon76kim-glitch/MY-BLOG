@@ -150,9 +150,16 @@
 
     <!-- modulation/심볼률 -->
     <div class="param-group">
-      <span class="param-label">심볼률 R_s</span>
+      <span class="param-label">심볼률 R_s <span style="font-weight:400;opacity:.7">(로그 눈금)</span></span>
       <span class="param-value" id="val-rs">10.0 Msps</span>
-      <input type="range" id="slider-rs" min="0.1" max="100" step="0.1" value="10">
+      <input type="range" id="slider-rs" min="-2.5" max="2" step="0.01" value="1">
+      <div class="preset-row" style="margin-top:6px">
+        <button class="preset-btn" data-rs="0.00375">3.75k<br><span class="preset-sub">NB-IoT 1톤</span></button>
+        <button class="preset-btn" data-rs="0.015">15k<br><span class="preset-sub">NB-IoT 1톤</span></button>
+        <button class="preset-btn" data-rs="0.18">180k<br><span class="preset-sub">NB-IoT 반송파</span></button>
+        <button class="preset-btn" data-rs="1">1M</button>
+        <button class="preset-btn" data-rs="10">10M</button>
+      </div>
     </div>
 
     <div class="param-group">
@@ -612,9 +619,18 @@
       recompute();
     });
     el['slider-rs'].addEventListener('input', function () {
-      state.Rs = parseFloat(this.value);
-      el['val-rs'].textContent = state.Rs.toFixed(1) + ' Msps';
+      state.Rs = Math.pow(10, parseFloat(this.value));
+      applySymbolRate();
       recompute();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-rs]'), function (btn) {
+      btn.addEventListener('click', function () {
+        state.Rs = parseFloat(btn.getAttribute('data-rs'));
+        applySymbolRate();
+        applySatellite();          // DL EIRP는 대역폭에 걸려 있으므로 다시 계산
+        syncSlidersFromState();
+        recompute();
+      });
     });
     el['slider-lrf'].addEventListener('input', function () {
       state.Lrf = parseFloat(this.value);
@@ -708,6 +724,19 @@
       el['val-impl'].textContent = state.implMargin.toFixed(1) + ' dB';
       applyCqi();
       recompute();
+    });
+  }
+
+  // 심볼률은 3.75 kHz(NB-IoT 단일톤)부터 100 Msps까지 다섯 자릿수를 오간다.
+  // 선형 슬라이더로는 관심 구간이 끝에 뭉치므로 로그 눈금을 쓰고, 표시 단위만 바꿔 준다.
+  function applySymbolRate() {
+    var r = state.Rs;
+    el['val-rs'].textContent = (r < 1)
+      ? (r * 1000).toFixed(r < 0.01 ? 2 : 1) + ' ksps'
+      : r.toFixed(r < 10 ? 2 : 1) + ' Msps';
+    el['slider-rs'].value = Math.log10(r);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-rs]'), function (b) {
+      b.classList.toggle('active', Math.abs(parseFloat(b.getAttribute('data-rs')) - r) < 1e-9);
     });
   }
 
@@ -824,6 +853,7 @@
     el['val-tant'].textContent = state.Tant.toFixed(0) + ' K';
     el['slider-f'].value = state.F;
     el['val-f'].textContent = state.F.toFixed(1) + ' dB';
+    applySymbolRate();
     el['slider-lpol'].value = state.Lpol;
     el['val-lpol'].textContent = state.Lpol.toFixed(1) + ' dB';
     el['slider-freq'].value = state.fc_GHz;
